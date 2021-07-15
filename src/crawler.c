@@ -13,7 +13,6 @@
 char			*strcasestr(const char			*haystack,
 				    const char			*needle);
 
-#define			RETURN(a) return (p->last_error_msg[++p->last_error_id] = (a " (" STRINGIFY(__LINE__) ")" ), -1)
 #define			MSG(a) p->last_error_msg[++p->last_error_id] = (a " (" STRINGIFY(__LINE__) ")" )
 
 
@@ -23,27 +22,6 @@ static const char	*gl_second_char = "azertyuiopqsdfghjklmwxcvbnAZERTYUIOPQSDFGHJ
 void			reset_last_declaration(t_parsing	*p)
 {
   memset(&p->last_declaration, 0, sizeof(p->last_declaration));
-}
-
-static bool		add_warning(t_parsing			*p,
-				    const char			*code,
-				    int				pos,
-				    const char			*fmt,
-				    ...)
-{
-  char			buf[512];
-  va_list		lst;
-  int			end;
-
-  va_start(lst, fmt);
-  end = vsnprintf(&buf[0], sizeof(buf), fmt, lst);
-  snprintf(&buf[end], sizeof(buf) - end, " (%s, line %d)", p->file, bunny_which_line(code, pos));
-  if ((p->last_error_msg[++p->last_error_id] = bunny_strdup(&buf[0])) == NULL)
-    { // LCOV_EXCL_START
-      p->last_error_id -= 1;
-      return (false);
-    } // LCOV_EXCL_STOP
-  return (true);
 }
 
 static bool		bad_style(t_parsing			*p,
@@ -599,8 +577,19 @@ int			read_function_declaration(t_parsing	*p,
     return (-1);
   // On verifie donc le nom si c'est une fonction non statique
   if (!p->last_declaration.is_static)
-    if (check_style(p, "function", &p->last_declaration.symbol[0], &p->function_style, &p->function_infix, code, j) == false)
-      RETURN("Memory exhausted."); // LCOV_EXCL_LINE
+    {
+      if (check_style(p, "function", &p->last_declaration.symbol[0], &p->function_style, &p->function_infix, code, j) == false)
+	RETURN("Memory exhausted."); // LCOV_EXCL_LINE
+      if (p->function_matching_path.active && p->non_static_function_per_file.value == 1)
+	{
+	  char target[512];
+
+	  store_real_typename
+	    (p, &target[0], &p->last_declaration.symbol[0], sizeof(target), 4);
+	  if (compare_file_and_function_name(p, &target[0], code, j) == -1)
+	    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
+	}
+    }
   
   // L'assignation eventuelle...
   if (read_declaration_list(p, code, i) == -1)
@@ -1149,47 +1138,6 @@ bool			read_keyword(const char			*code,
   *i = j;
   gl_bunny_read_whitespace = read_whitespace;
   return (true);
-}
-
-int			store_real_typename(t_parsing		*p,
-					    char		*target,
-					    const char		*symbol,
-					    int			len,
-					    int			typ)
-{
-  int			spoint = 0;
-  int			flen = strlen(symbol);
-  
-  if (typ == 0 && p->struct_infix.active)
-    {
-      if (p->struct_infix.position == 0)
-	spoint = strlen(p->struct_infix.value);
-      else
-	flen -= strlen(p->struct_infix.value);
-    }
-  else if (typ == 1 && p->union_infix.active)
-    {
-      if (p->union_infix.position == 0)
-	spoint = strlen(p->union_infix.value);
-      else
-	flen -= strlen(p->union_infix.value);
-    }
-  else if (typ == 2 && p->typedef_infix.active)
-    {
-      if (p->typedef_infix.position == 0)
-	spoint = strlen(p->typedef_infix.value);
-      else
-	flen -= strlen(p->typedef_infix.value);
-    }
-  else if (typ == 3 && p->enum_infix.active) // enum
-    {
-      if (p->enum_infix.position == 0)
-	spoint = strlen(p->enum_infix.value);
-      else
-	flen -= strlen(p->enum_infix.value);
-    }
-  strncpy(target, &symbol[spoint], flen > len ? len : flen);
-  return (1);
 }
 
 int			read_type_specifier(t_parsing		*p,
@@ -2054,11 +2002,11 @@ void			load_norm_configuration(t_parsing	*p,
 
   fetch_criteria(e, &p->typedef_style, "TypedefNameStyle");
   fetch_string_criteria(e, &p->typedef_infix, "TypedefNameInfix");
-  fetch_criteria(e, &p->typedef_matching, "TypedefMatching"); // A FAIRE
+  fetch_criteria(e, &p->typedef_matching, "TypedefMatching");
 
   fetch_criteria(e, &p->local_variable_inline_init_forbidden, "LocalVariableInlineInitForbidden");
 
-  fetch_criteria(e, &p->function_matching_path, "FunctionMatchingPath"); // A FAIRE
+  fetch_criteria(e, &p->function_matching_path, "FunctionMatchingPath"); 
   
   /*
   fetchi(e, &p->maximum_error_points, "Tolerance", 0);

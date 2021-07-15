@@ -1,6 +1,6 @@
 /*
 ** Jason Brillante "Damdoshi"
-** Hanged Bunny Studio 2014-2020
+** Hanged Bunny Studio 2014-2021
 **
 ** TechnoCore
 */
@@ -10,6 +10,8 @@
 # include		<stdbool.h>
 # include		"lapin.h"
 
+#define			RETURN(a)				\
+  return (p->last_error_msg[++p->last_error_id] = (a " (" STRINGIFY(__LINE__) ")" ), -1)
 # define		SYMBOL_SIZE				127
 
 typedef enum		e_style
@@ -363,5 +365,21 @@ int			tcpopen(const char				*module_name,
 				int					*max,
 				char					*message,
 				size_t					msg_size);
+
+bool			add_warning(t_parsing				*p,
+				    const char				*code,
+				    int					pos,
+				    const char				*fmt,
+				    ...);
+
+int			store_real_typename(t_parsing			*p,
+					    char			*target,
+					    const char			*symbol,
+					    int				len,
+					    int				typ);
+int			compare_file_and_function_name(t_parsing	*p,
+						       const char	*func,
+						       const char	*code,
+						       int		pos);
 
 #endif	/*		__CRAWLER_H__					*/
