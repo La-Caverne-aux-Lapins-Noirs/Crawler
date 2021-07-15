@@ -2,6 +2,7 @@ test/trace
 *.gcno
 *.gcda
 test/report/
+test/src/crawler
 coverage.info
 *~
 #*

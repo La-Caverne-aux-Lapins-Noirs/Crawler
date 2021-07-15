@@ -5,13 +5,10 @@
 ** TechnoCentre
 ** Implémenté à partir de la grammaire du C ANSI:
 ** https://www.lysator.liu.se/c/ANSI-C-grammar-y.html
-**
-** Cette section a pour vocation à rejoindre ou être dupliqué dans la LibLapin
-** pour la récupération des types et fonctions des .h pour Dabsic
 */
 
 #include		<ctype.h>
-#include		"cccrawler.h"
+#include		"crawler.h"
 
 char			*strcasestr(const char			*haystack,
 				    const char			*needle);

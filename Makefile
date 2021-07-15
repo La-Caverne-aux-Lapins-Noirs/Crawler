@@ -12,8 +12,8 @@
 ## Information about the project                                               ##
 #################################################################################
 
-  NAME		=	libcccrawler.a
-  TESTLIB	=	libcccrawler.so
+  NAME		=	libcrawler.a
+  TESTLIB	=	libcrawler.so
 
 #################################################################################
 ## Building details                                                            ##
