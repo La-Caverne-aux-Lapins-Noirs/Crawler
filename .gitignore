@@ -1,3 +1,6 @@
+test/trace
+*.gcno
+
 # Prerequisites
 *.d
 
