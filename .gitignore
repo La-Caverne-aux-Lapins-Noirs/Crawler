@@ -1,5 +1,10 @@
 test/trace
 *.gcno
+*.gcda
+test/report/
+coverage.info
+*~
+#*
 
 # Prerequisites
 *.d

@@ -12,7 +12,7 @@
 ## Information about the project                                               ##
 #################################################################################
 
-  LIB		=	libcccrawler.a
+  NAME		=	libcccrawler.a
   TESTLIB	=	libcccrawler.so
 
 #################################################################################
@@ -27,6 +27,7 @@
   LIB_DIR	?=	/usr/lib/
   INC_DIR	?=	/usr/include/
   ETC_DIR	?=	/etc/technocore/
+  LIB_TESTDIR	?=	$(HOME)/.froot/lib/
 
   LIB		=	-llapin -ldl -lm -lstdc++ -lavcall	\
 			-lgcov -rdynamic
@@ -78,7 +79,7 @@
 all:			build check
 build:			rmlog $(NAME)
 $(NAME):		$(OBJ)
-			@$(LINKER) $(NAME) $(OBJ) $(LIB) $(ERRLOG) &&		\
+			@$(LINKER) $(NAME) $(OBJ) $(ERRLOG) &&			\
 			 $(ECHO) $(TEAL) "[OK]" $(GREEN) $(NAME) $(DEFLT) ||	\
 			 $(ECHO) $(RED)  "[KO]" $(NAME) $(DEFLT)
 			@echo $(MODE_NAME)
@@ -86,6 +87,7 @@ $(TESTLIB):		$(OBJ)
 			@$(TESTLINKER) $(TESTLIB) $(LIBOBJ) $(ERRLOG) &&	\
 			 $(ECHO) $(TEAL) "[OK]" $(GREEN) $(TESTLIB) $(DEFLT) || \
 			 $(ECHO) $(RED)  "[KO]" $(TESTLIB) $(DEFLT)
+			@$(CP) $(TESTLIB) $(LIB_TESTDIR)
 			@echo $(MODE_NAME)
 .c.o:
 			@$(COMPILER) -c $< -o $@ $(PROFILE) $(CONFIG)		\

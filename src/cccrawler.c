@@ -42,10 +42,10 @@ static bool		add_warning(t_parsing			*p,
   end = vsnprintf(&buf[0], sizeof(buf), fmt, lst);
   snprintf(&buf[end], sizeof(buf) - end, " (%s, line %d)", p->file, bunny_which_line(code, pos));
   if ((p->last_error_msg[++p->last_error_id] = bunny_strdup(&buf[0])) == NULL)
-    {
+    { // LCOV_EXCL_START
       p->last_error_id -= 1;
       return (false);
-    }
+    } // LCOV_EXCL_STOP
   return (true);
 }
 
@@ -64,10 +64,10 @@ static bool		bad_style(t_parsing			*p,
 	   "Badly styled symbol %s. Expected style was %s for %s. (%s, line %d)",
 	   symbol, sname[style->value], context, p->file, bunny_which_line(code, pos));
   if ((p->last_error_msg[++p->last_error_id] = bunny_strdup(&buffer[0])) == NULL)
-    {
+    { // LCOV_EXCL_START
       p->last_error_id -= 1;
       return (false);
-    }
+    } // LCOV_EXCL_STOP
   return (true);
 }
 
@@ -90,10 +90,10 @@ static bool		bad_infix(t_parsing			*p,
 	   p->file,
 	   bunny_which_line(code, pos));
   if ((p->last_error_msg[++p->last_error_id] = bunny_strdup(&buffer[0])) == NULL)
-    {
+    { // LCOV_EXCL_START
       p->last_error_id -= 1;
       return (false);
-    }
+    } // LCOV_EXCL_STOP
   return (true);
 }
 
@@ -655,12 +655,15 @@ int			read_primary_expression(t_parsing	*p,
     return (1);
   if (bunny_read_double(code, i, &val2))
     return (1);
-  if (bunny_read_text(code, i, "("))
+  ssize_t		j = *i;
+
+  if (bunny_read_text(code, &j, "("))
     {
-      if (read_expression(p, code, i) != 1)
+      if (read_expression(p, code, &j) != 1)
 	RETURN ("Problem encountered in expression after '('.");
-      if (!bunny_read_text(code, i, ")"))
+      if (!bunny_read_text(code, &j, ")"))
 	RETURN ("Missing ')' after '(expression'.");
+      *i = j;
       return (1);
     }
   return (0);
@@ -783,15 +786,19 @@ int			read_unary_expression(t_parsing		*p,
 {
   if (bunny_read_text(code, i, "sizeof"))
     {
-      if (bunny_read_text(code, i, "("))
+      if (read_unary_expression(p, code, i) != 1)
 	{
-	  if (read_type_name(p, code, i) != 1)
-	    RETURN ("Problem encountered with type name after 'sizeof('.");
-	  if (!bunny_read_text(code, i, ")"))
-	    RETURN ("Missing ')' after 'sizeof(type name'.");
-	  return (1);
+	  if (bunny_read_text(code, i, "("))
+	    {
+	      if (read_type_name(p, code, i) != 1)
+		RETURN ("Problem encountered with type name after 'sizeof('.");
+	      if (!bunny_read_text(code, i, ")"))
+		RETURN ("Missing ')' after 'sizeof(type name'.");
+	      return (1);
+	    }
+	  RETURN ("Unknown sequence after 'sizeof'.");
 	}
-      return (read_unary_expression(p, code, i));
+      return (1);
     }
   if (bunny_read_text(code, i, "++"))
     return (read_unary_expression(p, code, i));
@@ -1253,7 +1260,7 @@ int			read_type_specifier(t_parsing		*p,
       
       read_identifier(p, code, i, false); // optionnel
       // On enregistre le symbole pour pouvoir le comparer avec le typedef plus tard
-      if (p->last_declaration.is_typedef)
+      if (p->last_declaration.is_typedef && p->typedef_matching.active)
 	{
 	  store_real_typename
 	    (p, &p->typedef_stack[p->typedef_stack_top++][0],
@@ -1785,7 +1792,7 @@ int			read_translation_unit(t_parsing		*p,
   do
     {
       if ((ret = read_external_declaration(p, code, i)) == -1)
-	{
+	{ // LCOV_EXCL_START
 	  if (verbose)
 	    {
 	      // Erreur dans le C.
@@ -1811,7 +1818,7 @@ int			read_translation_unit(t_parsing		*p,
 	    }
 	  gl_bunny_read_whitespace = NULL;
 	  return (-1);
-	}
+	} // LCOV_EXCL_STOP
       else
 	cnt += ret;
       read_whitespace(code, i);
