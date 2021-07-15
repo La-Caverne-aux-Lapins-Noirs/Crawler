@@ -338,7 +338,7 @@ int			read_identifier_list(t_parsing		*p,
       {
 	if (cnt == 0 || ret == -1)
 	  return (ret);
-	RETURN("Excessive ',' found in declaration.");
+	RETURN("Excessive ',' found in declaration."); // LCOV_EXCL_LINE
       }
     else
       cnt += 1;
@@ -362,15 +362,15 @@ int			read_labeled_statement(t_parsing	*p,
   if (bunny_read_text(code, i, "case"))
     {
       if (read_constant_expression(p, code, i) != 1)
-	RETURN ("Missing symbol after 'case'.");
+	RETURN ("Missing symbol after 'case'."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ":"))
-	RETURN ("Missing token ':' after symbol used by 'case'.");
+	RETURN ("Missing token ':' after symbol used by 'case'."); // LCOV_EXCL_LINE
       return (read_statement(p, code, i));
     }
   if (bunny_read_text(code, i, "default"))
     {
       if (!bunny_read_text(code, i, ":"))
-	RETURN ("Missing token ':' after 'default'.");
+	RETURN ("Missing token ':' after 'default'."); // LCOV_EXCL_LINE
       return (read_statement(p, code, i));
     }
   return (0);
@@ -383,28 +383,28 @@ int			read_selection_statement(t_parsing	*p,
   if (bunny_read_text(code, i, "if"))
     {
       if (!bunny_read_text(code, i, "("))
-	RETURN ("Missing '(' after 'if'.");
+	RETURN ("Missing '(' after 'if'."); // LCOV_EXCL_LINE
       if (read_expression(p, code, i) != 1)
-	RETURN ("Missing condition after 'if ('.");
+	RETURN ("Missing condition after 'if ('."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ")"))
-	RETURN ("Missing ')' after 'if (condition'.");
+	RETURN ("Missing ')' after 'if (condition'."); // LCOV_EXCL_LINE
       if (read_statement(p, code, i) != 1)
-	RETURN ("Missing statement after 'if (condition)'.");
+	RETURN ("Missing statement after 'if (condition)'."); // LCOV_EXCL_LINE
       if (bunny_read_text(code, i, "else"))
 	if (read_statement(p, code, i) != 1)
-	  RETURN ("Missing statement after 'else'.");
+	  RETURN ("Missing statement after 'else'."); // LCOV_EXCL_LINE
       return (1);
     }
   if (bunny_read_text(code, i, "switch"))
     {
       if (!bunny_read_text(code, i, "("))
-	RETURN ("Missing '(' after 'switch'.");
+	RETURN ("Missing '(' after 'switch'."); // LCOV_EXCL_LINE
       if (read_expression(p, code, i) != 1)
-	RETURN ("Missing expression after 'switch ('.");
+	RETURN ("Missing expression after 'switch ('."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ")"))
-	RETURN ("Missing ')' after 'switch (expression'.");
+	RETURN ("Missing ')' after 'switch (expression'."); // LCOV_EXCL_LINE
       if (read_statement(p, code, i) != 1)
-	RETURN ("Missing statement after 'switch (expression)'.");
+	RETURN ("Missing statement after 'switch (expression)'."); // LCOV_EXCL_LINE
       return (1);
     }
   return (0);
@@ -417,45 +417,45 @@ int			read_iteration_statement(t_parsing	*p,
   if (bunny_read_text(code, i, "while"))
     {
       if (!bunny_read_text(code, i, "("))
-	RETURN ("Missing '(' after 'while'.");
+	RETURN ("Missing '(' after 'while'."); // LCOV_EXCL_LINE
       if (read_expression(p, code, i) != 1)
-	RETURN ("Missing condition after 'while ('.");
+	RETURN ("Missing condition after 'while ('."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ")"))
-	RETURN ("Missing ')' after 'while(condition'.");
+	RETURN ("Missing ')' after 'while(condition'."); // LCOV_EXCL_LINE
       if (read_statement(p, code, i) != 1)
-	RETURN ("Missing statement after 'while (condition)'.");
+	RETURN ("Missing statement after 'while (condition)'."); // LCOV_EXCL_LINE
       return (1);
     }
   if (bunny_read_text(code, i, "do"))
     {
       if (read_statement(p, code, i) != 1)
-	RETURN ("Missing statement after 'do'.");
+	RETURN ("Missing statement after 'do'."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, "while"))
-	RETURN ("Missing 'while' after 'do statement'.");
+	RETURN ("Missing 'while' after 'do statement'."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, "("))
-	RETURN ("Missing '(' after after 'do statement while'.");
+	RETURN ("Missing '(' after after 'do statement while'."); // LCOV_EXCL_LINE
       if (read_expression(p, code, i) != 1)
-	RETURN ("Missing condition after 'do statement while ('.");
+	RETURN ("Missing condition after 'do statement while ('."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ")"))
-	RETURN ("Missing ')' after 'do statement while (condition'.");
+	RETURN ("Missing ')' after 'do statement while (condition'."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ";"))
-	RETURN ("Missing ';' after 'do statement while (condition)'.");
+	RETURN ("Missing ';' after 'do statement while (condition)'."); // LCOV_EXCL_LINE
       return (1);
     }
   if (bunny_read_text(code, i, "for"))
     {
       if (!bunny_read_text(code, i, "("))
-	RETURN ("Missing '(' after 'for'.");
+	RETURN ("Missing '(' after 'for'."); // LCOV_EXCL_LINE
       if (read_expression_statement(p, code, i) != 1)
-	RETURN ("Missing initialization after 'for ('.");
+	RETURN ("Missing initialization after 'for ('."); // LCOV_EXCL_LINE
       if (read_expression_statement(p, code, i) != 1)
-	RETURN ("Missing condition after 'for (initialization;'.");
+	RETURN ("Missing condition after 'for (initialization;'."); // LCOV_EXCL_LINE
       if (read_expression(p, code, i) == -1)
-	RETURN ("Invalid increment after 'for (initialization; condition;'.");
+	RETURN ("Invalid increment after 'for (initialization; condition;'."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ")"))
-	RETURN ("Missing ')' after 'for (initialization; condition; increment'.");
+	RETURN ("Missing ')' after 'for (initialization; condition; increment'."); // LCOV_EXCL_LINE
       if (read_statement(p, code, i) != 1)
-	RETURN ("Missing statement after 'for (initialization; condition; increment)'.");
+	RETURN ("Missing statement after 'for (initialization; condition; increment)'."); // LCOV_EXCL_LINE
       return (1);
     }
   return (0);
@@ -468,21 +468,21 @@ int			read_jump_statement(t_parsing		*p,
   if (bunny_read_text(code, i, "goto"))
     {
       if (!read_identifier(p, code, i, false))
-	RETURN ("Missing symbol after 'goto'.");
+	RETURN ("Missing symbol after 'goto'."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ";"))
-	RETURN ("Missing ';' after 'goto symbol'.");
+	RETURN ("Missing ';' after 'goto symbol'."); // LCOV_EXCL_LINE
       return (1);
     }
   if (bunny_read_text(code, i, "continue"))
     {
       if (!bunny_read_text(code, i, ";"))
-	RETURN ("Missing ';' after 'continue'.");
+	RETURN ("Missing ';' after 'continue'."); // LCOV_EXCL_LINE
       return (1);
     }
   if (bunny_read_text(code, i, "break"))
     {
       if (!bunny_read_text(code, i, ";"))
-	RETURN ("Missing ';' after 'break'.");
+	RETURN ("Missing ';' after 'break'."); // LCOV_EXCL_LINE
       return (1);
     }
   if (bunny_read_text(code, i, "return"))
@@ -490,9 +490,9 @@ int			read_jump_statement(t_parsing		*p,
       if (bunny_read_text(code, i, ";"))
 	return (1);
       if (read_expression(p, code, i) == -1)
-	RETURN ("Missing expression or ';' after 'return'.");
+	RETURN ("Missing expression or ';' after 'return'."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ";"))
-	RETURN ("Missing ';' after 'return expression'.");
+	RETURN ("Missing ';' after 'return expression'."); // LCOV_EXCL_LINE
       return (1);
     }
   return (0);
@@ -508,7 +508,7 @@ int			read_expression_statement(t_parsing	*p,
   if ((ret = read_expression(p, code, i)) == -1)
     return (-1);
   if (!(sc = bunny_read_text(code, i, ";")) && ret == 1)
-    RETURN ("Missing ';' after expression.");
+    RETURN ("Missing ';' after expression."); // LCOV_EXCL_LINE
   return (ret + sc >= 1 ? 1 : 0);
 }
 
@@ -558,7 +558,7 @@ int			read_compound_statement(t_parsing	*p,
   if (read_statement_list(p, code, i) == -1)
     return (-1);
   if (bunny_read_text(code, i, "}") == false)
-    RETURN ("Missing '}' after '{ values'.");
+    RETURN ("Missing '}' after '{ values'."); // LCOV_EXCL_LINE
   return (1);
 }
 
@@ -600,7 +600,7 @@ int			read_function_declaration(t_parsing	*p,
   // On verifie donc le nom si c'est une fonction non statique
   if (!p->last_declaration.is_static)
     if (check_style(p, "function", &p->last_declaration.symbol[0], &p->function_style, &p->function_infix, code, j) == false)
-      RETURN("Memory exhausted.");
+      RETURN("Memory exhausted."); // LCOV_EXCL_LINE
   
   // L'assignation eventuelle...
   if (read_declaration_list(p, code, i) == -1)
@@ -657,9 +657,9 @@ int			read_primary_expression(t_parsing	*p,
   if (bunny_read_text(code, &j, "("))
     {
       if (read_expression(p, code, &j) != 1)
-	RETURN ("Problem encountered in expression after '('.");
+	RETURN ("Problem encountered in expression after '('."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, &j, ")"))
-	RETURN ("Missing ')' after '(expression'.");
+	RETURN ("Missing ')' after '(expression'."); // LCOV_EXCL_LINE
       *i = j;
       return (1);
     }
@@ -678,7 +678,7 @@ int			read_argument_expression_list(t_parsing	*p,
       {
 	if (cnt == 0 || ret == -1)
 	  return (ret);
-	RETURN ("Excessive ',' found in argument list.");
+	RETURN ("Excessive ',' found in argument list."); // LCOV_EXCL_LINE
       }
     else
       cnt += ret;
@@ -702,23 +702,23 @@ int			read_postfix_expression(t_parsing	*p,
 	{
 	  once = true;
 	  if (read_expression(p, code, i) != 1)
-	    RETURN ("Problem encountered with expression after '['.");
+	    RETURN ("Problem encountered with expression after '['."); // LCOV_EXCL_LINE
 	  if (!bunny_read_text(code, i, "]"))
-	    RETURN ("Missing ']' after '[expression'.");
+	    RETURN ("Missing ']' after '[expression'."); // LCOV_EXCL_LINE
 	}
       if (bunny_read_text(code, i, "("))
 	{
 	  once = true;
 	  if (read_argument_expression_list(p, code, i) == -1)
-	    RETURN ("Problem encountered with argument list after '('.");
+	    RETURN ("Problem encountered with argument list after '('."); // LCOV_EXCL_LINE
 	  if (!bunny_read_text(code, i, ")"))
-	    RETURN ("Missing ')' after '(argument'.");
+	    RETURN ("Missing ')' after '(argument'."); // LCOV_EXCL_LINE
 	}
       if (bunny_read_text(code, i, ".") || bunny_read_text(code, i, "->"))
 	{
 	  once = true;
 	  if (read_identifier(p, code, i, false) == false)
-	    RETURN ("Problem encountered with symbol after '.' or '->'.");
+	    RETURN ("Problem encountered with symbol after '.' or '->'."); // LCOV_EXCL_LINE
 	}
       if (bunny_read_text(code, i, "++"))
 	once = true;
@@ -788,12 +788,12 @@ int			read_unary_expression(t_parsing		*p,
 	  if (bunny_read_text(code, i, "("))
 	    {
 	      if (read_type_name(p, code, i) != 1)
-		RETURN ("Problem encountered with type name after 'sizeof('.");
+		RETURN ("Problem encountered with type name after 'sizeof('."); // LCOV_EXCL_LINE
 	      if (!bunny_read_text(code, i, ")"))
-		RETURN ("Missing ')' after 'sizeof(type name'.");
+		RETURN ("Missing ')' after 'sizeof(type name'."); // LCOV_EXCL_LINE
 	      return (1);
 	    }
-	  RETURN ("Unknown sequence after 'sizeof'.");
+	  RETURN ("Unknown sequence after 'sizeof'."); // LCOV_EXCL_LINE
 	}
       return (1);
     }
@@ -816,7 +816,7 @@ int			read_cast_expression(t_parsing		*p,
     {
       *i = j;
       if (!bunny_read_text(code, i, ")"))
-	RETURN ("Missing ')' after '(typename'.");
+	RETURN ("Missing ')' after '(typename'."); // LCOV_EXCL_LINE
       return (read_cast_expression(p, code, i));
     }
   return (read_unary_expression(p, code, i));
@@ -832,7 +832,7 @@ int			read_multiplicative_expression(t_parsing *p,
     return (ret);
   if (bunny_read_text(code, i, "*") || bunny_read_text(code, i, "/") || bunny_read_text(code, i, "%"))
     if (read_multiplicative_expression(p, code, i) != 1)
-      RETURN ("Problem encountered with expression after '*', '/' or '%'.");
+      RETURN ("Problem encountered with expression after '*', '/' or '%'."); // LCOV_EXCL_LINE
   return (1);
 }
 
@@ -846,7 +846,7 @@ int			read_additive_expression(t_parsing	*p,
     return (ret);
   if (bunny_read_text(code, i, "+") || bunny_read_text(code, i, "-"))
     if (read_additive_expression(p, code, i) != 1)
-      RETURN ("Problem encountered with expression after '+' or '-'.");
+      RETURN ("Problem encountered with expression after '+' or '-'."); // LCOV_EXCL_LINE
   return (1);
 }
 
@@ -860,7 +860,7 @@ int			read_shift_expression(t_parsing		*p,
     return (ret);
   if (bunny_read_text(code, i, "<<") || bunny_read_text(code, i, ">>"))
     if (read_shift_expression(p, code, i) != 1)
-      RETURN ("Problem encountered with expression after '<<' or '>>'.");
+      RETURN ("Problem encountered with expression after '<<' or '>>'."); // LCOV_EXCL_LINE
   return (1);
 }
 
@@ -878,7 +878,7 @@ int			read_relational_expression(t_parsing	*p,
       || (!bunny_check_text(code, i, "<<") && bunny_read_text(code, i, "<"))
       )
     if (read_relational_expression(p, code, i) != 1)
-      RETURN ("Problem encountered with expression after '<=', '>=', '<' or '>'.");
+      RETURN ("Problem encountered with expression after '<=', '>=', '<' or '>'."); // LCOV_EXCL_LINE
   return (1);
 }
 
@@ -892,7 +892,7 @@ int			read_equality_expression(t_parsing	*p,
     return (ret);
   if (bunny_read_text(code, i, "==") || bunny_read_text(code, i, "!="))
     if (read_equality_expression(p, code, i) != 1)
-      RETURN ("Problem encountered with expression after '==' or '!='.");
+      RETURN ("Problem encountered with expression after '==' or '!='."); // LCOV_EXCL_LINE
   return (1);
 }
 
@@ -906,7 +906,7 @@ int			read_and_expression(t_parsing		*p,
     return (ret);
   if (!bunny_check_text(code, i, "&&") && bunny_read_text(code, i, "&"))
     if (read_and_expression(p, code, i) != 1)
-      RETURN ("Problem encountered with expression after '&'.");
+      RETURN ("Problem encountered with expression after '&'."); // LCOV_EXCL_LINE
   return (1);
 }
 
@@ -920,7 +920,7 @@ int			read_exclusive_or_expression(t_parsing	*p,
     return (ret);
   if (bunny_read_text(code, i, "^"))
     if (read_exclusive_or_expression(p, code, i) != 1)
-      RETURN ("Problem encountered with expression after '^'.");
+      RETURN ("Problem encountered with expression after '^'."); // LCOV_EXCL_LINE
   return (1);
 }
 
@@ -934,7 +934,7 @@ int			read_inclusive_or_expression(t_parsing	*p,
     return (ret);
   if (!bunny_check_text(code, i, "||") && bunny_read_text(code, i, "|"))
     if (read_inclusive_or_expression(p, code, i) != 1)
-      RETURN ("Problem encountered with expression after '|'.");
+      RETURN ("Problem encountered with expression after '|'."); // LCOV_EXCL_LINE
   return (1);
 }
 
@@ -948,7 +948,7 @@ int			read_logical_and_expression(t_parsing	*p,
     return (ret);
   if (bunny_read_text(code, i, "&&"))
     if (read_logical_and_expression(p, code, i) != 1)
-      RETURN ("Problem encountered with expression after '&&'.");
+      RETURN ("Problem encountered with expression after '&&'."); // LCOV_EXCL_LINE
   return (1);
 }
 
@@ -962,7 +962,7 @@ int			read_logical_or_expression(t_parsing	*p,
     return (ret);
   if (bunny_read_text(code, i, "||"))
     if (read_logical_or_expression(p, code, i) != 1)
-      RETURN ("Problem encountered with expression after '||'.");
+      RETURN ("Problem encountered with expression after '||'."); // LCOV_EXCL_LINE
   return (1);
 }
 
@@ -987,7 +987,7 @@ int			read_assignment_expression(t_parsing	*p,
     {
       *i = j;
       if (read_assignment_expression(p, code, i) != 1)
-	RETURN ("Problem encountered with expression after assignment.");
+	RETURN ("Problem encountered with expression after assignment."); // LCOV_EXCL_LINE
       return (1);
     }
   return (read_logical_or_expression(p, code, i));
@@ -1003,7 +1003,7 @@ int			read_expression(t_parsing		*p,
     return (-1);
   if (bunny_read_text(code, i, ","))
     if ((ret = read_expression(p, code, i)) == 0)
-      RETURN ("Excessive ',' found in expression.");
+      RETURN ("Excessive ',' found in expression."); // LCOV_EXCL_LINE
   return (ret);
 }
 
@@ -1016,11 +1016,11 @@ int			read_conditional_expression(t_parsing	*p,
   if (bunny_read_text(code, i, "?"))
     {
       if (read_expression(p, code, i) != 1)
-	RETURN ("Problem encountered with expression after 'condition ?'.");
+	RETURN ("Problem encountered with expression after 'condition ?'."); // LCOV_EXCL_LINE
       if (bunny_read_text(code, i, ":") == false)
-	RETURN ("Missing ':' after 'condition ? case1'.");
+	RETURN ("Missing ':' after 'condition ? case1'."); // LCOV_EXCL_LINE
       if (read_constant_expression(p, code, i) != 1)
-	RETURN ("Problem encountered with expression after 'condition ? expression :'.");
+	RETURN ("Problem encountered with expression after 'condition ? expression :'."); // LCOV_EXCL_LINE
     }
   return (1);
 }
@@ -1050,7 +1050,7 @@ int			read_struct_declarator(t_parsing	*p,
   p->last_declaration.symbol[0] = '\0';
   // On va lire maintenant le nom de l'attribut d'union ou de structure
   if ((ret = read_declarator(p, code, i)) == -1)
-    RETURN ("Problem encountered with symbol after 'type' in struct.");
+    RETURN ("Problem encountered with symbol after 'type' in struct."); // LCOV_EXCL_LINE
   //// A VOIR!!!!
   if (p->last_declaration.inside_struct)
     ret = check_style(p, "struct attribute", &p->last_declaration.symbol[0],
@@ -1061,12 +1061,12 @@ int			read_struct_declarator(t_parsing	*p,
 		      &p->union_attribute_style, &p->union_attribute_infix,
 		      code, ret);
   if (ret == false)
-    RETURN ("Memory exhausted.");
+    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
   
   if (bunny_read_text(code, i, ":"))
     {
       if ((ret = read_constant_expression(p, code, i)) == 0)
-	RETURN ("Missing bitfield size after 'type symbol:' in struct.");
+	RETURN ("Missing bitfield size after 'type symbol:' in struct."); // LCOV_EXCL_LINE
       return (ret);
     }
   return (ret);
@@ -1084,7 +1084,7 @@ int			read_struct_declarator_list(t_parsing	*p,
       {
 	if (cnt == 0 || ret == -1)
 	  return (ret);
-	RETURN ("Excessive ',' in declaration.");
+	RETURN ("Excessive ',' in declaration."); // LCOV_EXCL_LINE
       }
     else
       cnt += ret;
@@ -1102,9 +1102,9 @@ int			read_struct_declaration(t_parsing	*p,
   if ((a = read_specifier_qualifier_list(p, code, i)) != 1)
     return (a);
   if ((b = read_struct_declarator_list(p, code, i)) == -1)
-    RETURN ("Problem encountered with attribute name after type definition in struct.");
+    RETURN ("Problem encountered with attribute name after type definition in struct."); // LCOV_EXCL_LINE
   if ((a = a || b) && bunny_read_text(code, i, ";") == false)
-    RETURN ("Missing ';' after attribute definition in struct.");
+    RETURN ("Missing ';' after attribute definition in struct."); // LCOV_EXCL_LINE
   return (a ? 1 : 0);
 }
 
@@ -1226,7 +1226,7 @@ int			read_type_specifier(t_parsing		*p,
 	}
       if (check_style(p, "enum", &p->last_declaration.symbol[0],
 		      &p->enum_style, &p->enum_infix, code, j) == false)
-	RETURN("Memory exhausted");
+	RETURN("Memory exhausted"); // LCOV_EXCL_LINE
       if (bunny_read_text(code, i, "{"))
 	{
 	  do
@@ -1235,14 +1235,14 @@ int			read_type_specifier(t_parsing		*p,
 	      read_identifier(p, code, i, false);
 	      if (check_style(p, "enum constant", &p->last_declaration.symbol[0],
 			      &p->enum_constant_style, &p->enum_constant_infix, code, j) == false)
-		RETURN("Memory exhausted");
+		RETURN("Memory exhausted"); // LCOV_EXCL_LINE
 	      if (bunny_read_text(code, i, "="))
 		if (read_constant_expression(p, code, i) != 1)
-		  RETURN("Missing value after 'enum enum_symbol { symbol ='.");
+		  RETURN("Missing value after 'enum enum_symbol { symbol ='."); // LCOV_EXCL_LINE
 	    }
 	  while (bunny_read_text(code, i, ","));
 	  if (!bunny_read_text(code, i, "}"))
-	    RETURN ("Missing '}' after 'enum symbol { constants'.");
+	    RETURN ("Missing '}' after 'enum symbol { constants'."); // LCOV_EXCL_LINE
 	}
       return (1);
     }
@@ -1282,14 +1282,14 @@ int			read_type_specifier(t_parsing		*p,
 	     code, j);
 	}
       if (ret == false)
-	RETURN("Memory exhausted.");
+	RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 	
       if (bunny_read_text(code, i, "{")) // optionnel
 	{
 	  if (read_struct_declaration_list(p, code, i) == -1)
 	    return (-1);
 	  if (!bunny_read_text(code, i, "}"))
-	    RETURN ("Missing '}' after 'struct/union symbol { attributes'.");
+	    RETURN ("Missing '}' after 'struct/union symbol { attributes'."); // LCOV_EXCL_LINE
 	}
       p->last_declaration.inside_union = punion;
       p->last_declaration.inside_struct = pstruct;
@@ -1370,7 +1370,7 @@ int			read_declaration_specifiers(t_parsing	*p,
 	  if (check_style(p, "typedef", &p->last_declaration.symbol[0],
 			  &p->typedef_style, &p->typedef_infix,
 			  code, j) == false)
-	    RETURN("Memory exhausted.");
+	    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 
 	  if (p->typedef_matching.active)
 	    {
@@ -1384,7 +1384,7 @@ int			read_declaration_specifiers(t_parsing	*p,
 		       "Typedef name '%s' does not match the typedefed type name '%s'.",
 		       buffer, p->typedef_stack[p->typedef_stack_top]
 		       ) == false)
-		    RETURN("Memory exhausted.");
+		    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 		  p->typedef_matching.counter += 1;
 		}
 	      p->typedef_stack_top -= 1;
@@ -1399,7 +1399,7 @@ int			read_declaration_specifiers(t_parsing	*p,
     }
   while (once);
   if (p->last_declaration.is_typedef)
-    RETURN("Incomplete typedef.");
+    RETURN("Incomplete typedef."); // LCOV_EXCL_LINE
   return (cnt >= 1 ? 1 : 0);
 }
 
@@ -1418,18 +1418,18 @@ int			read_direct_abstract_declarator(t_parsing *p,
 	  int		ret;
 
 	  if ((ret = read_abstract_declarator(p, code, i)) == -1)
-	    RETURN ("Problem encountered with parameter declaration after '('.");
+	    RETURN ("Problem encountered with parameter declaration after '('."); // LCOV_EXCL_LINE
 	  else if (ret == 0 && read_parameter_type_list(p, code, i) == -1)
-	    RETURN ("Problem encountered with parameter declaration after '('.");
+	    RETURN ("Problem encountered with parameter declaration after '('."); // LCOV_EXCL_LINE
 	  if (!bunny_read_text(code, i, ")"))
-	    RETURN ("Missing ')' after '( parameter list");
+	    RETURN ("Missing ')' after '( parameter list"); // LCOV_EXCL_LINE
 	}
       if (bunny_read_text(code, i, "["))
 	{
 	  if (read_constant_expression(p, code, i) == -1)
-	    RETURN ("Problem encountered with constant expression after '['.");
+	    RETURN ("Problem encountered with constant expression after '['."); // LCOV_EXCL_LINE
 	  if (!bunny_read_text(code, i, "]"))
-	    RETURN ("Missing ']' after '[constant'");
+	    RETURN ("Missing ']' after '[constant'"); // LCOV_EXCL_LINE
 	}
       cnt += once ? 1 : 0;
     }
@@ -1527,7 +1527,7 @@ int			read_direct_declarator(t_parsing	*p,
 	  if (read_declarator(p, code, i) == -1)
 	    return (-1);
 	  if (!bunny_read_text(code, i, ")"))
-	    RETURN ("Missing ')' after '(declaration'.");
+	    RETURN ("Missing ')' after '(declaration'."); // LCOV_EXCL_LINE
 	  return (1);
 	}
       return (0); // Il faut un symbole ou une parenthèse (qui finirait par contenir un symbole)...
@@ -1563,19 +1563,19 @@ int			read_direct_declarator(t_parsing	*p,
 	{
 	  once = true;
 	  if (read_constant_expression(p, code, i) == -1)
-	    RETURN ("Problem encountered with constant expression after '['.");
+	    RETURN ("Problem encountered with constant expression after '['."); // LCOV_EXCL_LINE
 	  if (!bunny_read_text(code, i, "]"))
-	    RETURN ("Missing ']' after '[constant'.");
+	    RETURN ("Missing ']' after '[constant'."); // LCOV_EXCL_LINE
 	}
       if (bunny_read_text(code, i, "("))
 	{
 	  once = true;
 	  if (read_identifier_list(p, code, i) == -1)
-	    RETURN ("Problem encountered with parameter declaration after '('.");
+	    RETURN ("Problem encountered with parameter declaration after '('."); // LCOV_EXCL_LINE
 	  else if (read_parameter_type_list(p, code, i) == -1)
-	    RETURN ("Problem encountered with parameter declaration after '('.");
+	    RETURN ("Problem encountered with parameter declaration after '('."); // LCOV_EXCL_LINE
 	  if (!bunny_read_text(code, i, ")"))
-	    RETURN ("Missing ')' after '( parameter list");
+	    RETURN ("Missing ')' after '( parameter list"); // LCOV_EXCL_LINE
 	}
     }
   while (once);
@@ -1603,7 +1603,7 @@ int			read_initializer_list(t_parsing		*p,
       {
 	if (cnt == 0 || ret == -1)
 	  return (ret);
-	RETURN ("Excessive ',' found in initializer list.");
+	RETURN ("Excessive ',' found in initializer list."); // LCOV_EXCL_LINE
       }
     else
       cnt += ret;
@@ -1625,13 +1625,13 @@ int			read_initializer(t_parsing		*p,
 	  {
 	    if (cnt == 0 || ret == -1)
 	      return (ret);
-	    RETURN("Excessive ',' found in initializer.");
+	    RETURN("Excessive ',' found in initializer."); // LCOV_EXCL_LINE
 	  }
 	else
 	  cnt += 1;
       while (bunny_read_text(code, i, ","));
       if (!bunny_read_text(code, i, "}"))
-	RETURN("Missing '}' at after '{initializer'.");
+	RETURN("Missing '}' at after '{initializer'."); // LCOV_EXCL_LINE
       return (1);
     }
   return (read_assignment_expression(p, code, i));
@@ -1662,10 +1662,10 @@ int			read_init_declarator(t_parsing		*p,
     {
       p->local_variable_inline_init_forbidden.counter += 1;
       if (!add_warning(p, code, *i, "Forbidden declaration/assignation of variable."))
-	RETURN("Memory exhausted");
+	RETURN("Memory exhausted"); // LCOV_EXCL_LINE
     }
   if (read_initializer(p, code, i) != 1)
-    RETURN("Problem encountered with initializer after '='.");
+    RETURN("Problem encountered with initializer after '='."); // LCOV_EXCL_LINE
   return (1);
 }
 
@@ -1681,7 +1681,7 @@ int			read_init_declarator_list(t_parsing	*p,
       {
 	if (cnt == 0 || ret == -1)
 	  return (ret);
-	RETURN("Excessive ',' found in declaration.");
+	RETURN("Excessive ',' found in declaration."); // LCOV_EXCL_LINE
       }
     else
       cnt += ret;
@@ -1705,7 +1705,7 @@ int			read_gcc_attribute_list_node(t_parsing	*p,
 	    return (-1);
       while (bunny_read_text(code, i, ","));
       if (bunny_read_text(code, i, ")") == false)
-	RETURN("Missing ')' to close attribute parameter.");
+	RETURN("Missing ')' to close attribute parameter."); // LCOV_EXCL_LINE
     }
   return (1);
 }
@@ -1719,7 +1719,7 @@ int			read_gcc_attribute(t_parsing		*p,
   while (bunny_read_text(code, i, "__attribute__"))
     {
       if (bunny_read_text(code, i, "((") == false)
-	RETURN("\"((\" was expected after __attribute__.");
+	RETURN("\"((\" was expected after __attribute__."); // LCOV_EXCL_LINE
       bool		comma_end = false;
 
       while (read_gcc_attribute_list_node(p, code, i))
@@ -1733,7 +1733,7 @@ int			read_gcc_attribute(t_parsing		*p,
 	    }
 	}
       if (comma_end)
-	RETURN("Missing parameters for __attribute__ after ','");
+	RETURN("Missing parameters for __attribute__ after ','"); // LCOV_EXCL_LINE
       if (bunny_read_text(code, i, "))") == false)
 	RETURN("\"))\" was expected to close __attribute__.");
       cnt += 1;
@@ -1754,7 +1754,7 @@ int			read_declaration(t_parsing		*p,
   if (read_gcc_attribute(p, code, i) == -1)
     return (-1);
   if (bunny_read_text(code, i, ";") == false)
-    RETURN ("Missing ';' after declaration.");
+    RETURN ("Missing ';' after declaration."); // LCOV_EXCL_LINE
   return (1);
 }
 

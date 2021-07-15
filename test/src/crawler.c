@@ -491,7 +491,7 @@ int			main(void)
 
   i = 0;
   bunny_configuration_setf(cnf, PASCAL_CASE, "FunctionNameStyle.Value");
-  s = " void TheFunctionName(void) { }  ";
+  s = " void TheFunctionName42(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
   load_norm_configuration(&p, "file", cnf);
@@ -506,6 +506,22 @@ int			main(void)
   if (read_translation_unit(&p, s, &i, true) != 1)
     goto Error;
   assert(p.function_style.counter == 1);
+
+  i = 0;
+  s = " void TheFunction_Name(void) { }  ";
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  if (read_translation_unit(&p, s, &i, true) != 1)
+    goto Error;
+  assert(p.function_style.counter == 2);
+
+  i = 0;
+  s = " void TheFunctionNNNNNNNNNNNNNNNNNNNName(void) { }  ";
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  if (read_translation_unit(&p, s, &i, true) != 1)
+    goto Error;
+  assert(p.function_style.counter == 3);
 
   // Vérification des variables globales
   i = 0;
