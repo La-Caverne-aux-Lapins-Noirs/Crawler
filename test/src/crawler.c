@@ -140,7 +140,7 @@ int			main(void)
   if (read_function_declaration(&p, s, &i) != 1)
     goto Error;
   i = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
   i = 0;
@@ -157,14 +157,14 @@ int			main(void)
   i = 0;
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
   i = 0;
   s = "typedef int lel;";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
   i = 0;
@@ -176,7 +176,7 @@ int			main(void)
     "} t_struct;";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
   i = 0;
@@ -193,7 +193,7 @@ int			main(void)
   i = 0;
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
   i = 0;
@@ -203,7 +203,7 @@ int			main(void)
     goto Error;
   i = 0;
   p.last_error_id = -1;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
   //NOW:
@@ -220,14 +220,14 @@ int			main(void)
     ;
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
   i = 0;
   s = "typedef void * __timer_t;";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
   i = 0;
@@ -237,7 +237,7 @@ int			main(void)
     ;
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
   i = 0;
@@ -246,7 +246,7 @@ int			main(void)
     ;
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
   i = 0;
@@ -255,7 +255,7 @@ int			main(void)
     ;
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
   i = 0;
@@ -265,7 +265,7 @@ int			main(void)
     ;
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
   i = 0;
@@ -275,7 +275,7 @@ int			main(void)
     ;
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
   ////////////////////////////
@@ -287,11 +287,11 @@ int			main(void)
   i = 0;
   bunny_configuration_setf(cnf, 2, "FunctionPerFile[0]");
   bunny_configuration_setf(cnf, -3, "FunctionPerFile[1]");
-  load_norm_configuration(&p, "file", cnf);
+  load_norm_configuration(&p, cnf);
   s = " void prototype(void); int global = 42; void func1(void){ } void func2(void){ } void func3(void){ } ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_per_file.active);
   assert(p.function_per_file.counter == 3);
@@ -302,11 +302,11 @@ int			main(void)
   i = 0;
   bunny_configuration_setf(cnf, 1, "NonStaticFunctionPerFile[0]");
   bunny_configuration_setf(cnf, -1, "NonStaticFunctionPerFile[1]");
-  load_norm_configuration(&p, "file", cnf);
+  load_norm_configuration(&p, cnf);
   s = "  static void func1(void){ } static void func2(void){ } void func3(void){ } ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.non_static_function_per_file.active);
   assert(p.non_static_function_per_file.counter == 1);
@@ -317,11 +317,11 @@ int			main(void)
   i = 0;
   bunny_configuration_setf(cnf, 1, "NonStaticFunctionPerFile[0]");
   bunny_configuration_setf(cnf, -1, "NonStaticFunctionPerFile[1]");
-  load_norm_configuration(&p, "file", cnf);
+  load_norm_configuration(&p, cnf);
   s = "  static void func1(void){ } static void func2(void){ } void func3(void){ } ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.non_static_function_per_file.active);
   assert(p.non_static_function_per_file.counter == 1);
@@ -338,11 +338,11 @@ int			main(void)
   bunny_configuration_setf(cnf, "Prefix", "FunctionNameInfix.Position");
   bunny_configuration_setf(cnf, 8, "FunctionNameInfix.Points");
 
-  load_norm_configuration(&p, "file", cnf);
+  load_norm_configuration(&p, cnf);
   s = " void PFX_FUNCTION_NAME(void) { } void PFX_FUNCTION_NAME(void);  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_style.active);
   assert(p.function_style.value == 0);
@@ -357,7 +357,7 @@ int			main(void)
   s = " void FUNCTION_NAME(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_infix.counter == 1);
 
@@ -365,7 +365,7 @@ int			main(void)
   s = " void PFX_FUNCTION__NAME(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_infix.counter == 1);
   assert(p.function_style.counter == 1);
@@ -374,7 +374,7 @@ int			main(void)
   s = " void FUNCTION_NAME(void);  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   // Les prototypes ne comptent pas dans le décompte des fonctions mal écrites
   // car on peut prototyper des fonctions externes
@@ -385,7 +385,7 @@ int			main(void)
   s = " void pfx_function_name(void) {}  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_infix.counter == 1);
   assert(p.function_style.counter == 2);
@@ -394,7 +394,7 @@ int			main(void)
   s = " void pfx_function_name(void);  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   // Comme au dessus, ca ne compte pas quand c'est juste un prototype
   assert(p.function_infix.counter == 1);
@@ -404,11 +404,11 @@ int			main(void)
   bunny_configuration_setf(cnf, "Suffix", "FunctionNameInfix.Position");
   bunny_configuration_setf(cnf, "_suffix", "FunctionNameInfix.Value");
   bunny_configuration_setf(cnf, SNAKE_CASE, "FunctionNameStyle.Value");
-  load_norm_configuration(&p, "file", cnf);
+  load_norm_configuration(&p, cnf);
   s = " void function_name_suffix(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_infix.counter == 0);
   assert(p.function_style.counter == 0);
@@ -417,7 +417,7 @@ int			main(void)
   s = " void pfx_function_name(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_infix.counter == 1);
   assert(p.function_style.counter == 0);
@@ -426,7 +426,7 @@ int			main(void)
   s = " void pfxfunctionname(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_infix.counter == 2);
   assert(p.function_style.counter == 1);
@@ -435,7 +435,7 @@ int			main(void)
   s = " void pfx_function__name(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_infix.counter == 3);
   assert(p.function_style.counter == 2);
@@ -444,7 +444,7 @@ int			main(void)
   s = " void PFX_FUNCTION_NAME(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_infix.counter == 4);
   assert(p.function_style.counter == 3);
@@ -454,11 +454,11 @@ int			main(void)
 
   i = 0;
   bunny_configuration_setf(cnf, CAMEL_CASE, "FunctionNameStyle.Value");
-  load_norm_configuration(&p, "file", cnf);
+  load_norm_configuration(&p, cnf);
   s = " void theFunctionName(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_style.counter == 0);
 
@@ -466,7 +466,7 @@ int			main(void)
   s = " void TheFunctionName(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_style.counter == 1);
 
@@ -474,7 +474,7 @@ int			main(void)
   s = " void the_FunctionName(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_style.counter == 2);
 
@@ -482,7 +482,7 @@ int			main(void)
   s = " void theZERTYUIOIUYTRERTY(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_style.counter == 3);
 
@@ -494,8 +494,8 @@ int			main(void)
   s = " void TheFunctionName42(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  load_norm_configuration(&p, "file", cnf);
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  load_norm_configuration(&p, cnf);
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_style.counter == 0);
 
@@ -503,7 +503,7 @@ int			main(void)
   s = " void theFunctionName(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_style.counter == 1);
 
@@ -511,7 +511,7 @@ int			main(void)
   s = " void TheFunction_Name(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_style.counter == 2);
 
@@ -519,7 +519,7 @@ int			main(void)
   s = " void TheFunctionNNNNNNNNNNNNNNNNNNNName(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_style.counter == 3);
 
@@ -542,11 +542,11 @@ int			main(void)
   bunny_configuration_setf(cnf, 1, "LocalVariableInlineInitForbidden.Value");
   bunny_configuration_setf(cnf, 15, "LocalVariableInlineInitForbidden.Points");
 
-  load_norm_configuration(&p, "file", cnf);
+  load_norm_configuration(&p, cnf);
   s = " int gl_value = 50;  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.global_variable_style.active);
   assert(p.global_variable_infix.active);
@@ -558,7 +558,7 @@ int			main(void)
   s = " int value = 50;  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.global_variable_style.counter == 0);
   assert(p.global_variable_infix.counter == 1);
@@ -567,7 +567,7 @@ int			main(void)
   s = " int func(void) { int LOCAL_L; LOCAL_L = 52; return 2; }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.local_variable_infix.active);
   assert(p.local_variable_infix.counter == 0);
@@ -577,7 +577,7 @@ int			main(void)
   s = " int func(void) { int LOCAL_L = 52; return 2; }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.local_variable_infix.active);
   assert(p.local_variable_infix.counter == 0);
@@ -588,7 +588,7 @@ int			main(void)
   s = " int func(void) { int local; local = 52; return (2); }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.local_variable_infix.counter == 1);
   assert(p.local_variable_style.counter == 1);
@@ -645,7 +645,7 @@ int			main(void)
   bunny_configuration_setf(cnf, 1, "TypedefMatching.Value");
   bunny_configuration_setf(cnf, 3, "TypedefNameStyle.Points");
   
-  load_norm_configuration(&p, "file", cnf);
+  load_norm_configuration(&p, cnf);
   s =
     " struct s_struct { int sa_a; int sa_b; int sa_c2; }; \n"
     " typedef struct s_lol { int sa_d; int sa_e; int sa_f; } t_lol; \n"
@@ -657,7 +657,7 @@ int			main(void)
   i = 0;
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.struct_style.counter == 0);
   assert(p.enum_style.counter == 0);
@@ -678,7 +678,7 @@ int			main(void)
   i = 0;
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.struct_style.counter == 2);
   assert(p.enum_style.counter == 2);
@@ -688,7 +688,7 @@ int			main(void)
   assert(p.union_attribute_style.counter == 6);
   assert(p.typedef_style.counter == 3);
 
-  load_norm_configuration(&p, "file", cnf);
+  load_norm_configuration(&p, cnf);
   s =
     " typedef struct s_lol { int sa_d; int sa_e; int sa_f; } t_lolex; \n"
     " typedef union u_lel { int su_d; int su_e; int su_f; } t_lelex; \n"
@@ -697,7 +697,7 @@ int			main(void)
   i = 0;
   p.last_error_id = -1;
   p.last_new_type = 0;
-  if (read_translation_unit(&p, s, &i, true) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.typedef_matching.counter == 3);
   
@@ -711,19 +711,63 @@ int			main(void)
   s = NULL;
   bunny_delete_configuration(cnf);
   cnf = bunny_new_configuration();
-  load_norm_configuration(&p, "file", cnf);
-  char *cfile = load_c_file("./../include/crawler.h", cnf);
+  load_norm_configuration(&p, cnf);
+  char *file = "./../include/crawler.h";
+  char *cfile = load_c_file(file, cnf);
   if (cfile == NULL)
     goto Error;
-  if (read_translation_unit(&p, cfile, &i, true) == -1)
+  if (read_translation_unit(&p, file, cfile, &i, true) == -1)
     goto Error;
 
+  ///////////////////////////////////
+  // TEST DE FONCTIONS UTILITAIRES //
+  ///////////////////////////////////
+
+  // Correlation nom de fonction - chemin jusqu'au fichier
+  p.function_style.value = SNAKE_CASE;
+  p.file = "src/color_hair.c";
+  assert(compare_file_and_function_name
+	 (&p, "color_hair", "void color_hair(void) { return (PINK); }", 5) == 1);
+  assert(p.function_matching_path.counter == 0);
+  p.file = "wear/miniskirt.c";
+  assert(compare_file_and_function_name
+	 (&p, "wear_miniskirt", "void wear_miniskirt(int len) {  if (len > 30) return; }", 5) == 1);
+  assert(p.function_matching_path.counter == 0);
+  p.file = "lock/high/heels.c";
+  assert(compare_file_and_function_name
+	 (&p, "lock_high_heels", "void lock_high_heels(char*code) { if (h < 18) return; }", 5) == 1);
+  assert(p.function_matching_path.counter == 0);
+  p.file = "add_glossy_lipstick.c";
+  assert(compare_file_and_function_name
+	 (&p, "add_glossy_lipstick", "void add_glossy_lipstick() { }", 5) == 1);
+  assert(p.function_matching_path.counter == 0);
+
+  p.file = "src/wear_football_clothes.c";
+  assert(compare_file_and_function_name
+	 (&p, "football_clothes", "void football_clothes() { }", 5) == 1);
+  assert(p.function_matching_path.counter == 1);
+  p.file = "disobey/auntie.c";
+  assert(compare_file_and_function_name
+	 (&p, "disobey", "void disobey() { }", 5) == 1);
+  assert(p.function_matching_path.counter == 2);
+  p.file = "be_free/again_one_day.c";
+  assert(compare_file_and_function_name
+	 (&p, "be_freeagain_one_day", "void be_freeagain_one_day() { }", 5) == 1);
+  assert(p.function_matching_path.counter == 3);
+  p.file = "src/complain.c";
+  assert(compare_file_and_function_name
+	 (&p, "src_complain", "void src_complain() { }", 5) == 1);
+  assert(p.function_matching_path.counter == 4);
+
+  // Le stockage d'un symbole décoré dans un buffer
+  // A faire, mais la j'ai la flemme de faire ca, je préfère faire un autre axe d'evaluation
+  
   return (EXIT_SUCCESS);
 
- Error:
+ Error: // LCOV_EXCL_START
   if (s)
     printf("Stopped at %s\nIn:\n%s\n\n", &s[i], s);
   for (int i = 0; i < p.last_error_id; ++i)
     printf("%s\n", p.last_error_msg[i]);
-  return (EXIT_FAILURE);
+  return (EXIT_FAILURE); // LCOV_EXCL_STOP
 }

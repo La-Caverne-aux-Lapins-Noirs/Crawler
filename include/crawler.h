@@ -349,12 +349,12 @@ bool			check_style(t_parsing				*p,
 				    int					pos);
 
 int			read_translation_unit(t_parsing			*p,
+					      const char		*file,
 					      const char		*code,
 					      ssize_t			*i,
 					      bool			verbose);
 void			reset_last_declaration(t_parsing		*f);
 void			load_norm_configuration(t_parsing		*p,
-						const char		*file,
 						t_bunny_configuration	*e);
 char			*load_c_file(const char				*file,
 				     t_bunny_configuration		*exe);

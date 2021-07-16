@@ -15,7 +15,7 @@ int			compare_file_and_function_name(t_parsing	*p,
 						       int		pos)
 {
   const char * const	*split;
-  const char		*tokens[3] = {"/", "\\", NULL};
+  const char		*tokens[4] = {"/", "\\", ".c", NULL};
   char			buffer[512];
   int			i = 0;
   int			j;
@@ -29,23 +29,24 @@ int			compare_file_and_function_name(t_parsing	*p,
 	continue ;
       if (split[j + 1])
 	{
-	  i += snprintf(&buffer[0], sizeof(buffer) - i, "%s", split[j]);
+	  i += snprintf(&buffer[i], sizeof(buffer) - i, "%s", split[j]);
 	  if (p->function_style.value == MIXED_CASE ||
 	      p->function_style.value == SNAKE_CASE)
-	    i += snprintf(&buffer[0], sizeof(buffer) - i, "_");
+	    i += snprintf(&buffer[i], sizeof(buffer) - i, "_");
 	}
       else
-	i += snprintf(&buffer[0], sizeof(buffer) - i, "%s", split[j]);
+	i += snprintf(&buffer[i], sizeof(buffer) - i, "%s", split[j]);
     }
   bunny_delete_split(split);
 
-  if (strcmp(&buffer[0], func) == 0)
+  if (strcmp(&buffer[0], func) != 0)
     {
+      p->function_matching_path.counter += 1;
       if (add_warning
 	  (p, code, pos,
 	   "Function %s does not match its path name %s.\n",
 	   func, &buffer[0]) == false)
-	RETURN("Memory exhausted.");
+	RETURN("Memory exhausted."); // LCOV_EXCL_LINE
     }
   return (1);
 }

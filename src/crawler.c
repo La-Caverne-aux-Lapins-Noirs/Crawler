@@ -1726,6 +1726,7 @@ int			read_external_declaration(t_parsing	*p,
 }
 
 int			read_translation_unit(t_parsing		*p,
+					      const char	*file,
 					      const char	*code,
 					      ssize_t		*i,
 					      bool		verbose)
@@ -1733,6 +1734,7 @@ int			read_translation_unit(t_parsing		*p,
   int			cnt = 0;
   int			ret;
 
+  p->file = file;
   gl_bunny_read_whitespace = read_whitespace;
   do
     {
@@ -1917,12 +1919,10 @@ static void		fetch_string_criteria(t_bunny_configuration	*cnf,
 }
 
 void			load_norm_configuration(t_parsing	*p,
-						const char	*file,
 						t_bunny_configuration *e)
 {
   memset(p, 0, sizeof(*p));
 
-  p->file = file;
   p->last_error_id = -1;
   
   p->nbr_mistakes = 0; // Le nombre d'erreur faites

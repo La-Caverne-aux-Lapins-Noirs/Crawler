@@ -1,0 +1,182 @@
+[*********************************************
+ ** Fichier de configuration de             **
+ **                CCCCRAWLER               **
+ ** Configurable                            **
+ ** C                                       **
+ ** Code                                    **
+ ** Crawler                                 **
+ **                                         **
+ *********************************************]
+
+[*********************************************
+ ** Note sur DABSIC:                        **
+ ** - Placer un ! juste après le crochet    **
+ **   ouvrant place le bloc entier en       **
+ **   commentaire.                          **
+ ** - Le guillemet sert a ouvrir un         **
+ **   commentaire sur une seule ligne.      **
+ ** - [] signifie "la racine".              **
+ ** - Il n'est pas néccessaire de faire des **
+ **   blocs de commentaire comme celui-là,  **
+ **   mais c'est plus stylé.                **
+ **                                         **
+ *********************************************]
+
+[FunctionPerFile
+  Value = 5 'Maximum amount of functions inside a single file
+  Points = 5 'How many error points are gonna be added if not respected
+]
+
+[FunctionMatchingPath 'Only if NonStaticFunctionPerFile.Value is 1
+  'If function is called name1_name2 (infix saved), then its file should be
+  'name1/name2.c or name1_name2.c
+  Value = true
+  Points = 5
+]
+
+[NonStaticFunctionPerFile
+  Value = 1 'Maximum amount of non static function inside a single file
+  Points = 5 'How many error points are gonna be added if not respected
+]
+
+[LocalVariableInlineInitForbidden
+  Value = 1 'It is forbidden to write something like "int i = 42;"
+  Points = 1 'How many error points are gonna be added if not respected
+
+[********************************
+ ** STYLE DES SYMBOLES ET NOMS **
+ ********************************]
+    
+const MIXED_CASE = 0  'THIS_IS_IT
+const SNAKE_CASE = 1  'this_is_it
+const CAMEL_CASE = 2  'thisIsIt
+const PASCAL_CASE = 3 'ThisIsIt
+
+[GlobalStyle
+  'Un style appliqué a TOUS les symboles, sauf ceux dont on défini apres un style propre
+  Value = [].SNAKE_CASE
+  Points = 1
+]
+
+[GlobalInfix
+  'Un infix appliqué a TOUS les symboles, sauf ceux dont on défini un infixe propre
+  Value = "tc_"
+  Position = "Prefix"
+  Points = 1
+]
+  
+[FunctionNameStyle
+  Value = [].SNAKE_CASE
+  Points = 1
+]
+  
+[FunctionNameInfix
+  Value = "cln_" 'The infix that is mandatory
+  Position = "Prefix" 'Or Suffix
+  Points = 1 'How many error points are gonna be added if not respected
+]
+
+[LocalVariableStyle
+  Value = [].SNAKE_CASE
+  Points = 1
+]
+
+[LocalVariableInfix
+  Value = "cln_" 'The infix that is mandatory
+  Position = "Prefix" 'Or Suffix
+  Points = 1 'How many error points are gonna be added if not respected
+]
+
+[GlobalVariableStyle
+  Value = [].SNAKE_CASE
+  Points = 1
+]
+
+[GlocalVariableInfix
+  Value = "cln_" 'The infix that is mandatory
+  Position = "Prefix" 'Or Suffix
+  Points = 1 'How many error points are gonna be added if not respected
+]
+
+[StructStyle
+  Value = [].SNAKE_CASE
+  Points = 1
+]
+
+[StructInfix
+  Value = "cln_" 'The infix that is mandatory
+  Position = "Prefix" 'Or Suffix
+  Points = 1 'How many error points are gonna be added if not respected
+]
+
+[EnumStyle
+  Value = [].SNAKE_CASE
+  Points = 1
+]
+
+[EnumInfix
+  Value = "cln_" 'The infix that is mandatory
+  Position = "Prefix" 'Or Suffix
+  Points = 1 'How many error points are gonna be added if not respected
+]
+
+[UnionStyle
+  Value = [].SNAKE_CASE
+  Points = 1
+]
+
+[UnionInfix
+  Value = "cln_" 'The infix that is mandatory
+  Position = "Prefix" 'Or Suffix
+  Points = 1 'How many error points are gonna be added if not respected
+]
+
+[AttributetStyle
+  Value = [].SNAKE_CASE
+  Points = 1
+]
+
+[AttributeInfix
+  Value = "cln_" 'The infix that is mandatory
+  Position = "Prefix" 'Or Suffix
+  Points = 1 'How many error points are gonna be added if not respected
+]
+
+[FunctionPointerAttributeStyle
+  Value = [].SNAKE_CASE
+  Points = 1
+]
+
+[FunctionPointerAttributeInfix
+  Value = "cln_" 'The infix that is mandatory
+  Position = "Prefix" 'Or Suffix
+  Points = 1 'How many error points are gonna be added if not respected
+]
+
+[FunctionPointerTypeStyle
+  Value = [].SNAKE_CASE
+  Points = 1
+]
+
+[FunctionPointerTypeInfix
+  Value = "cln_" 'The infix that is mandatory
+  Position = "Prefix" 'Or Suffix
+  Points = 1 'How many error points are gonna be added if not respected
+]
+
+[TypedefStyle
+  Value = [].SNAKE_CASE
+  Points = 1
+]
+
+[TypedefInfix
+  Value = "cln_" 'The infix that is mandatory
+  Position = "Prefix" 'Or Suffix
+  Points = 1 'How many error points are gonna be added if not respected
+]
+
+[TypedefMatching
+  Value = true 'Force le nommage de typedef d'apres le type sous  jacent associé
+  Points = 1
+]
+
