@@ -22,6 +22,13 @@ typedef enum		e_style
     PASCAL_CASE		// ThisIsIt
   }			t_style;
 
+typedef enum		e_coding_style
+  {
+    GNU_STYLE,
+    ALLMAN_STYLE,
+    KNR_STYLE
+  }			t_coding_style;
+
 typedef struct		s_last_function
 {
   // /!\ Alligné de la même manière que dans read_storage_class_specifier
@@ -35,6 +42,7 @@ typedef struct		s_last_function
   bool			inside_struct;
   bool			inside_union;
   char			symbol[1024];
+  int			indent_depth;
 }			t_last_function;
 
 typedef struct		s_criteria
@@ -110,6 +118,16 @@ typedef struct		s_parsing
   //
   t_criteria		function_matching_path;
   t_criteria		local_variable_inline_init_forbidden;
+
+  t_criteria		indent_style; // 0: GNU, 1: BSD, 2: K&R
+  t_criteria		base_indent; // taille de l'indentation
+  t_criteria		tab_or_space; // 0: espace, autre: taille de la tabulation
+  t_criteria		declaration_statement_separator;
+  t_criteria		no_empty_line_in_function;
+  t_criteria		no_trailing_whitespace;
+  t_criteria		single_instruction_per_line;
+  t_criteria		max_column_width;
+  t_criteria		max_function_length;
   
   t_criteria		end[0];
   
@@ -381,5 +399,34 @@ int			compare_file_and_function_name(t_parsing	*p,
 						       const char	*func,
 						       const char	*code,
 						       int		pos);
+
+int			check_base_indentation(t_parsing		*p,
+					       const char		*code,
+					       int			pos);
+int			check_is_alone(t_parsing			*p,
+				       const char			*tok,
+				       const char			*code,
+				       int				pos);
+int			check_trailing_whitespace(t_parsing		*p,
+						  const char		*code);
+int			check_no_empty_line(t_parsing			*p,
+					    const char			*code,
+					    int				pos,
+					    bool			separator,
+					    int				begin,
+					    int				end);
+int			check_line_width(t_parsing			*p,
+					 const char			*code,
+					 int				begin,
+					 int				end);
+
+int			check_function_length(t_parsing			*p,
+					      const char		*code,
+					      int			begin,
+					      int			end);
+bool			check_white_then_newline(t_parsing		*p,
+						 const char		*code,
+						 int			pos,
+						 bool			statement);
 
 #endif	/*		__CRAWLER_H__					*/

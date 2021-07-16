@@ -42,15 +42,66 @@
 [LocalVariableInlineInitForbidden
   Value = 1 'It is forbidden to write something like "int i = 42;"
   Points = 1 'How many error points are gonna be added if not respected
+]
+
+[********************************
+ ** GNU:                       **
+ ** if ()                      **
+ **   {                        **
+ **     ...                    **
+ **   }                        **
+ ** ALLMAN:                    **
+ ** if ()                      **
+ ** {                          **
+ **   ...                      **
+ ** }                          **
+ ** KNR:                       **
+ ** if () {                    **
+ **   ...                      **
+ ** }                          **
+ ********************************]
+GNU_INDENT_STYLE = 0
+ALLMAN_INDENT_STYLE = 1
+KNR_INDENT_STYLE = 2
+
+IndentationStyle = [].GNU_INDENT_STYLE
+
+[IndentationSize
+  Value = 2 'Deux espaces (ou equivalent) pour un unique niveau d'indentation
+  Points = 1
+]
+
+'0: Tabulation est interdite
+'1: Les tabulations font 1 de taille
+'2: Les tabulations font 2 de taille
+'3: etc.
+IndentationToken = 1
+
+[DeclarationStatementSeparator
+  Value = 1 'Il faut une ligne vide entre les variables et les instructions
+  Points = 1
+]
+
+[NoEmptyLineInFunction
+  'Il est interdit d'avoir une ligne vide dans le corps d'une fonction
+  '(Sauf celle explicitement autorisée de DeclarationStatementSeparator si défini)
+  Value = 1
+  Points = 1
+]
+
+[TrailingWhitespace
+  Value = 1 'Les espaces en fin de ligne sont interdits
+  Points = 1
+]
 
 [********************************
  ** STYLE DES SYMBOLES ET NOMS **
  ********************************]
     
-const MIXED_CASE = 0  'THIS_IS_IT
-const SNAKE_CASE = 1  'this_is_it
-const CAMEL_CASE = 2  'thisIsIt
-const PASCAL_CASE = 3 'ThisIsIt
+MIXED_CASE = 0  'THIS_IS_IT
+SNAKE_CASE = 1  'this_is_it
+CAMEL_CASE = 2  'thisIsIt
+PASCAL_CASE = 3 'ThisIsIt
 
 [GlobalStyle
   'Un style appliqué a TOUS les symboles, sauf ceux dont on défini apres un style propre

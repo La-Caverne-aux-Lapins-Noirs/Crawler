@@ -700,6 +700,45 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.typedef_matching.counter == 3);
+
+  cnf = bunny_new_configuration();
+  bunny_configuration_setf(cnf, 1, "NoTrailingWhitespace");
+  bunny_configuration_setf(cnf, 1, "NoEmptyLineInFunction");
+  bunny_configuration_setf(cnf, 1, "SingleInstructionPerLine");
+  load_norm_configuration(&p, cnf);
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  int i;\n"
+    "  i = 42;\n"
+    "}\n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.no_trailing_whitespace.counter == 0);
+  assert(p.no_empty_line_in_function.counter == 0);
+  assert(p.single_instruction_per_line.counter == 0);
+
+  i = 0;
+  s =
+    "void func(void) \n"
+    "{  \n"
+    "  int i; \n"
+    "\n"
+    "  i = 42; i += 1; \n"
+    "\n"
+    "} \n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.no_trailing_whitespace.counter == 5);
+  assert(p.no_empty_line_in_function.counter == 1);
+  assert(p.single_instruction_per_line.counter == 1);
   
   /////////////////////////////////
   // GRAND TEST FINAL DE PARSING //
@@ -724,6 +763,7 @@ int			main(void)
   ///////////////////////////////////
 
   // Correlation nom de fonction - chemin jusqu'au fichier
+  p.last_error_id = -1;
   p.function_style.value = SNAKE_CASE;
   p.file = "src/color_hair.c";
   assert(compare_file_and_function_name
@@ -760,6 +800,7 @@ int			main(void)
   assert(p.function_matching_path.counter == 4);
 
   // Le stockage d'un symbole décoré dans un buffer
+  p.last_error_id = -1;
   // A faire, mais la j'ai la flemme de faire ca, je préfère faire un autre axe d'evaluation
   
   return (EXIT_SUCCESS);
