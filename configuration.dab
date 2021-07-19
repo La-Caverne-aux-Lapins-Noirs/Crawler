@@ -39,6 +39,16 @@
   Points = 5 'How many error points are gonna be added if not respected
 ]
 
+[MaximumLineWidth
+  Value = 80
+  Points = 5
+]
+
+[MaximumFunctionLength
+  Value = 25
+  Points = 5
+]
+
 [LocalVariableInlineInitForbidden
   Value = 1 'It is forbidden to write something like "int i = 42;"
   Points = 1 'How many error points are gonna be added if not respected

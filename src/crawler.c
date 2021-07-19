@@ -2188,6 +2188,8 @@ void			load_norm_configuration(t_parsing	*p,
   fetch_criteria(e, &p->no_empty_line_in_function, "NoEmptyLineInFunction");
   fetch_criteria(e, &p->no_trailing_whitespace, "NoTrailingWhitespace");
   fetch_criteria(e, &p->single_instruction_per_line, "SingleInstructionPerLine");
+  fetch_criteria(e, &p->max_column_width, "MaximumLineWidth");
+  fetch_criteria(e, &p->max_function_length, "MaximumFunctionLength");
 
   fetch_criteria(e, &p->for_forbidden, "ForForbidden");
   fetch_criteria(e, &p->while_forbidden, "WhileForbidden");
