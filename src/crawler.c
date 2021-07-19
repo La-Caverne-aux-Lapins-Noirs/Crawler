@@ -378,10 +378,12 @@ int			read_selection_statement(t_parsing	*p,
 	RETURN ("Missing ')' after 'if (condition'."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, true) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      p->last_declaration.after_statement = true;
       if (read_statement(p, code, i) != 1)
 	RETURN ("Missing statement after 'if (condition)'."); // LCOV_EXCL_LINE
       if (bunny_read_text(code, i, "else"))
 	{
+	  p->last_declaration.after_statement = true;
 	  if (p->else_forbidden.value)
 	    if (!add_warning
 		(p, code, *i, &p->else_forbidden.counter, "'else' is a forbidden statement."))
@@ -407,6 +409,7 @@ int			read_selection_statement(t_parsing	*p,
 	RETURN ("Missing ')' after 'switch (expression'."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, true) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      p->last_declaration.after_statement = true;
       if (read_statement(p, code, i) != 1)
 	RETURN ("Missing statement after 'switch (expression)'."); // LCOV_EXCL_LINE
       return (1);
@@ -432,6 +435,7 @@ int			read_iteration_statement(t_parsing	*p,
 	RETURN ("Missing ')' after 'while(condition'."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, true) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      p->last_declaration.after_statement = true;
       if (read_statement(p, code, i) != 1)
 	RETURN ("Missing statement after 'while (condition)'."); // LCOV_EXCL_LINE
       return (1);
@@ -444,6 +448,7 @@ int			read_iteration_statement(t_parsing	*p,
 	  RETURN ("Memory exhausted.");
       if (check_white_then_newline(p, code, *i, true) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      p->last_declaration.after_statement = true;
       if (read_statement(p, code, i) != 1)
 	RETURN ("Missing statement after 'do'."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, "while"))
@@ -480,6 +485,7 @@ int			read_iteration_statement(t_parsing	*p,
 	RETURN ("Missing ')' after 'for (initialization; condition; increment'."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, true) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      p->last_declaration.after_statement = true;
       if (read_statement(p, code, i) != 1)
 	RETURN ("Missing statement after 'for (initialization; condition; increment)'."); // LCOV_EXCL_LINE
       return (1);
@@ -574,6 +580,15 @@ int			read_statement(t_parsing		*p,
 
   if ((ret = read_labeled_statement(p, code, i)) != 0)
     return (ret);
+  read_whitespace(code, i);
+  if (!bunny_check_text(code, i, "{") &&
+      p->last_declaration.after_statement &&
+      p->always_braces.value)
+    if (!add_warning
+	(p, code, *i, &p->always_braces.counter,
+	 "'{' is mandatory after if, while, do, for or switch statement."))
+      RETURN ("Memory exhausted.");
+  p->last_declaration.after_statement = false;
   if ((ret = read_compound_statement(p, code, i)) != 0)
     return (ret);
   if ((ret = read_expression_statement(p, code, i)) != 0)
@@ -1528,10 +1543,12 @@ int			read_direct_abstract_declarator(t_parsing *p,
 	{
 	  int		ret;
 
+	  p->last_declaration.inside_parameter = true;
 	  if ((ret = read_abstract_declarator(p, code, i)) == -1)
 	    RETURN ("Problem encountered with parameter declaration after '('."); // LCOV_EXCL_LINE
 	  else if (ret == 0 && read_parameter_type_list(p, code, i) == -1)
 	    RETURN ("Problem encountered with parameter declaration after '('."); // LCOV_EXCL_LINE
+	  p->last_declaration.inside_parameter = false;
 	  if (!bunny_read_text(code, i, ")"))
 	    RETURN ("Missing ')' after '( parameter list"); // LCOV_EXCL_LINE
 	}
@@ -1581,6 +1598,11 @@ int			read_parameter_list(t_parsing		*p,
 {
   ssize_t		j;
   int			ret;
+  int			cnt;
+  int			start = *i;
+  bool			err = false;
+
+  cnt = 0;
   do
     {
       j = *i;
@@ -1591,6 +1613,15 @@ int			read_parameter_list(t_parsing		*p,
 	}
       if ((ret = read_parameter_declaration(p, code, i)) == 1)
 	return (ret);
+      cnt += 1;
+      if (p->max_parameter.active && p->max_parameter.value < cnt && err == false)
+	{
+	  err = true;
+	  if (!add_warning
+	      (p, code, start, &p->max_parameter.counter,
+	       "Invalid amount of parameters. Maximum was %d.", p->max_parameter.value))
+	    RETURN ("Memory exhausted.");
+	}
     }
   while (bunny_read_text(code, i, ","));
 
@@ -1633,10 +1664,12 @@ int			read_direct_declarator(t_parsing	*p,
 
   if (read_identifier(p, code, i, false) == 0) // symbole de variable ou symbole de fonction
     {
-      if (bunny_read_text(code, i, "("))
+      if (bunny_read_text(code, i, "(")) // Y a t il des paramètres?
 	{
+	  p->last_declaration.inside_parameter = true;
 	  if (read_declarator(p, code, i) == -1)
 	    return (-1);
+	  p->last_declaration.inside_parameter = false;
 	  if (!bunny_read_text(code, i, ")"))
 	    RETURN ("Missing ')' after '(declaration'."); // LCOV_EXCL_LINE
 	  return (1);
@@ -2190,6 +2223,9 @@ void			load_norm_configuration(t_parsing	*p,
   fetch_criteria(e, &p->single_instruction_per_line, "SingleInstructionPerLine");
   fetch_criteria(e, &p->max_column_width, "MaximumLineWidth");
   fetch_criteria(e, &p->max_function_length, "MaximumFunctionLength");
+  fetch_criteria(e, &p->max_parameter, "MaximumFunctionParameter");
+  fetch_criteria(e, &p->always_braces, "AlwaysBraces");
+  fetch_criteria(e, &p->only_by_reference, "OnlyByReference");
 
   fetch_criteria(e, &p->for_forbidden, "ForForbidden");
   fetch_criteria(e, &p->while_forbidden, "WhileForbidden");

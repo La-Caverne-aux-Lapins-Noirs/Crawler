@@ -20,7 +20,7 @@ int			main(void)
   assert(cnf = bunny_new_configuration());
   gl_bunny_read_whitespace = read_whitespace;
   p.criteria = &p.function_per_file;
-  // goto NOW;
+  goto NOW;
 
   /////////////////////////
   // ON TESTE LE PARSING //
@@ -206,7 +206,6 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
-  //NOW:
   i = 0;
   s =
     "int global = 42;\n"
@@ -970,7 +969,7 @@ int			main(void)
     "  ++i;"
     "  --i;"
     "  i--;"
-    "} \n"
+    "}\n"
     ;
   p.last_error_id = -1;
   p.last_new_type = 0;
@@ -984,6 +983,87 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.inline_mod_forbidden.counter == 4);
+
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  if (a)\n"
+    "  {\n"
+    "     a = 2;\n"
+    "  }\n"
+    "}\n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.always_braces.value = 0;
+  p.always_braces.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.always_braces.counter == 0);
+  p.always_braces.value = 1;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.always_braces.counter == 0);
+
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  if (a)\n"
+    "     a = 2;\n"
+    "}\n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.always_braces.value = 0;
+  p.always_braces.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.always_braces.counter == 0);
+  p.always_braces.value = 1;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.always_braces.counter == 1);
+
+ NOW:
+  i = 0;
+  s =
+    "void func(int a, int b, int c)\n"
+    "{\n"
+    "}\n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.max_parameter.active = false;
+  p.max_parameter.value = 0;
+  p.max_parameter.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.max_parameter.counter == 0);
+  p.max_parameter.active = true;
+  p.max_parameter.value = 4;
+  p.max_parameter.counter = 0;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.max_parameter.counter == 0);
+  p.max_parameter.active = true;
+  p.max_parameter.value = 2;
+  p.max_parameter.counter = 0;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.max_parameter.counter == 1);
+  p.max_parameter.active = true;
+  p.max_parameter.value = 3;
+  p.max_parameter.counter = 0;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.max_parameter.counter == 0);
 
   /////////////////////////////////
   // GRAND TEST FINAL DE PARSING //

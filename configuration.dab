@@ -49,6 +49,21 @@
   Points = 5
 ]
 
+[MaximumFunctionParameter
+  Value = 4
+  Points = 2
+]
+
+[AlwaysBraces
+  Value = true 'Il faut toujours qu'il y ai des accolades
+  Points = 1
+]
+
+[OnlyByReference
+  Value = true 'Les paramètres basé sur des types construits DOIVENT etre des pointeurs
+  Points = 1
+]
+
 [LocalVariableInlineInitForbidden
   Value = 1 'It is forbidden to write something like "int i = 42;"
   Points = 1 'How many error points are gonna be added if not respected

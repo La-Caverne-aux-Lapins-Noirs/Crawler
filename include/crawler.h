@@ -42,6 +42,8 @@ typedef struct		s_last_function
   bool			inside_struct;
   bool			inside_union;
   bool			inside_for_statement;
+  bool			inside_parameter;
+  bool			after_statement;
   char			symbol[1024];
   int			indent_depth;
 }			t_last_function;
@@ -129,6 +131,11 @@ typedef struct		s_parsing
   t_criteria		single_instruction_per_line;
   t_criteria		max_column_width;
   t_criteria		max_function_length;
+  t_criteria		max_parameter;
+  t_criteria		always_braces;
+  t_criteria		space_after_statement; // A FAIRE ==========
+  t_criteria		space_around_binary_operator; // A FAIRE============
+  t_criteria		only_by_reference; // A FAIRE ===============
 
   t_criteria		for_forbidden;
   t_criteria		while_forbidden;
@@ -137,7 +144,8 @@ typedef struct		s_parsing
   t_criteria		return_forbidden;
   t_criteria		break_forbidden;
   t_criteria		continue_forbidden;
-  t_criteria		if_forbidden;
+  t_criteria		if_forbidden; // A retirer du coup, mais garder la conf, qui imapcteria maximum_if_in_function du coup
+  t_criteria		maximum_if_in_function; // <=== A FAIRE ===============
   t_criteria		else_forbidden;
   t_criteria		switch_forbidden;
   t_criteria		ternary_forbidden;
@@ -146,58 +154,7 @@ typedef struct		s_parsing
   
   // Configuration
   /* AJOUTER AU FUR ET A MESURE
-  bool			global_symbol_align;		// Align symbols in file
-  bool			local_symbol_align;		// Align symbols of functions
-  int			indentation_size;		// To check alignment
-  int			preproc_indent_size;
-  int			symbol_align_cost;		// If not, how many error points I get
-  int			misindent_cost;
-  bool			bad_align_flag;
-  bool			bad_indent_flag;
 
-  bool			tab_indent;			// Tab or space?
-  int			tab_indent_cost;
-  bool			bad_indent_token_flag;
-
-  bool			header_macro;			// Intestable du fait de gcc -E
-  int			header_macro_cost;
-
-  bool			single_non_static_function;	// Only one function is not static.
-  int			single_non_static_function_cost;
-  bool			func_file_matching;		// The only non static func is named after file
-  int			func_file_matching_cost;	// but the directory name can be used as prefix
-
-  bool			function_braces_alone;		// if ()\n{\nxxx\n}\n etc.
-  int			function_braces_alone_cost;
-
-  bool			function_braces_inline;		// if () { \n xxx \n } else { \n etc.
-  int			function_braces_inline_cost;
-
-  bool			avoid_braces_if_possible;
-  int			avoid_braces_if_possible_cost;
-
-  int			max_functions_per_file;
-  int			max_functions_per_file_cost;
-
-  int			max_parameters_per_function;
-  int			max_parameters_per_function_cost;
-
-  int			max_lines_per_function;
-  int			max_lines_per_function_cost;
-
-  int			max_columns_per_line;
-  int			max_columns_per_line_cost;
-
-  bool			break_forbidden;
-  int			break_cost;
-  bool			space_after_break;
-  int			space_after_break_cost;
-
-  bool			goto_forbidden;
-  int			goto_cost;
-
-  bool			continue_forbidden;
-  int			continue_cost;
   bool			space_after_continue;
   int			space_after_continue_cost;
 
@@ -206,20 +163,6 @@ typedef struct		s_parsing
   bool			space_after_return;
   int			space_after_return_cost;
 
-  int			maximum_if;			// In a single function, of course
-  int			maximum_if_cost;
-
-  bool			while_forbidden;
-  int			while_cost;
-
-  bool			for_forbidden;
-  int			for_cost;
-
-  bool			do_forbidden;
-  int			do_cost;
-
-  bool			switch_forbidden;
-  int			switch_cost;
 
   char			header[512];
   int			header_cost;
