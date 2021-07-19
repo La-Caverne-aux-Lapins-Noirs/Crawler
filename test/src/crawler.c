@@ -73,7 +73,7 @@ int			main(void)
   i = 0; assert(read_unary_operator(&p, "-", &i) == 1);
   i = 0; assert(read_unary_operator(&p, "~", &i) == 1);
   i = 0; assert(read_unary_operator(&p, "!", &i) == 1);
-
+  
   i = 0; assert(read_unary_expression(&p, "++--~(const double)sizeof(int)", &i) == 1);
 
   i = 0;
@@ -740,6 +740,251 @@ int			main(void)
   assert(p.no_empty_line_in_function.counter == 1);
   assert(p.single_instruction_per_line.counter == 1);
   
+  bunny_configuration_setf(cnf, 1, "DeclarationStatementSeparator");
+  load_norm_configuration(&p, cnf);
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  int i;\n"
+    "\n"
+    "  if (lol) i = 0;\n"
+    "  if (lol) { i = 0; }\n"
+    "  while (lol) i = 0;\n"
+    "  while (lol) { i = 0; }\n"
+    "  for (lol; lol; lol) i = 0;\n"
+    "  for (lol; lol; lol) { i = 0; }\n"
+    "  do i = 0; while (lol); i = 0;\n"
+    "  do { i = 0; } while (lol); i = 0;\n"
+    "  return (1); i = 0;\n"
+    "  return; i = 0;\n"
+    "  goto start; i = 0;\n"
+    "  break; i = 0;\n"
+    "  continue; i = 0;\n"
+    "  i = 0; return (1);\n"
+    "  i = 0; return;\n"
+    "  i = 0; goto start;\n"
+    "  i = 0; break;\n"
+    "  i = 0; continue;\n"
+    "}\n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.single_instruction_per_line.counter == 21);
+
+  bunny_delete_configuration(cnf);
+  cnf = bunny_new_configuration();
+  load_norm_configuration(&p, cnf);
+
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  if (a == b) { }\n"
+    "} \n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.if_forbidden.value = 0;
+  p.if_forbidden.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.if_forbidden.counter == 0);
+  p.if_forbidden.value = 1;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.if_forbidden.counter == 1);
+
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  while (a == b) { }\n"
+    "} \n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.while_forbidden.value = 0;
+  p.while_forbidden.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.while_forbidden.counter == 0);
+  p.while_forbidden.value = 1;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.while_forbidden.counter == 1);
+
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  do { } while (a == b);\n"
+    "} \n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.do_while_forbidden.value = 0;
+  p.do_while_forbidden.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.do_while_forbidden.counter == 0);
+  p.do_while_forbidden.value = 1;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.do_while_forbidden.counter == 1);
+
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  for (a = 0; a < b; ++a) { }\n"
+    "} \n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.for_forbidden.value = 0;
+  p.for_forbidden.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.for_forbidden.counter == 0);
+  p.for_forbidden.value = 1;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.for_forbidden.counter == 1);
+
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  if (a == b) { } else { }\n"
+    "} \n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.else_forbidden.value = 0;
+  p.else_forbidden.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.else_forbidden.counter == 0);
+  p.else_forbidden.value = 1;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.else_forbidden.counter == 1);
+
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  switch (a)\n"
+    "  {\n"
+    "    case A:\n"
+    "      break;\n"
+    "    case B:\n"
+    "      break;\n"
+    "  }\n"
+    "} \n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.switch_forbidden.value = 0;
+  p.switch_forbidden.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.switch_forbidden.counter == 0);
+  p.switch_forbidden.value = 1;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.switch_forbidden.counter == 1);
+
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.break_forbidden.value = 0;
+  p.break_forbidden.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.break_forbidden.counter == 0);
+  p.break_forbidden.value = 1;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.break_forbidden.counter == 2);
+
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  while (a < b)\n"
+    "  {\n"
+    "    if (a == c)\n"
+    "      continue;"
+    "  }\n"
+    "} \n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.continue_forbidden.value = 0;
+  p.continue_forbidden.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.continue_forbidden.counter == 0);
+  p.continue_forbidden.value = 1;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.continue_forbidden.counter == 1);
+
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  i = j > 2 ? 4 : 2;\n"
+    "}\n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.ternary_forbidden.value = 0;
+  p.ternary_forbidden.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.ternary_forbidden.counter == 0);
+  p.ternary_forbidden.value = 1;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.ternary_forbidden.counter == 1);
+
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  i++;"
+    "  ++i;"
+    "  --i;"
+    "  i--;"
+    "} \n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.inline_mod_forbidden.value = 0;
+  p.inline_mod_forbidden.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.inline_mod_forbidden.counter == 0);
+  p.inline_mod_forbidden.value = 1;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.inline_mod_forbidden.counter == 4);
+
   /////////////////////////////////
   // GRAND TEST FINAL DE PARSING //
   /////////////////////////////////
@@ -802,7 +1047,69 @@ int			main(void)
   // Le stockage d'un symbole décoré dans un buffer
   p.last_error_id = -1;
   // A faire, mais la j'ai la flemme de faire ca, je préfère faire un autre axe d'evaluation
-  
+
+  p.max_column_width.counter = 0;
+  p.max_column_width.value = 10;
+  assert(check_line_width(&p, "12345\n123\n123456789", 0, 19) == 1);
+  assert(p.max_column_width.counter == 0);
+
+  p.max_column_width.counter = 0;
+  p.max_column_width.value = 8;
+  assert(check_line_width(&p, "12345\n123\n123456789", 0, 19) == 1);
+  assert(p.max_column_width.counter == 1);
+
+  p.max_column_width.counter = 0;
+  p.max_column_width.value = 8;
+  assert(check_line_width(&p, "12345\n123\n", 0, 19) == 1);
+  assert(p.max_column_width.counter == 0);
+
+  p.max_column_width.counter = 0;
+  p.max_column_width.value = 4;
+  assert(check_line_width(&p, "12345\n123\n", 0, 19) == 1);
+  assert(p.max_column_width.counter == 1);
+
+  p.max_column_width.counter = 0;
+  p.max_column_width.value = 4;
+  assert(check_line_width(&p, "123\n", 0, 19) == 1);
+  assert(p.max_column_width.counter == 0);
+
+  p.max_column_width.counter = 0;
+  p.max_column_width.value = 2;
+  assert(check_line_width(&p, "123\n", 0, 19) == 1);
+  assert(p.max_column_width.counter == 1);
+  p.max_column_width.counter = 0;
+  p.max_column_width.value = 0;
+
+  s = "void func(void) {\n  int i;\n  i = 0;\n}\n";
+  p.max_function_length.counter = 0;
+  p.max_function_length.value = 5;
+  assert(check_function_length(&p, s, 17, 36) == 1);
+  assert(p.max_function_length.counter == 0);
+  p.max_function_length.counter = 0;
+  p.max_function_length.value = 1;
+  assert(check_function_length(&p, s, 17, 36) == 1);
+  assert(p.max_function_length.counter == 1);
+
+  i = 0;
+  p.last_new_type = 0;
+  p.last_error_id = -1;
+  p.max_function_length.counter = 0;
+  p.max_function_length.value = 5;
+  p.max_function_length.active = true;
+  if (read_translation_unit(&p, file, s, &i, true) == -1)
+    goto Error;
+  assert(p.max_function_length.counter == 0);
+
+  i = 0;
+  p.last_new_type = 0;
+  p.last_error_id = -1;
+  p.max_function_length.counter = 0;
+  p.max_function_length.value = 1;
+  p.max_function_length.active = true;
+  if (read_translation_unit(&p, file, s, &i, true) == -1)
+    goto Error;
+  assert(p.max_function_length.counter == 1);
+
   return (EXIT_SUCCESS);
 
  Error: // LCOV_EXCL_START

@@ -366,6 +366,10 @@ int			read_selection_statement(t_parsing	*p,
 {
   if (bunny_read_text(code, i, "if"))
     {
+      if (p->if_forbidden.value)
+	if (!add_warning
+	    (p, code, *i, &p->if_forbidden.counter, "'if' is a forbidden statement."))
+	  RETURN ("Memory exhausted.");
       if (!bunny_read_text(code, i, "("))
 	RETURN ("Missing '(' after 'if'."); // LCOV_EXCL_LINE
       if (read_expression(p, code, i) != 1)
@@ -378,6 +382,10 @@ int			read_selection_statement(t_parsing	*p,
 	RETURN ("Missing statement after 'if (condition)'."); // LCOV_EXCL_LINE
       if (bunny_read_text(code, i, "else"))
 	{
+	  if (p->else_forbidden.value)
+	    if (!add_warning
+		(p, code, *i, &p->else_forbidden.counter, "'else' is a forbidden statement."))
+	      RETURN ("Memory exhausted.");
 	  if (check_white_then_newline(p, code, *i, true) == false)
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	  if (read_statement(p, code, i) != 1)
@@ -387,6 +395,10 @@ int			read_selection_statement(t_parsing	*p,
     }
   if (bunny_read_text(code, i, "switch"))
     {
+      if (p->switch_forbidden.value)
+	if (!add_warning
+	    (p, code, *i, &p->switch_forbidden.counter, "'switch' is a forbidden statement."))
+	  RETURN ("Memory exhausted.");
       if (!bunny_read_text(code, i, "("))
 	RETURN ("Missing '(' after 'switch'."); // LCOV_EXCL_LINE
       if (read_expression(p, code, i) != 1)
@@ -408,6 +420,10 @@ int			read_iteration_statement(t_parsing	*p,
 {
   if (bunny_read_text(code, i, "while"))
     {
+      if (p->while_forbidden.value)
+	if (!add_warning
+	    (p, code, *i, &p->while_forbidden.counter, "'while' is a forbidden statement."))
+	  RETURN ("Memory exhausted.");
       if (!bunny_read_text(code, i, "("))
 	RETURN ("Missing '(' after 'while'."); // LCOV_EXCL_LINE
       if (read_expression(p, code, i) != 1)
@@ -422,6 +438,10 @@ int			read_iteration_statement(t_parsing	*p,
     }
   if (bunny_read_text(code, i, "do"))
     {
+      if (p->do_while_forbidden.value)
+	if (!add_warning
+	    (p, code, *i, &p->do_while_forbidden.counter, "'do' is a forbidden statement."))
+	  RETURN ("Memory exhausted.");
       if (check_white_then_newline(p, code, *i, true) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (read_statement(p, code, i) != 1)
@@ -442,14 +462,20 @@ int			read_iteration_statement(t_parsing	*p,
     }
   if (bunny_read_text(code, i, "for"))
     {
+      if (p->for_forbidden.value)
+	if (!add_warning
+	    (p, code, *i, &p->for_forbidden.counter, "'for' is a forbidden statement."))
+	  RETURN ("Memory exhausted.");
       if (!bunny_read_text(code, i, "("))
 	RETURN ("Missing '(' after 'for'."); // LCOV_EXCL_LINE
+      p->last_declaration.inside_for_statement = true;
       if (read_expression_statement(p, code, i) != 1)
 	RETURN ("Missing initialization after 'for ('."); // LCOV_EXCL_LINE
       if (read_expression_statement(p, code, i) != 1)
 	RETURN ("Missing condition after 'for (initialization;'."); // LCOV_EXCL_LINE
       if (read_expression(p, code, i) == -1)
 	RETURN ("Invalid increment after 'for (initialization; condition;'."); // LCOV_EXCL_LINE
+      p->last_declaration.inside_for_statement = false;
       if (!bunny_read_text(code, i, ")"))
 	RETURN ("Missing ')' after 'for (initialization; condition; increment'."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, true) == false)
@@ -467,6 +493,10 @@ int			read_jump_statement(t_parsing		*p,
 {
   if (bunny_read_text(code, i, "goto"))
     {
+      if (p->goto_forbidden.value)
+	if (!add_warning
+	    (p, code, *i, &p->goto_forbidden.counter, "'goto' is a forbidden statement."))
+	  RETURN ("Memory exhausted.");
       if (!read_identifier(p, code, i, false))
 	RETURN ("Missing symbol after 'goto'."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ";"))
@@ -477,6 +507,10 @@ int			read_jump_statement(t_parsing		*p,
     }
   if (bunny_read_text(code, i, "continue"))
     {
+      if (p->continue_forbidden.value)
+	if (!add_warning
+	    (p, code, *i, &p->continue_forbidden.counter, "'continue' is a forbidden statement."))
+	  RETURN ("Memory exhausted.");
       if (!bunny_read_text(code, i, ";"))
 	RETURN ("Missing ';' after 'continue'."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, false) == false)
@@ -485,6 +519,10 @@ int			read_jump_statement(t_parsing		*p,
     }
   if (bunny_read_text(code, i, "break"))
     {
+      if (p->break_forbidden.value)
+	if (!add_warning
+	    (p, code, *i, &p->break_forbidden.counter, "'break' is a forbidden statement."))
+	  RETURN ("Memory exhausted.");
       if (!bunny_read_text(code, i, ";"))
 	RETURN ("Missing ';' after 'break'."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, false) == false)
@@ -493,6 +531,10 @@ int			read_jump_statement(t_parsing		*p,
     }
   if (bunny_read_text(code, i, "return"))
     {
+      if (p->return_forbidden.value)
+	if (!add_warning
+	    (p, code, *i, &p->return_forbidden.counter, "'return' is a forbidden statement."))
+	  RETURN ("Memory exhausted.");
       if (bunny_read_text(code, i, ";"))
 	return (1);
       if (read_expression(p, code, i) == -1)
@@ -517,7 +559,9 @@ int			read_expression_statement(t_parsing	*p,
     return (-1);
   if (!(sc = bunny_read_text(code, i, ";")) && ret == 1)
     RETURN ("Missing ';' after expression."); // LCOV_EXCL_LINE
-  if (check_white_then_newline(p, code, *i, false) == false)
+  if (ret == 1 &&
+      p->last_declaration.inside_for_statement == false &&
+      check_white_then_newline(p, code, *i, false) == false)
     RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
   return (ret + sc >= 1 ? 1 : 0);
 }
@@ -567,17 +611,16 @@ int			read_compound_statement(t_parsing	*p,
   bool			separator;
   
   // Style GNU, on indente avant { si on est dans le scope global
-  if (p->indent_style.value == GNU_STYLE && p->last_declaration.indent_depth != 0)
-    p->last_declaration.indent_depth += 1;
+  if (p->base_indent.active)
+    if (p->indent_style.value == GNU_STYLE && p->last_declaration.indent_depth != 0)
+      p->last_declaration.indent_depth += 1;
 
   if (bunny_read_text(code, i, "{") == false)
     return (0);
-  if (p->indent_style.value != KNR_STYLE)
+  if (p->base_indent.active && p->indent_style.value != KNR_STYLE)
     {
       if ((ret = check_is_alone(p, "{", code, *i)) == -1)
 	RETURN("Memory exhausted.");
-      else if (ret == 0)
-	p->indent_style.value += 1;
     }
   if (check_base_indentation(p, code, *i) == -1)
     RETURN("Memory exhausted.");
@@ -597,10 +640,10 @@ int			read_compound_statement(t_parsing	*p,
 	*i += 1;
       if (code[*i] != '\n' || code[*i + 1] != '\n')
 	{
-	  p->declaration_statement_separator.counter += 1;
-	  if (!add_warning(p, code, *i,
-			   "An empty line was expected between variable declaration and "
-			   "statement."))
+	  if (!add_warning
+	      (p, code, *i, &p->declaration_statement_separator.counter,
+	       "An empty line was expected between variable declaration and "
+	       "statement."))
 	    RETURN("Memory exhausted.");
 	}
       else
@@ -614,19 +657,18 @@ int			read_compound_statement(t_parsing	*p,
   end = *i;
   if (bunny_read_text(code, i, "}") == false)
     RETURN ("Missing '}' after '{ values'."); // LCOV_EXCL_LINE
-  if (p->indent_style.value != KNR_STYLE)
-    {
-      if ((ret = check_is_alone(p, "}", code, *i)) == -1)
-	RETURN("Memory exhausted.");
-      else if (ret == 0)
-	p->indent_style.value += 1;
-    }
+  if (check_white_then_newline(p, code, *i, false) == false)
+    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+  if (p->base_indent.active && p->indent_style.value != KNR_STYLE)
+    if ((ret = check_is_alone(p, "}", code, *i)) == -1)
+      RETURN("Memory exhausted.");
   if (check_base_indentation(p, code, *i) == -1)
     RETURN("Memory exhausted.");
 
   // Style GNU, on desindente après si on était pas dans le scope global
-  if (p->indent_style.value == GNU_STYLE && p->last_declaration.indent_depth > 0)
-    p->last_declaration.indent_depth -= 1;
+  if (p->base_indent.active)
+    if (p->indent_style.value == GNU_STYLE && p->last_declaration.indent_depth > 0)
+      p->last_declaration.indent_depth -= 1;
 
   // On verifie l'absence de ligne vide, en dehors du séparator
   if (p->no_empty_line_in_function.value)
@@ -888,9 +930,21 @@ int			read_unary_expression(t_parsing		*p,
       return (1);
     }
   if (bunny_read_text(code, i, "++"))
-    return (read_unary_expression(p, code, i));
+    {
+      if (p->inline_mod_forbidden.value)
+	if (!add_warning
+	    (p, code, *i, &p->inline_mod_forbidden.counter, "'++' is a forbidden statement."))
+	  RETURN ("Memory exhausted.");
+      return (read_unary_expression(p, code, i));
+    }
   if (bunny_read_text(code, i, "--"))
-    return (read_unary_expression(p, code, i));
+    {
+      if (p->inline_mod_forbidden.value)
+	if (!add_warning
+	    (p, code, *i, &p->inline_mod_forbidden.counter, "'--' is a forbidden statement."))
+	  RETURN ("Memory exhausted.");
+      return (read_unary_expression(p, code, i));
+    }
   if (read_unary_operator(p, code, i) == 1)
     return (read_cast_expression(p, code, i));
   return (read_postfix_expression(p, code, i));
@@ -1080,7 +1134,7 @@ int			read_assignment_expression(t_parsing	*p,
 	RETURN ("Problem encountered with expression after assignment."); // LCOV_EXCL_LINE
       return (1);
     }
-  return (read_logical_or_expression(p, code, i));
+  return (read_conditional_expression(p, code, i));
 }
 
 int			read_expression(t_parsing		*p,
@@ -1101,10 +1155,17 @@ int			read_conditional_expression(t_parsing	*p,
 						    const char	*code,
 						    ssize_t	*i)
 {
-  if (read_logical_or_expression(p, code, i) == -1)
-    return (-1);
+  int			ret;
+  
+  if ((ret = read_logical_or_expression(p, code, i)) != 1)
+    return (ret);
   if (bunny_read_text(code, i, "?"))
     {
+      if (p->ternary_forbidden.value)
+	if (!add_warning
+	    (p, code, *i, &p->ternary_forbidden.counter,
+	     "'?' is a forbidden statement."))
+	  RETURN ("Memory exhausted.");
       if (read_expression(p, code, i) != 1)
 	RETURN ("Problem encountered with expression after 'condition ?'."); // LCOV_EXCL_LINE
       if (bunny_read_text(code, i, ":") == false)
@@ -1193,9 +1254,9 @@ int			read_struct_declaration(t_parsing	*p,
     return (a);
   if ((b = read_struct_declarator_list(p, code, i)) == -1)
     RETURN ("Problem encountered with attribute name after type definition in struct."); // LCOV_EXCL_LINE
-  if ((a = a || b) && bunny_read_text(code, i, ";") == false)
+  if ((a = (a || b)) && bunny_read_text(code, i, ";") == false)
     RETURN ("Missing ';' after attribute definition in struct."); // LCOV_EXCL_LINE
-  if (check_white_then_newline(p, code, *i, false) == false)
+  if (a && check_white_then_newline(p, code, *i, false) == false)
     RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
   return (a ? 1 : 0);
 }
@@ -1431,12 +1492,11 @@ int			read_declaration_specifiers(t_parsing	*p,
 	      if (strcmp(buffer, p->typedef_stack[p->typedef_stack_top]) != 0)
 		{
 		  if (add_warning
-		      (p, code, j,
+		      (p, code, j, &p->typedef_matching.counter,
 		       "Typedef name '%s' does not match the typedefed type name '%s'.",
 		       buffer, p->typedef_stack[p->typedef_stack_top]
 		       ) == false)
 		    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
-		  p->typedef_matching.counter += 1;
 		}
 	      p->typedef_stack_top -= 1;
 	    }
@@ -1711,8 +1771,9 @@ int			read_init_declarator(t_parsing		*p,
   if (p->local_variable_inline_init_forbidden.value == 1
       && p->last_declaration.inside_function)
     {
-      p->local_variable_inline_init_forbidden.counter += 1;
-      if (!add_warning(p, code, *i, "Forbidden declaration/assignation of variable."))
+      if (!add_warning
+	  (p, code, *i, &p->local_variable_inline_init_forbidden.counter,
+	   "Forbidden declaration/assignation of variable."))
 	RETURN("Memory exhausted"); // LCOV_EXCL_LINE
     }
   if (read_initializer(p, code, i) != 1)
@@ -1868,7 +1929,7 @@ int			read_translation_unit(t_parsing		*p,
 		printf(" ");
 	      printf("^\n");
 	      printf("Error backtrack:\n");
-	      while (p->last_error_id >= 0)
+	      while (p->last_error_id > 0)
 		printf("- %s\n", p->last_error_msg[--p->last_error_id]);
 	    }
 	  gl_bunny_read_whitespace = NULL;
@@ -2126,7 +2187,19 @@ void			load_norm_configuration(t_parsing	*p,
   fetch_criteria(e, &p->declaration_statement_separator, "DeclarationStatementSeparator");
   fetch_criteria(e, &p->no_empty_line_in_function, "NoEmptyLineInFunction");
   fetch_criteria(e, &p->no_trailing_whitespace, "NoTrailingWhitespace");
-  fetch_criteria(e, &p->single_instruction_per_line, "SingleInstructionPerLine"); 
+  fetch_criteria(e, &p->single_instruction_per_line, "SingleInstructionPerLine");
+
+  fetch_criteria(e, &p->for_forbidden, "ForForbidden");
+  fetch_criteria(e, &p->while_forbidden, "WhileForbidden");
+  fetch_criteria(e, &p->do_while_forbidden, "DoWhileForbidden");
+  fetch_criteria(e, &p->goto_forbidden, "GoToForbidden");
+  fetch_criteria(e, &p->return_forbidden, "ReturnForbidden");
+  fetch_criteria(e, &p->break_forbidden, "BreakForbidden");
+  fetch_criteria(e, &p->continue_forbidden, "ContinueForbidden");
+  fetch_criteria(e, &p->if_forbidden, "IfForbidden");
+  fetch_criteria(e, &p->else_forbidden, "ElseForbidden");
+  fetch_criteria(e, &p->inline_mod_forbidden, "InlineModForbidden"); 
+  fetch_criteria(e, &p->ternary_forbidden, "TernaryForbidden"); 
   
   /*
   fetchi(e, &p->maximum_error_points, "Tolerance", 0);

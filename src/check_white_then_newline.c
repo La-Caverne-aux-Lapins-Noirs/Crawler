@@ -15,6 +15,8 @@ bool			check_white_then_newline(t_parsing	*p,
 {
   int			i = pos;
 
+  if (p->single_instruction_per_line.active == false)
+    return (true);
   while (code[i] && code[i] != '\n')
     {
       if (!isblank(code[i]))
@@ -23,13 +25,15 @@ bool			check_white_then_newline(t_parsing	*p,
 	    if (code[i] == '{')
 	      return (check_white_then_newline(p, code, i + 1, statement));
 	  if (code[i] == '}')
-	    return (1);
-	  p->single_instruction_per_line.counter += 1;
-	  if (!add_warning(p, code, i, "Multiple instructions on the same line."))
-	    return (-1);
-	  return (1);
+	    return (true);
+	  // write_line_and_position(code, pos);
+	  if (!add_warning
+	      (p, code, i, &p->single_instruction_per_line.counter,
+	       "Multiple instructions on the same line."))
+	    return (false);
+	  return (true);
 	}
       i += 1;
     }
-  return (1);
+  return (true);
 }

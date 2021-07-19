@@ -94,6 +94,11 @@ IndentationToken = 1
   Points = 1
 ]
 
+[SingleInstructionPerLine
+  Value = 1 'Une seule instruction par ligne maximum
+  Points = 1
+]
+
 [********************************
  ** STYLE DES SYMBOLES ET NOMS **
  ********************************]
@@ -229,5 +234,69 @@ PASCAL_CASE = 3 'ThisIsIt
 [TypedefMatching
   Value = true 'Force le nommage de typedef d'apres le type sous  jacent associé
   Points = 1
+]
+
+[***********************************
+ ** REGLEMENTATION DES MOTS CLEFS **
+ ***********************************]
+
+[ForForbidden
+  Value = true
+  Points = 5
+]
+
+[WhileForbidden
+  Value = true
+  Points = 5
+]
+
+[DoWhileForbidden
+  Value = true
+  Points = 5
+]
+
+[GoToForbidden
+  Value = true
+  Points = 5
+]
+
+[ReturnForbidden
+  Value = true
+  Points = 5
+]
+
+[BreakForbidden
+  Value = true
+  Points = 5
+]
+
+[ContinueForbidden
+  Value = true
+  Points = 5
+]
+
+[IfForbidden
+  Value = true
+  Points = 5
+]
+
+[ElseForbidden
+  Value = true
+  Points = 5
+]
+
+[SwitchForbidden
+  Value = true
+  Points = 5
+]
+
+[TernaryForbidden
+  Value = true
+  Points = 5
+]
+
+[InlineModificationForbidden
+  Value = true '++ / --
+  Points = 5
 ]
 

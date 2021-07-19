@@ -21,9 +21,10 @@ int			check_function_length(t_parsing		*p,
       if (code[i] == '\n')
 	if ((cnt += 1) > p->max_function_length.value)
 	  {
-	    p->max_function_length.counter += 1;
-	    if (!add_warning(p, code, i, "Function exceed the maximum of %d lines.",
-			     p->max_function_length.value))
+	    if (!add_warning
+		(p, code, i, &p->max_function_length.counter,
+		 "Function exceed the maximum of %d lines.",
+		 p->max_function_length.value))
 	      return (-1);
 	    cnt = 0;
 	  }

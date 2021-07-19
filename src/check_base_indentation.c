@@ -18,6 +18,8 @@ int			check_base_indentation(t_parsing		*p,
   bool			first_space = false;
   int			ilen;
 
+  if (p->base_indent.active == false)
+    return (1);
   while (i > 0 && code[i] != '\n')
     i -= 1;
   while (i != pos)
@@ -33,11 +35,12 @@ int			check_base_indentation(t_parsing		*p,
 	  // Si on a une tabulation apres un espace et qu'on tolerait la tabulation
 	  if (first_space && p->tab_or_space.value != 0)
 	    {
-	      p->base_indent.counter += 1;
-	      if (!add_warning(p, code, pos,
-			       "Bad indentation. "
-			       "Space are only authorized after tabulation and not inside."
-			       ))
+	      if (!add_warning
+		  (p, code, pos,
+		   &p->base_indent.counter,
+		   "Bad indentation. "
+		   "Space are only authorized after tabulation and not inside."
+		   ))
 		return (-1);
 	      return (1);
 	    }
@@ -46,17 +49,17 @@ int			check_base_indentation(t_parsing		*p,
     }
   if (p->tab_or_space.value == 0 && tab != 0)
     {
-      p->base_indent.counter += 1;
-      if (!add_warning(p, code, pos, "Tabulation are forbidden for indentation purpose."))
+      if (!add_warning
+	  (p, code, pos, &p->base_indent.counter,
+	   "Tabulation are forbidden for indentation purpose."))
 	return (-1);
       return (1);
     }
   ilen = tab * p->tab_or_space.value + space;
   if (ilen != p->last_declaration.indent_depth * p->base_indent.value)
     {
-      p->base_indent.counter += 1;
       if (!add_warning
-	  (p, code, pos,
+	  (p, code, pos, &p->base_indent.counter,
 	   "Bad indentation. "
 	   "Indentation width is %d where %d was expected.",
 	   ilen,

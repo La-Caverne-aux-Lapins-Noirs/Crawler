@@ -24,8 +24,9 @@ int			check_no_empty_line(t_parsing		*p,
 	dbl += 1;
       if ((dbl > 0 && sep == false) || (dbl > 1 && sep == true))
 	{
-	  p->no_empty_line_in_function.counter += 1;
-	  if (!add_warning(p, code, pos, "Forbidden empty line in scope."))
+	  if (!add_warning
+	      (p, code, pos, &p->no_empty_line_in_function.counter,
+	       "Forbidden empty line in scope."))
 	    return (-1);
 	  return (1);
 	}

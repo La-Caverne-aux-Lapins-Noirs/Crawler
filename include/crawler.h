@@ -41,6 +41,7 @@ typedef struct		s_last_function
   bool			inside_variable;
   bool			inside_struct;
   bool			inside_union;
+  bool			inside_for_statement;
   char			symbol[1024];
   int			indent_depth;
 }			t_last_function;
@@ -128,7 +129,19 @@ typedef struct		s_parsing
   t_criteria		single_instruction_per_line;
   t_criteria		max_column_width;
   t_criteria		max_function_length;
-  
+
+  t_criteria		for_forbidden;
+  t_criteria		while_forbidden;
+  t_criteria		do_while_forbidden;
+  t_criteria		goto_forbidden;
+  t_criteria		return_forbidden;
+  t_criteria		break_forbidden;
+  t_criteria		continue_forbidden;
+  t_criteria		if_forbidden;
+  t_criteria		else_forbidden;
+  t_criteria		switch_forbidden;
+  t_criteria		ternary_forbidden;
+  t_criteria		inline_mod_forbidden;
   t_criteria		end[0];
   
   // Configuration
@@ -387,6 +400,7 @@ int			tcpopen(const char				*module_name,
 bool			add_warning(t_parsing				*p,
 				    const char				*code,
 				    int					pos,
+				    int					*cnt,
 				    const char				*fmt,
 				    ...);
 
@@ -428,5 +442,9 @@ bool			check_white_then_newline(t_parsing		*p,
 						 const char		*code,
 						 int			pos,
 						 bool			statement);
+void			write_line_and_position(const char		*code,
+						int			pos,
+						char			*buf,
+						size_t			len);
 
 #endif	/*		__CRAWLER_H__					*/
