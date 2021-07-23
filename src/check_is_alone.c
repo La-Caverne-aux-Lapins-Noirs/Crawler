@@ -31,7 +31,7 @@ int			check_is_alone(t_parsing		*p,
   if (strncmp(&code[start], tok, end - start) != 0)
     {
       if (!add_warning
-	  (p, code, pos, &p->indent_style.counter,
+	  (p, code, pos, &p->base_indent.counter,
 	   "Token %s was expected to be alone on its line.", tok))
 	return (-1);
       return (0);

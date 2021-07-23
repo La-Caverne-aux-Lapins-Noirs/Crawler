@@ -20,7 +20,7 @@ int			main(void)
   assert(cnf = bunny_new_configuration());
   gl_bunny_read_whitespace = read_whitespace;
   p.criteria = &p.function_per_file;
-  goto NOW;
+  // goto NOW;
 
   /////////////////////////
   // ON TESTE LE PARSING //
@@ -786,16 +786,17 @@ int			main(void)
     ;
   p.last_error_id = -1;
   p.last_new_type = 0;
-  p.if_forbidden.value = 0;
-  p.if_forbidden.counter = 0;
+  p.maximum_if_in_function.active = true;
+  p.maximum_if_in_function.value = 3;
+  p.maximum_if_in_function.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
-  assert(p.if_forbidden.counter == 0);
-  p.if_forbidden.value = 1;
+  assert(p.maximum_if_in_function.counter == 0);
+  p.maximum_if_in_function.value = 0;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
-  assert(p.if_forbidden.counter == 1);
+  assert(p.maximum_if_in_function.counter == 1);
 
   i = 0;
   s =
@@ -1028,7 +1029,6 @@ int			main(void)
     goto Error;
   assert(p.always_braces.counter == 1);
 
- NOW:
   i = 0;
   s =
     "void func(int a, int b, int c)\n"
@@ -1065,6 +1065,154 @@ int			main(void)
     goto Error;
   assert(p.max_parameter.counter == 0);
 
+  /////////////////
+  // INDENTATION //
+  /////////////////
+
+  bunny_delete_configuration(cnf);
+  cnf = bunny_new_configuration();
+
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  int i;\n"
+    "  if (a)\n"
+    "    {\n"
+    "      a = 2;\n"
+    "    }\n"
+    "}\n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.base_indent.active = true;
+  p.indent_style.value = GNU_STYLE;
+  p.base_indent.value = 2;
+  p.tab_or_space.value = 8;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter == 0);
+  
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  if (a)\n"
+    "    {\n"
+    "      a = 2;\n"
+    "      if (b)\n"
+    "        {\n"
+    "\t  a = 4;\n"
+    "        }\n"
+    "    }\n"
+    "}\n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.base_indent.active = true;
+  p.indent_style.value = 0;
+  p.base_indent.value = 2;
+  p.tab_or_space.value = 8;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter == 0);
+
+  // Des espaces avant tabulation...
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  if (a)\n"
+    "    {\n"
+    "      a = 2;\n"
+    "      if (b)\n"
+    "        {\n"
+    "    \t  a = 4;\n"
+    "        }\n"
+    "    }\n"
+    "}\n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.base_indent.active = true;
+  p.indent_style.value = 0;
+  p.base_indent.value = 2;
+  p.tab_or_space.value = 8;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter == 1);
+  
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "if (a)\n"
+    "{\n"
+    "a = 2;\n"
+    "if (b)\n"
+    "{\n"
+    "a = 4;\n"
+    "}\n"
+    "}\n"
+    "}\n"
+    ;
+  p.base_indent.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter == 8);
+
+  // Maintenant on interdit tabulation
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  if (a)\n"
+    "    {\n"
+    "      a = 2;\n"
+    "      if (b)\n"
+    "        {\n"
+    "\t  a = 4;\n"
+    "        }\n"
+    "    }\n"
+    "}\n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.base_indent.active = true;
+  p.indent_style.value = 0;
+  p.base_indent.value = 2;
+  p.tab_or_space.value = 0;
+  p.base_indent.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  printf("%d\n", p.base_indent.counter);
+  assert(p.base_indent.counter == 1);
+
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  if (a)\n"
+    "    {\n"
+    "      a = 2;\n"
+    "      if (b)\n"
+    "        {\n"
+    "          a = 4;\n"
+    "        }\n"
+    "    }\n"
+    "}\n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.base_indent.active = true;
+  p.indent_style.value = 0;
+  p.base_indent.value = 2;
+  p.base_indent.counter = 0;
+  p.tab_or_space.value = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter == 0);
+  
   /////////////////////////////////
   // GRAND TEST FINAL DE PARSING //
   /////////////////////////////////

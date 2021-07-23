@@ -45,7 +45,9 @@ typedef struct		s_last_function
   bool			inside_parameter;
   bool			after_statement;
   char			symbol[1024];
+  int			nbr_if;
   int			indent_depth;
+  int			last_line;
 }			t_last_function;
 
 typedef struct		s_criteria
@@ -133,8 +135,9 @@ typedef struct		s_parsing
   t_criteria		max_function_length;
   t_criteria		max_parameter;
   t_criteria		always_braces;
-  t_criteria		space_after_statement; // A FAIRE ==========
-  t_criteria		space_around_binary_operator; // A FAIRE============
+  t_criteria		space_after_statement;
+  t_criteria		space_around_binary_operator;
+  t_criteria		space_after_comma;
   t_criteria		only_by_reference; // A FAIRE ===============
 
   t_criteria		for_forbidden;
@@ -144,8 +147,7 @@ typedef struct		s_parsing
   t_criteria		return_forbidden;
   t_criteria		break_forbidden;
   t_criteria		continue_forbidden;
-  t_criteria		if_forbidden; // A retirer du coup, mais garder la conf, qui imapcteria maximum_if_in_function du coup
-  t_criteria		maximum_if_in_function; // <=== A FAIRE ===============
+  t_criteria		maximum_if_in_function;
   t_criteria		else_forbidden;
   t_criteria		switch_forbidden;
   t_criteria		ternary_forbidden;
@@ -154,33 +156,6 @@ typedef struct		s_parsing
   
   // Configuration
   /* AJOUTER AU FUR ET A MESURE
-
-  bool			space_after_continue;
-  int			space_after_continue_cost;
-
-  bool			not_terminating_return_forbidden;
-  int			not_terminating_return_cost;
-  bool			space_after_return;
-  int			space_after_return_cost;
-
-
-  char			header[512];
-  int			header_cost;
-
-  bool			declare_init_variable_forbidden;	// int i = 42;
-  int			declare_init_variable_cost;
-
-  int			max_declare_per_line_forbidden;		// int i, j;
-  int			max_delcare_per_line_cost;
-
-  int			max_statement_per_line;			// Max one ; and no operator ,
-  int			max_statement_per_line_cost;
-
-  bool			space_around_unary_operator;		// 1 + 2 + 3
-  int			space_around_unary_operator_cost;
-
-  bool			space_around_parenthesis;		// (4 + 5) / ( 4 + 5 )
-  int			space_around_parenthesis_cost;
 
   bool			space_after_comma;			// 1, 2, 3 / 1,2,3
   int			space_after_comma_cost;
@@ -194,12 +169,6 @@ typedef struct		s_parsing
   bool			variable_at_beginning;
   int			variable_at_beginning_cost;
 
-  bool			empty_line_after_declaration;
-  int			empty_line_after_declaration_cost;
-
-  bool			no_empty_line_in_function;		// Except after variable declaration...
-  int			no_empty_line_in_function_cost;
-
   bool			unix_text_format;
   int			unix_text_format_cost;
 
@@ -212,40 +181,12 @@ typedef struct		s_parsing
   bool			no_magic_const_val;			// Impossible a faire actuellement
   int			no_magic_const_val_cost;		// du fait de l'utilisation de gcc -E
 
-  int			max_copy_parameter_size;
-  int			max_copy_parameter_size_cost;
-
   bool			all_globals_are_const;
   int			non_const_global_cost;
-
-  char			struct_prefix[8];
-  char			struct_suffix[8];
-  char			union_prefix[8];
-  char			union_suffix[8];
-  char			global_prefix[8];
-  char			global_suffix[8];
-  char			typedef_prefix[8];
-  char			typedef_suffix[8];
-  bool			typedef_matching;			// typedef struct s_lol {} t_lol;
-  int			missing_fix_cost;
-
-  bool			typedef_mandatory;
-  int			typedef_mandatory_cost;
 
   bool			no_short_name;				// except i, j & k
   int			no_short_name_cost;
 
-  t_style		function_style;
-  int			function_style_cost;
-
-  t_style		variable_style;
-  int			variable_style_cost;
-
-  t_style		macro_style;				// gcc -E empeche de tester ca
-  int			macro_style_cost;
-
-  t_style		enum_val_style;
-  int			enum_val_style_cost;
   */
 }			t_parsing;
 
@@ -385,9 +326,30 @@ bool			check_white_then_newline(t_parsing		*p,
 						 const char		*code,
 						 int			pos,
 						 bool			statement);
-void			write_line_and_position(const char		*code,
+int			write_line_and_position(const char		*code,
 						int			pos,
 						char			*buf,
-						size_t			len);
+						size_t			len,
+						bool			position);
+void			print_line_and_position(t_parsing		*p,
+						const char		*code,
+						int			pos,
+						bool			position);
+bool			read_whitespace(const char			*code,
+					ssize_t				*i);
+int			check_single_space(t_parsing			*p,
+					   const char			*code,
+					   int				pos);
+int			check_no_space_before_space_after(t_parsing	*p,
+							  const char	*code,
+							  int		pos);
+int			check_one_space_around(t_parsing		*p,
+					       const char		*code,
+					       int			pos,
+					       int			toklen);
+
+void			full_write_with_arrow(t_parsing			*p,
+					      const char		*code,
+					      int			pos);
 
 #endif	/*		__CRAWLER_H__					*/

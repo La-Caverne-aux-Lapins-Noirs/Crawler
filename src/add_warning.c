@@ -24,7 +24,7 @@ bool			add_warning(t_parsing			*p,
   end += vsnprintf(&buf[0], sizeof(buf) - end, fmt, lst);
   end += snprintf(&buf[end], sizeof(buf) - end, " (%s, line %d)\n",
 		  p->file, bunny_which_line(code, pos));
-  write_line_and_position(code, pos, &buf[end], sizeof(buf) - end);
+  write_line_and_position(code, pos, &buf[end], sizeof(buf) - end, true);
   if ((p->last_error_msg[++p->last_error_id] = bunny_strdup(&buf[0])) == NULL)
     { // LCOV_EXCL_START
       p->last_error_id -= 1;
