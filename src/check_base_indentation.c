@@ -67,8 +67,8 @@ int			check_base_indentation(t_parsing		*p,
   ilen = tab * p->tab_or_space.value + space;
   if (ilen != p->last_declaration.indent_depth * p->base_indent.value)
     {
-      full_write_with_arrow(p, code, pos); // Debug
-      printf("Calculated indentation: %.2f\n", (float)ilen / p->base_indent.value); // Dbg
+      // full_write_with_arrow(p, code, pos); // Debug
+      // printf("Calculated indentation: %.2f\n", (float)ilen / p->base_indent.value); // Dbg
       if (!add_warning
 	  (p, code, pos, &p->base_indent.counter,
 	   "Bad indentation. "

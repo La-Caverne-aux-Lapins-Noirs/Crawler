@@ -10,35 +10,30 @@
 
 int			check_one_space_around(t_parsing	*p,
 					       const char	*code,
-					       int		pos,
+					       ssize_t		pos,
 					       int		len)
-{
-  int			to_start = pos - 1;
-  
+{ 
   if (!p->space_around_binary_operator.value)
     return (1);
+  read_whitespace(code, &pos);
+  int			to_start = pos;
 
   if (to_start > 0)
     {
-      // On boucle jusqu'a trouver le début de la ligne, tant que ce sont des espaces
-      // au cas ou l'opérateur débute la ligne
-      while (code[to_start] && isblank(code[to_start]))
+      // A gauche, on a soit un unique espace puis un autre caractère
+      // Soit une ligne de blanc jusqu'a un saut de ligne (ou le début de la string)
+      while (to_start > 0 && isblank(code[to_start - 1]))
 	to_start -= 1;
-      // On a pas trouvé un saut de ligne... on a donc quelque chose du type 2     + 1
-      // Il y a plus d'un espace ou il n'y a pas d'espace du tout
-      if (code[to_start] != '\n' && pos - to_start != 1)
+      if (pos - to_start != 1 && code[to_start - 1] != '\n')
 	goto Bad;
     }
 
   if (code[pos + len] != '\0')
     {
       to_start = pos + len;
-      pos += len / 2;
-      while (code[to_start] == ' ')
+      while (isblank(code[to_start]))
 	to_start += 1;
-      if (to_start - pos == 0 && code[to_start] != '\n')
-	goto Bad;
-      if (to_start - pos != 1)
+      if (to_start - (pos + len) != 1 && code[to_start] != '\n')
 	goto Bad;
     }
 

@@ -709,6 +709,17 @@ int			main(void)
   s =
     "void func(void)\n"
     "{\n"
+    "  int tab[2][2] =\n"
+    "    {\n"
+    "      {\n"
+    "        42,\n"
+    "        89\n"
+    "      },\n"
+    "      {\n"
+    "        42,\n"
+    "        89\n"
+    "      }\n"
+    "    };\n"
     "  int i;\n"
     "  i = 42;\n"
     "}\n"
@@ -725,9 +736,10 @@ int			main(void)
   s =
     "void func(void) \n"
     "{  \n"
-    "  int i; \n"
+    "  int i, j; \n"
     "\n"
-    "  i = 42; i += 1; \n"
+    "  i = 42; j += 1; \n"
+    "  i = 42, j += 1; \n"
     "\n"
     "} \n"
     ;
@@ -735,16 +747,18 @@ int			main(void)
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
-  assert(p.no_trailing_whitespace.counter == 5);
+  assert(p.no_trailing_whitespace.counter == 6);
   assert(p.no_empty_line_in_function.counter == 1);
-  assert(p.single_instruction_per_line.counter == 1);
+  assert(p.single_instruction_per_line.counter == 3);
   
   bunny_configuration_setf(cnf, 1, "DeclarationStatementSeparator");
   load_norm_configuration(&p, cnf);
   i = 0;
   s =
+    "void prototype(void);\n"
     "void func(void)\n"
     "{\n"
+    "  void prototype(void);\n"
     "  int i;\n"
     "\n"
     "  if (lol) i = 0;\n"
@@ -786,17 +800,38 @@ int			main(void)
     ;
   p.last_error_id = -1;
   p.last_new_type = 0;
-  p.maximum_if_in_function.active = true;
-  p.maximum_if_in_function.value = 3;
-  p.maximum_if_in_function.counter = 0;
+  bunny_configuration_setf(cnf, 3, "MaximumIfInFunction.Value");
+  bunny_configuration_setf(cnf, 1, "MaximumIfInFunction.Points");
+  load_norm_configuration(&p, cnf);
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.maximum_if_in_function.counter == 0);
-  p.maximum_if_in_function.value = 0;
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  if (a == b) { }\n"
+    "  if (a == b) { }\n"
+    "  if (a == b) { }\n"
+    "  if (a == b) { }\n"
+    "  if (a == b) { }\n"
+    "} \n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.maximum_if_in_function.counter == 2);
+
+  bunny_delete_node(cnf, "MaximumIfInFunction");
+  bunny_configuration_setf(cnf, 1, "IfForbidden.Value");
+  bunny_configuration_setf(cnf, 1, "IfForbidden.Points");
+  load_norm_configuration(&p, cnf);
+  p.maximum_if_in_function.counter = 0;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
-  assert(p.maximum_if_in_function.counter == 1);
+  assert(p.maximum_if_in_function.counter == 5);
 
   i = 0;
   s =
@@ -942,6 +977,55 @@ int			main(void)
     goto Error;
   assert(p.continue_forbidden.counter == 1);
 
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  while (a < b)\n"
+    "  {\n"
+    "    Lol:\n"
+    "    if (a == c)\n"
+    "      goto Lol;\n"
+    "  }\n"
+    "} \n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.goto_forbidden.value = 0;
+  p.goto_forbidden.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.goto_forbidden.counter == 0);
+  p.goto_forbidden.value = 1;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.goto_forbidden.counter == 1);
+
+  i = 0;
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  while (a < b)\n"
+    "  {\n"
+    "    if (a == c)\n"
+    "      return (b);\n"
+    "  }\n"
+    "} \n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.return_forbidden.value = 0;
+  p.return_forbidden.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.return_forbidden.counter == 0);
+  p.return_forbidden.value = 1;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.return_forbidden.counter == 1);
+  
   i = 0;
   s =
     "void func(void)\n"
@@ -1185,7 +1269,6 @@ int			main(void)
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
-  printf("%d\n", p.base_indent.counter);
   assert(p.base_indent.counter == 1);
 
   i = 0;
@@ -1212,6 +1295,166 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.base_indent.counter == 0);
+
+  i = 0;
+  s =
+    "void cnt(void)\n"
+    "{\n"
+    "  int i = 57;\n"
+    "  double j = 4.2;\n"
+    "  int k;\n"
+    "}\n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.no_short_name.active = true;
+  p.no_short_name.value = 4;
+  p.no_magic_value.active = false;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.no_short_name.counter == 0);
+  assert(p.no_magic_value.counter == 0);
+
+  i = 0;
+  s =
+    "void foo(void)\n"
+    "{\n"
+    "  int bar = 57;\n"
+    "  int fob = 4.2;\n"
+    "  int bao;\n"
+    "}\n"
+    ;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.no_short_name.active = true;
+  p.no_short_name.value = 4;
+  p.no_magic_value.active = true;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.no_short_name.counter == 4);
+  assert(p.no_magic_value.counter == 2);
+
+  i = 0;
+  s = "int i = 0;";
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.all_globals_are_const.active = false;
+  p.all_globals_are_const.value = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.all_globals_are_const.counter == 0);
+
+  i = 0;
+  s = "int i = 0;";
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.all_globals_are_const.active = true;
+  p.all_globals_are_const.value = 1;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.all_globals_are_const.counter == 1);
+
+  i = 0;
+  s = "const int i = 0;";
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.all_globals_are_const.active = true;
+  p.all_globals_are_const.value = 1;
+  p.all_globals_are_const.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.all_globals_are_const.counter == 0);
+  
+  // Espaces
+  i = 0;
+  s =
+    "typedef struct s_truc\n"
+    "{\n"
+    "  int a, b;\n"
+    "} t_truc;\n"
+    "void func(int a, int b)\n"
+    "{\n"
+    "  int i, j, k;\n"
+    "  while (a)\n"
+    "    {\n"
+    "    }\n"
+    "  for (a; b; c)\n"
+    "    {\n"
+    "    }\n"
+    "  do\n"
+    "    {\n"
+    "    }\n"
+    "  while (a);\n"
+    "  switch (a)\n"
+    "    {\n"
+    "    }\n"
+    "  if (a)\n"
+    "    {\n"
+    "      a = 2;\n"
+    "    }\n"
+    "  a += 3 + b[3] * 7 >> 3 & 9 | 4 ^ 2 ? 6 : (5 + 7);\n"
+    "  b = c, d;"
+    "}\n"
+    ;
+  load_norm_configuration(&p, cnf);
+  p.space_after_statement.active = true;
+  p.space_after_statement.value = 1;
+  p.space_around_binary_operator.active = true;
+  p.space_around_binary_operator.value = 1;
+  p.space_after_comma.active = true;
+  p.space_after_comma.value = 1;
+  p.max_column_width.value = 20;
+  p.max_column_width.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.space_after_statement.counter == 0);
+  assert(p.space_around_binary_operator.counter == 0);
+  assert(p.space_after_comma.counter == 0);
+  assert(p.max_column_width.counter == 2);
+
+  i = 0;
+  s =
+    "typedef struct s_truc\n"
+    "{\n"
+    "  int a,b;\n"
+    "} t_truc;\n"
+    "void func(int a,int b)\n"
+    "{\n"
+    "  int i,j,k;\n"
+    "  while(a)\n"
+    "    {\n"
+    "    }\n"
+    "  for(a; b; c)\n"
+    "    {\n"
+    "    }\n"
+    "  do\n"
+    "    {\n"
+    "    }\n"
+    "  while(a);\n"
+    "  switch(a)\n"
+    "    {\n"
+    "    }\n"
+    "  if(a)\n"
+    "    {\n"
+    "      a = 2;\n"
+    "    }\n"
+    "  a+=3+b[3]*7>>3&9|4^2?6:(5+7);\n"
+    "  b=c,d;"
+    "}\n"
+    ;
+  load_norm_configuration(&p, cnf);
+  p.space_after_statement.active = true;
+  p.space_after_statement.value = 1;
+  p.space_around_binary_operator.active = true;
+  p.space_around_binary_operator.value = 1;
+  p.space_after_comma.active = true;
+  p.space_after_comma.value = 1;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.space_after_statement.counter == 5);
+  assert(p.space_around_binary_operator.counter == 11);
+  assert(p.space_after_comma.counter == 5);
+
   
   /////////////////////////////////
   // GRAND TEST FINAL DE PARSING //

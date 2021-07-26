@@ -1,8 +1,14 @@
 /*
 ** Jason Brillante "Damdoshi"
 ** Hanged Bunny Studio 2014-2021
+** Pentacle Technologie 2008-2021
 **
-** TechnoCore
+** C-C-C CRAWLER!
+** Configurable C Code Crawler !
+** Bloc constitutif du "TechnoCentre", suite logiciel
+** du projet "Pentacle School"
+** Vérificateur de confirmité du code (entre autre)
+** niveau style.
 */
 
 #ifndef			__CRAWLER_H__
@@ -37,6 +43,8 @@ typedef struct		s_last_function
   bool			is_static;
   bool			is_auto;
   bool			is_register;
+  bool			is_const;
+  bool			is_volatile;
   bool			inside_function;
   bool			inside_variable;
   bool			inside_struct;
@@ -48,6 +56,7 @@ typedef struct		s_last_function
   int			nbr_if;
   int			indent_depth;
   int			last_line;
+  int			last_char;
 }			t_last_function;
 
 typedef struct		s_criteria
@@ -124,22 +133,40 @@ typedef struct		s_parsing
   t_criteria		function_matching_path;
   t_criteria		local_variable_inline_init_forbidden;
 
+  // Indentation
   t_criteria		indent_style; // 0: GNU, 1: BSD, 2: K&R
   t_criteria		base_indent; // taille de l'indentation
   t_criteria		tab_or_space; // 0: espace, autre: taille de la tabulation
-  t_criteria		declaration_statement_separator;
-  t_criteria		no_empty_line_in_function;
-  t_criteria		no_trailing_whitespace;
+  t_criteria		function_variable_alignment; // A FAIRE =====
+  t_criteria		parameter_type_alignment; // A FAIRE ========
+  t_criteria		parameter_name_alignment; // A FAIRE ========
+  t_criteria		global_function_variable_alignment; // A FAIRE
+  t_criteria		global_parameter_name_alignment; // A FAIRE =
+
+  // Capacité de fonctions
   t_criteria		single_instruction_per_line;
   t_criteria		max_column_width;
   t_criteria		max_function_length;
   t_criteria		max_parameter;
+  t_criteria		only_by_reference; // A FAIRE ===============
   t_criteria		always_braces;
+
+  // Espaces et sauts de lignes
+  t_criteria		declaration_statement_separator;
+  t_criteria		no_empty_line_in_function;
+  t_criteria		no_trailing_whitespace;
   t_criteria		space_after_statement;
   t_criteria		space_around_binary_operator;
   t_criteria		space_after_comma;
-  t_criteria		only_by_reference; // A FAIRE ===============
 
+  // Autre trucs...
+  t_criteria		ptr_symbol_on_name; // A FAIRE ==============
+  t_criteria		ptr_symbol_on_type; // A FAIRE ==============
+  t_criteria		all_globals_are_const;
+  t_criteria		no_magic_value;
+  t_criteria		no_short_name;
+
+  // Mot clefs et operateurs
   t_criteria		for_forbidden;
   t_criteria		while_forbidden;
   t_criteria		do_while_forbidden;
@@ -153,41 +180,6 @@ typedef struct		s_parsing
   t_criteria		ternary_forbidden;
   t_criteria		inline_mod_forbidden;
   t_criteria		end[0];
-  
-  // Configuration
-  /* AJOUTER AU FUR ET A MESURE
-
-  bool			space_after_comma;			// 1, 2, 3 / 1,2,3
-  int			space_after_comma_cost;
-
-  bool			no_trailing_whitespace;
-  int			trailing_whitespace_cost;
-
-  bool			empty_line_at_the_end;
-  int			no_empty_line_cost;
-
-  bool			variable_at_beginning;
-  int			variable_at_beginning_cost;
-
-  bool			unix_text_format;
-  int			unix_text_format_cost;
-
-  bool			ptr_symbol_on_name;
-  int			ptr_symbol_on_name_cost;
-
-  bool			ptr_symbol_on_type;
-  int			ptr_symbol_on_type_cost;
-
-  bool			no_magic_const_val;			// Impossible a faire actuellement
-  int			no_magic_const_val_cost;		// du fait de l'utilisation de gcc -E
-
-  bool			all_globals_are_const;
-  int			non_const_global_cost;
-
-  bool			no_short_name;				// except i, j & k
-  int			no_short_name_cost;
-
-  */
 }			t_parsing;
 
 bool			read_whitespace(const char		*code,
@@ -345,7 +337,7 @@ int			check_no_space_before_space_after(t_parsing	*p,
 							  int		pos);
 int			check_one_space_around(t_parsing		*p,
 					       const char		*code,
-					       int			pos,
+					       ssize_t			pos,
 					       int			toklen);
 
 void			full_write_with_arrow(t_parsing			*p,
