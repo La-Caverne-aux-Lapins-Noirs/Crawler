@@ -1,6 +1,6 @@
-# CCCCCrawler
+# CCCCrawler
 
-"Clever and Configurable C Code Crawler"
+"Configurable C Code Crawler"
 
 Bibliothèque de lecture de C et utilitaires associés.
 
