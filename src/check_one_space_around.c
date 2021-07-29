@@ -11,9 +11,11 @@
 int			check_one_space_around(t_parsing	*p,
 					       const char	*code,
 					       ssize_t		pos,
-					       int		len)
+					       int		len,
+					       int		val,
+					       int		*cnt)
 { 
-  if (!p->space_around_binary_operator.value)
+  if (!val)
     return (1);
   read_whitespace(code, &pos);
   int			to_start = pos;
@@ -40,8 +42,8 @@ int			check_one_space_around(t_parsing	*p,
   return (1);
 
  Bad:
-  if (!add_warning(p, code, pos, &p->space_around_binary_operator.counter,
-		   "A single space was expected around the binary operator."))
+  if (!add_warning(p, code, pos, cnt,
+		   "A single space was expected around the operator."))
     return (-1);
   return (1);
 }

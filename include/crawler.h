@@ -5,10 +5,8 @@
 **
 ** C-C-C CRAWLER!
 ** Configurable C Code Crawler !
-** Bloc constitutif du "TechnoCentre", suite logiciel
-** du projet "Pentacle School"
-** Vérificateur de confirmité du code (entre autre)
-** niveau style.
+** Bloc constitutif du "TechnoCentre", suite logiciel du projet "Pentacle School"
+** Vérificateur de confirmité du code (entre autre) niveau style.
 */
 
 #ifndef			__CRAWLER_H__
@@ -16,8 +14,11 @@
 # include		<stdbool.h>
 # include		"lapin.h"
 
+// Renvoi 0, permet de s'arreter quand une erreur est rencontrée
+int			trace(void);
+
 #define			RETURN(a)				\
-  return (p->last_error_msg[++p->last_error_id] = (a " (" STRINGIFY(__LINE__) ")" ), -1)
+  return (p->last_error_msg[++p->last_error_id + trace()] = (a " (" STRINGIFY(__LINE__) ")" ), -1)
 # define		SYMBOL_SIZE				127
 
 typedef enum		e_style
@@ -34,6 +35,12 @@ typedef enum		e_coding_style
     ALLMAN_STYLE,
     KNR_STYLE
   }			t_coding_style;
+
+typedef struct		s_type
+{
+  char			name[SYMBOL_SIZE + 1];
+  int			size;
+}			t_type;
 
 typedef struct		s_last_function
 {
@@ -52,11 +59,20 @@ typedef struct		s_last_function
   bool			inside_for_statement;
   bool			inside_parameter;
   bool			after_statement;
+  char			last_type[1024];
   char			symbol[1024];
   int			nbr_if;
   int			indent_depth;
   int			last_line;
   int			last_char;
+  int			nbr_pointer;
+  int			last_type_size;
+  int			cumulated_attribute_size;
+  int			scope_depth;
+  bool			was_defining;
+  bool			was_named;
+  t_type		copied_parameters[16]; // 16, ca devrait aller...
+  int			nbr_copied_parameters;
 }			t_last_function;
 
 typedef struct		s_criteria
@@ -82,7 +98,7 @@ typedef struct		s_parsing
 {
   const char		*file;
 
-  char			new_type[8192][SYMBOL_SIZE + 1];
+  t_type		new_type[8192];
   size_t		last_new_type;
 
   char			typedef_stack[16][SYMBOL_SIZE + 1];
@@ -137,7 +153,8 @@ typedef struct		s_parsing
   t_criteria		indent_style; // 0: GNU, 1: BSD, 2: K&R
   t_criteria		base_indent; // taille de l'indentation
   t_criteria		tab_or_space; // 0: espace, autre: taille de la tabulation
-  t_criteria		function_variable_alignment; // A FAIRE =====
+  // Indentation style moi
+  t_criteria		function_variable_definition_alignment; // A FAIRE =====
   t_criteria		parameter_type_alignment; // A FAIRE ========
   t_criteria		parameter_name_alignment; // A FAIRE ========
   t_criteria		global_function_variable_alignment; // A FAIRE
@@ -148,20 +165,23 @@ typedef struct		s_parsing
   t_criteria		max_column_width;
   t_criteria		max_function_length;
   t_criteria		max_parameter;
-  t_criteria		only_by_reference; // A FAIRE ===============
+  t_criteria		only_by_reference;
   t_criteria		always_braces;
 
   // Espaces et sauts de lignes
   t_criteria		declaration_statement_separator;
   t_criteria		no_empty_line_in_function;
   t_criteria		no_trailing_whitespace;
+  t_criteria		no_space_inside_parenthesis;
   t_criteria		space_after_statement;
   t_criteria		space_around_binary_operator;
   t_criteria		space_after_comma;
 
   // Autre trucs...
-  t_criteria		ptr_symbol_on_name; // A FAIRE ==============
-  t_criteria		ptr_symbol_on_type; // A FAIRE ==============
+  t_string_criteria	header; // A FAIRE ==========================
+  t_criteria		ptr_symbol_on_name;
+  t_criteria		ptr_symbol_on_type;
+  t_criteria		inbetween_ptr_symbol_space;
   t_criteria		all_globals_are_const;
   t_criteria		no_magic_value;
   t_criteria		no_short_name;
@@ -338,10 +358,27 @@ int			check_no_space_before_space_after(t_parsing	*p,
 int			check_one_space_around(t_parsing		*p,
 					       const char		*code,
 					       ssize_t			pos,
-					       int			toklen);
+					       int			toklen,
+					       int			val,
+					       int			*cnt);
 
 void			full_write_with_arrow(t_parsing			*p,
 					      const char		*code,
 					      int			pos);
+bool			check_pointer_star_position(t_parsing		*p,
+						    const char		*code,
+						    int			pos);
+bool			check_parenthesis_space(t_parsing		*p,
+						const char		*code,
+						int			pos,
+						char			direction,
+						int			*cnt);
+bool			check_last_parameter_is_reference(t_parsing	*p,
+							  const char	*code,
+							  int		pos);
+
+bool			add_new_type(t_parsing				*p,
+				     const char				*sym,
+				     int				size);
 
 #endif	/*		__CRAWLER_H__					*/

@@ -18,9 +18,10 @@ int			main(void)
 
   memset(&p, 0, sizeof(p));
   assert(cnf = bunny_new_configuration());
+  load_norm_configuration(&p, cnf);
   gl_bunny_read_whitespace = read_whitespace;
   p.criteria = &p.function_per_file;
-  // goto NOW;
+  goto NOW;
 
   /////////////////////////
   // ON TESTE LE PARSING //
@@ -108,14 +109,40 @@ int			main(void)
     goto Error;
 
   i = 0;
-  s = "const int * function_symbol() {}";
-  if (read_function_declaration(&p, s, &i) != 1)
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  s = "const int * function_symbol(int * const *, int [42 + 4], int* (*)(void)) {}";
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
 
   i = 0;
-  s = "const int * function_symbol();";
-  if (read_declaration(&p, s, &i) != 1)
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  s = "const int * function_symbol(int, *);";
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
+
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  s = "const int * function_symbol(int, *);";
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  s = "const bool (*bunny_get_koy_button(int, double))[45 + 2];";
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+
+  i = 0;
+  s = "extern int **;";
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  gl_bunny_read_whitespace = read_whitespace;
 
   i = 0;
   s = "for (i = 0; i < 10; ++i) { }";
@@ -128,7 +155,7 @@ int			main(void)
     goto Error;
 
   i = 0;
-  s = "const int * function_symbol(int a, double b, ...) {\n"
+  s = "const * int * function_symbol(int a[], double b, ...) {\n"
     "if (i == 42) { puts(\"C'est cool\", 5[2], 'c'); i += 1; } else if (*i == 43) { } else atoi(52);\n"
     "start:\n"
     "while (i < 100) { i = &i + 1; } // the loop\n"
@@ -209,6 +236,7 @@ int			main(void)
   i = 0;
   s =
     "int global = 42;\n"
+    "int ** global2 = 42;\n"
     "void switch_function() {\n"
     "switch (i + 2 - sizeof(*lol)) {\n"
     "case Symbol: puts('e' + sizeof(*lol));\n"
@@ -1455,6 +1483,189 @@ int			main(void)
   assert(p.space_around_binary_operator.counter == 11);
   assert(p.space_after_comma.counter == 5);
 
+  // Allignement de l'étoile
+  i = 0;
+  s =
+    "int* var;"
+    ;
+  load_norm_configuration(&p, cnf);
+  p.ptr_symbol_on_name.value = 1;
+  p.ptr_symbol_on_type.value = 0;
+  p.ptr_symbol_on_name.counter = 0;
+  p.ptr_symbol_on_type.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.ptr_symbol_on_name.counter == 1);
+  assert(p.ptr_symbol_on_type.counter == 0);
+
+  i = 0;
+  s =
+    "int *var;"
+    ;
+  load_norm_configuration(&p, cnf);
+  p.ptr_symbol_on_name.value = 1;
+  p.ptr_symbol_on_type.value = 0;
+  p.ptr_symbol_on_name.counter = 0;
+  p.ptr_symbol_on_type.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.ptr_symbol_on_name.counter == 0);
+  assert(p.ptr_symbol_on_type.counter == 0);
+
+  i = 0;
+  s =
+    "int *var;"
+    ;
+  load_norm_configuration(&p, cnf);
+  p.ptr_symbol_on_name.value = 0;
+  p.ptr_symbol_on_type.value = 1;
+  p.ptr_symbol_on_name.counter = 0;
+  p.ptr_symbol_on_type.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.ptr_symbol_on_name.counter == 0);
+  assert(p.ptr_symbol_on_type.counter == 1);
+
+  i = 0;
+  s =
+    "int* var;"
+    ;
+  load_norm_configuration(&p, cnf);
+  p.ptr_symbol_on_name.value = 0;
+  p.ptr_symbol_on_type.value = 1;
+  p.ptr_symbol_on_name.counter = 0;
+  p.ptr_symbol_on_type.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.ptr_symbol_on_name.counter == 0);
+  assert(p.ptr_symbol_on_type.counter == 0);
+
+  i = 0;
+  s =
+    "int * const var;"
+    ;
+  load_norm_configuration(&p, cnf);
+  p.inbetween_ptr_symbol_space.value = 1;
+  p.inbetween_ptr_symbol_space.counter = 0;
+  p.ptr_symbol_on_name.value = 0;
+  p.ptr_symbol_on_type.value = 0;
+  p.ptr_symbol_on_name.counter = 0;
+  p.ptr_symbol_on_type.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.inbetween_ptr_symbol_space.counter == 0);
+  assert(p.ptr_symbol_on_name.counter == 0);
+  assert(p.ptr_symbol_on_type.counter == 0);
+
+  i = 0;
+  s =
+    "int* const var;"
+    ;
+  load_norm_configuration(&p, cnf);
+  p.inbetween_ptr_symbol_space.value = 1;
+  p.inbetween_ptr_symbol_space.counter = 0;
+  p.ptr_symbol_on_name.value = 0;
+  p.ptr_symbol_on_type.value = 0;
+  p.ptr_symbol_on_name.counter = 0;
+  p.ptr_symbol_on_type.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.inbetween_ptr_symbol_space.counter == 1);
+  assert(p.ptr_symbol_on_name.counter == 0);
+  assert(p.ptr_symbol_on_type.counter == 0);
+
+  //// Test du passage de paramètre par copie ou par reference
+  // On commence par verifier que le compteur de taille de structure est fonctionnel
+  // Il est possible que certains types natifs aient été oubliés
+ NOW:
+  p.last_new_type = 0;
+  i = 0;
+  s = "typedef int Integer;\n";
+  load_norm_configuration(&p, cnf);
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(strcmp(p.new_type[0].name, "Integer") == 0);
+  assert(p.new_type[0].size == 4);
+
+  i = 0;
+  s = "typedef int * IntPointer;\n";
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(strcmp(p.new_type[1].name, "IntPointer") == 0);
+  assert(p.new_type[1].size == 8);
+
+  i = 0;
+  s =
+    "typedef struct s_8 {\n"
+    "  int a;\n"
+    "  Integer b;\n"
+    "} t_8;\n"
+    "\n"
+    "typedef struct s_24 {\n"
+    "  struct s_8 c;\n"
+    "  t_8 d;\n"
+    "  void *e;\n"
+    "} t_24;\n"
+    ;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(strcmp(p.new_type[2].name, "s_8") == 0);
+  assert(p.new_type[2].size == 8);
+  assert(strcmp(p.new_type[3].name, "t_8") == 0);
+  assert(p.new_type[3].size == 8);
+  assert(strcmp(p.new_type[4].name, "s_24") == 0);
+  assert(p.new_type[4].size == 24);
+  assert(strcmp(p.new_type[5].name, "t_24") == 0);
+  assert(p.new_type[5].size == 24);
+
+  // On ne reset pas le nombre de type afin de profiter de la config au dessus
+  i = 0;
+  p.last_error_id = -1;
+  // On limite a 32 octets la taille d'un paramètre par copie
+  p.only_by_reference.active = true;
+  p.only_by_reference.value = 16;
+  p.only_by_reference.counter = 0;
+  // Les prototypes ne sont pas censés être vérifiés
+  s = "void func(t_24 copy);";
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.only_by_reference.counter == 0);
+
+  i = 0;
+  p.last_error_id = -1;
+  // On limite a 32 octets la taille d'un paramètre par copie
+  p.only_by_reference.active = true;
+  p.only_by_reference.value = 32;
+  p.only_by_reference.counter = 0;
+  // On est dans les clous, car t_24 est plus petit que 32
+  s = "void func(t_24 copy) { return ; }";
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.only_by_reference.counter == 0);
+
+  i = 0;
+  p.last_error_id = -1;
+  // On limite a 32 octets la taille d'un paramètre par copie
+  p.only_by_reference.active = true;
+  p.only_by_reference.value = 16;
+  p.only_by_reference.counter = 0;
+  // On est dans l'illegalité car 16 est maintenant le max
+  s = "void func(t_24 copy) { return ; }";
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.only_by_reference.counter == 1);
+
+  i = 0;
+  p.last_error_id = -1;
+  // On limite a 32 octets la taille d'un paramètre par copie
+  p.only_by_reference.active = true;
+  p.only_by_reference.value = 16;
+  p.only_by_reference.counter = 0;
+  // On est de nouveau dans la légalité car maintenant on passe par reference
+  s = "void func(t_24 *copy) { return ; }";
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.only_by_reference.counter == 0);
   
   /////////////////////////////////
   // GRAND TEST FINAL DE PARSING //

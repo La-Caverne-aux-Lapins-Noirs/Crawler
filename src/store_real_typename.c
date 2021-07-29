@@ -52,6 +52,7 @@ int			store_real_typename(t_parsing		*p,
       else
 	flen -= strlen(p->function_infix.value);
     }
+  strncpy(&p->last_declaration.last_type[0], symbol, sizeof(p->last_declaration.last_type));
   strncpy(target, &symbol[spoint], flen > len ? len : flen);
   return (1);
 }
