@@ -12,6 +12,8 @@ int			check_base_indentation(t_parsing		*p,
 					       const char		*code,
 					       int			pos)
 {
+  if (!IZ(p, &pos))
+    return (1);
   ssize_t		i = pos;
   int			tab = 0;
   int			space = 0;
@@ -45,7 +47,7 @@ int			check_base_indentation(t_parsing		*p,
 	  if (first_space && p->tab_or_space.value != 0)
 	    {
 	      if (!add_warning
-		  (p, code, pos,
+		  (p, true, code, pos,
 		   &p->base_indent.counter,
 		   "Bad indentation. "
 		   "Space are only authorized after tabulation and not inside."
@@ -59,7 +61,7 @@ int			check_base_indentation(t_parsing		*p,
   if (p->tab_or_space.value == 0 && tab != 0)
     {
       if (!add_warning
-	  (p, code, pos, &p->base_indent.counter,
+	  (p, true, code, pos, &p->base_indent.counter,
 	   "Tabulation are forbidden for indentation purpose."))
 	return (-1);
       return (1);
@@ -70,7 +72,7 @@ int			check_base_indentation(t_parsing		*p,
       // full_write_with_arrow(p, code, pos); // Debug
       // printf("Calculated indentation: %.2f\n", (float)ilen / p->base_indent.value); // Dbg
       if (!add_warning
-	  (p, code, pos, &p->base_indent.counter,
+	  (p, true, code, pos, &p->base_indent.counter,
 	   "Bad indentation. "
 	   "Indentation width is %d where %d was expected.",
 	   ilen,

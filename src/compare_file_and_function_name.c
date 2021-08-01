@@ -14,6 +14,8 @@ int			compare_file_and_function_name(t_parsing	*p,
 						       const char	*code,
 						       int		pos)
 {
+  if (!IZ(p, &pos))
+    return (1);
   const char * const	*split;
   const char		*tokens[4] = {"/", "\\", ".c", NULL};
   char			buffer[512];
@@ -42,7 +44,7 @@ int			compare_file_and_function_name(t_parsing	*p,
   if (strcmp(&buffer[0], func) != 0)
     {
       if (add_warning
-	  (p, code, pos, &p->function_matching_path.counter,
+	  (p, true, code, pos, &p->function_matching_path.counter,
 	   "Function %s does not match its path name %s.\n",
 	   func, &buffer[0]) == false)
 	RETURN("Memory exhausted."); // LCOV_EXCL_LINE

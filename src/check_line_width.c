@@ -13,6 +13,8 @@ int			check_line_width(t_parsing		*p,
 					 int			begin,
 					 int			end)
 {
+  if (!IZ(p, &begin))
+    return (1);
   int			count = 0;
   int			last_newline = 0;
   int			i = begin;
@@ -24,7 +26,7 @@ int			check_line_width(t_parsing		*p,
       else if ((last_newline += 1) > p->max_column_width.value)
 	{
 	  if (!add_warning
-	      (p, code, i, &p->max_column_width.counter,
+	      (p, true, code, i, &p->max_column_width.counter,
 	       "Line exceed the maximum of %d columns.",
 	       p->max_column_width.value))
 	    return (-1);

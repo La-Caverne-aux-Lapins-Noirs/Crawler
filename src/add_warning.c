@@ -9,12 +9,15 @@
 #include		"crawler.h"
 
 bool			add_warning(t_parsing			*p,
+				    bool			real,
 				    const char			*code,
 				    int				pos,
 				    int				*cnt,
 				    const char			*fmt,
 				    ...)
 {
+  if (real == false)
+    return (true);
   char			buf[2048];
   va_list		lst;
   int			end;

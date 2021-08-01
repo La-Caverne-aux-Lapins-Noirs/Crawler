@@ -13,8 +13,10 @@ int			main(void)
 {
   t_parsing		p;
   t_bunny_configuration	*cnf;
-  const char		*s;
+  char			*s;
   ssize_t		i;
+  char			*file;
+  char			*cfile;
 
   memset(&p, 0, sizeof(p));
   assert(cnf = bunny_new_configuration());
@@ -111,6 +113,7 @@ int			main(void)
   i = 0;
   p.last_error_id = -1;
   p.last_new_type = 0;
+  load_norm_configuration(&p, cnf);
   s = "const int * function_symbol(int * const *, int [42 + 4], int* (*)(void)) {}";
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
@@ -1177,6 +1180,76 @@ int			main(void)
     goto Error;
   assert(p.max_parameter.counter == 0);
 
+  s =
+    "void func(void)\n"
+    "{\n"
+    "  int i;\n"
+    "  int j;\n"
+    "}\n"
+    ;
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.maximum_variable.active = false;
+  p.maximum_variable.value = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.maximum_variable.counter == 0);
+
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.maximum_variable.active = true;
+  p.maximum_variable.value = 3;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.maximum_variable.counter == 0);
+
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.maximum_variable.active = true;
+  p.maximum_variable.value = 1;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.maximum_variable.counter == 1);
+
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.maximum_variable.active = true;
+  p.maximum_variable.value = 1;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.maximum_variable.counter == 2);
+
+  bunny_delete_configuration(cnf);
+  cnf = bunny_new_configuration();
+  load_norm_configuration(&p, cnf);
+  s = "int main(void) { return sizeof 47; }";
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.return_parenthesis.active = false;
+  p.return_parenthesis.value = 0;
+  p.sizeof_parenthesis.active = false;
+  p.sizeof_parenthesis.value = 0;
+  i = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.return_parenthesis.counter == 0);
+  assert(p.sizeof_parenthesis.counter == 0);
+
+  i = 0;
+  s = "int main(void) { return sizeof 47; }";
+  p.return_parenthesis.active = true;
+  p.return_parenthesis.value = 1;
+  p.sizeof_parenthesis.active = true;
+  p.sizeof_parenthesis.value = 1;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.return_parenthesis.counter == 1);
+  assert(p.sizeof_parenthesis.counter == 1);
+
   /////////////////
   // INDENTATION //
   /////////////////
@@ -1577,7 +1650,6 @@ int			main(void)
   //// Test du passage de paramètre par copie ou par reference
   // On commence par verifier que le compteur de taille de structure est fonctionnel
   // Il est possible que certains types natifs aient été oubliés
- NOW:
   p.last_new_type = 0;
   i = 0;
   s = "typedef int Integer;\n";
@@ -1666,7 +1738,267 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.only_by_reference.counter == 0);
+
+  // On interdit les globlas
+  i = 0;
+  p.last_error_id = -1;
+  p.no_global.active = false;
+  p.no_global.value = 0;
+  p.no_global.counter = 0;
+  s = "void func(void) { int i; return ; }";
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.no_global.counter == 0);
+
+  i = 0;
+  p.last_error_id = -1;
+  p.no_global.active = true;
+  p.no_global.value = 1;
+  p.no_global.counter = 0;
+  s = "void func(void) { int i; return ; }";
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.no_global.counter == 0);
+
+  i = 0;
+  p.last_error_id = -1;
+  p.no_global.active = false;
+  p.no_global.value = 0;
+  p.no_global.counter = 0;
+  s = "int j; void func(void) { int i; return ; }";
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.no_global.counter == 0);
+
+  i = 0;
+  p.last_error_id = -1;
+  p.no_global.active = true;
+  p.no_global.value = 1;
+  p.no_global.counter = 0;
+  s = "int j; void func(void) { int i; return ; }";
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.no_global.counter == 1);
+
+  p.last_error_id = -1;
+  bunny_delete_configuration(cnf);
+  cnf = bunny_new_configuration();
+  bunny_configuration_setf
+    (cnf,
+     "/*\n"
+     "** %FirstName %FamilyName %Nickname %Login <%Mail>\n"
+     "** %ProjectName %Year\n"
+     "*/\n"
+     , "Header");
+  bunny_configuration_setf(cnf, "Felina", "FirstName");
+  bunny_configuration_setf(cnf, "Rose", "FamilyName");
+  bunny_configuration_setf(cnf, "Felinistra", "Nickname");
+  bunny_configuration_setf(cnf, "felina.rose", "Login");
+  bunny_configuration_setf(cnf, "felina.rose@cln.school", "Mail");
+  bunny_configuration_setf(cnf, "CCCCrawler", "ProjectName");
+  bunny_configuration_setf(cnf, "2021", "Year");
+  load_norm_configuration(&p, cnf);
+  i = 0;
+  s =
+    "\n"
+    "typedef __int lol;\n"
+    "\n"
+    "/*\n"
+    "** Felina Rose Felinistra felina.rose <felina.rose@cln.school>\n"
+    "** CCCCrawler 2021\n"
+    "*/\n"
+    "\n"
+    "#include <stdio.h>\n"
+    "\n"
+    "int main(void)\n"
+    "{\n"
+    "  return (0);\n"
+    "}\n"
+    ;
+  assert(check_header_file(&p, &s[20]));
+  assert(p.header.counter == 0);
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.header.counter == 0);
+
+  i = 0;
+  s =
+    "\n"
+    "typedef __int lol;\n"
+    "\n"
+    "/*\n"
+    "** Felina Rose Felinistra    felina.rose <felina.rose@cln.school>\n"
+    "** CCCCrawler 2021\n"
+    "*/\n"
+    "\n"
+    "#include <stdio.h>\n"
+    "\n"
+    "int main(void)\n"
+    "{\n"
+    "  return (0);\n"
+    "}\n"
+    ;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.header.counter == 1);
+
+  //////////////////////////////////////
+  // On verifie l'indentation basique //
+  //////////////////////////////////////
+
+ NOW:
+  p.base_indent.active = true;
+  p.base_indent.value = 2;
+  p.tab_or_space.active = true;
+  p.tab_or_space.value = 8;
+
+  //////////// STYLE GNU
+  file = "./res/gnu.c";
+  assert(s = load_c_file(file, cnf, false));
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.value = 0;
+  p.base_indent.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter == 0);
+
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.value = 1;
+  p.base_indent.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter != 0);
+
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.value = 2;
+  p.base_indent.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter != 0);
+
+  //////////// STYLE BSD
+  file = "./res/bsd.c";
+  assert(s = load_c_file(file, cnf, false));
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.value = 1;
+  p.base_indent.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter != 0);
+
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.value = 1;
+  p.base_indent.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter == 0);
+
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.value = 2;
+  p.base_indent.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter != 0);
+
+  //////////// STYLE K&R
+  file = "./res/knr.c";
+  assert(s = load_c_file(file, cnf, false));
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.value = 0;
+  p.base_indent.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter != 0);
+
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.value = 1;
+  p.base_indent.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter != 0);
+
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.value = 2;
+  p.base_indent.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter == 0);
+
+  load_norm_configuration(&p, cnf);
+
+  ////////////////////////////////////////////
+  // On verifie l'indentation intermediaire //
+  ////////////////////////////////////////////
+
+  // Pas d'indentation des symboles
+  p.function_variable_definition_alignment.value = 1;
+  p.parameter_type_alignment.value = 1;
+  p.parameter_name_alignment.value = 1;
+  p.global_function_variable_alignment.value = 1;
+  p.global_parameter_name_alignment.value = 1;
   
+  i = 0;
+  p.last_error_id = -1;
+  file = "./res/classic.c";
+  assert(s = load_c_file(file, cnf, false));
+  p.function_variable_definition_alignment.counter = 0;
+  p.parameter_type_alignment.counter = 0;
+  p.parameter_name_alignment.counter = 0;
+  p.global_function_variable_alignment.counter = 0;
+  p.global_parameter_name_alignment.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.function_variable_definition_alignment.counter != 0);
+  assert(p.parameter_type_alignment.counter != 0);
+  assert(p.parameter_name_alignment.counter != 0);
+  assert(p.global_function_variable_alignment.counter != 0);
+  assert(p.global_parameter_name_alignment.counter != 0);
+
+  // Indentation des symboles hors paramètre
+  i = 0;
+  p.last_error_id = -1;
+  file = "./res/local.c";
+  assert(s = load_c_file(file, cnf, false));
+  p.function_variable_definition_alignment.counter = 0;
+  p.parameter_type_alignment.counter = 0;
+  p.parameter_name_alignment.counter = 0;
+  p.global_function_variable_alignment.counter = 0;
+  p.global_parameter_name_alignment.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.function_variable_definition_alignment.counter == 0);
+  assert(p.parameter_type_alignment.counter == 0);
+  assert(p.parameter_name_alignment.counter == 0);
+  assert(p.global_function_variable_alignment.counter != 0);
+  assert(p.global_parameter_name_alignment.counter != 0);
+
+  // Indentation des symboles
+  i = 0;
+  p.last_error_id = -1;
+  file = "./res/global.c";
+  assert(s = load_c_file(file, cnf, false));
+  p.function_variable_definition_alignment.counter = 0;
+  p.parameter_type_alignment.counter = 0;
+  p.parameter_name_alignment.counter = 0;
+  p.global_function_variable_alignment.counter = 0;
+  p.global_parameter_name_alignment.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.function_variable_definition_alignment.counter == 0);
+  assert(p.parameter_type_alignment.counter == 0);
+  assert(p.parameter_name_alignment.counter == 0);
+  assert(p.global_function_variable_alignment.counter == 0);
+  assert(p.global_parameter_name_alignment.counter == 0);
+
   /////////////////////////////////
   // GRAND TEST FINAL DE PARSING //
   /////////////////////////////////
@@ -1678,8 +2010,8 @@ int			main(void)
   bunny_delete_configuration(cnf);
   cnf = bunny_new_configuration();
   load_norm_configuration(&p, cnf);
-  char *file = "./../include/crawler.h";
-  char *cfile = load_c_file(file, cnf);
+  file = "./../include/crawler.h";
+  cfile = load_c_file(file, cnf, true);
   if (cfile == NULL)
     goto Error;
   if (read_translation_unit(&p, file, cfile, &i, true) == -1)
@@ -1737,7 +2069,7 @@ int			main(void)
 
   p.max_column_width.counter = 0;
   p.max_column_width.value = 8;
-  assert(check_line_width(&p, "12345\n123\n123456789", 0, 19) == 1);
+  assert(check_line_width(&p, "\n12345\n123\n123456789", 0, 20) == 1);
   assert(p.max_column_width.counter == 1);
 
   p.max_column_width.counter = 0;

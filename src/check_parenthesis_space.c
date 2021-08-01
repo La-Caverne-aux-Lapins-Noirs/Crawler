@@ -14,17 +14,21 @@ bool			check_parenthesis_space(t_parsing	*p,
 						char		dir,
 						int		*cnt)
 {
+  if (!IZ(p, &pos))
+    return (true);
   if (dir == '(')
     {
       // Désactivé car redondant avec d'autres vérifications
       if (0 && pos > 0 && !isspace(code[pos - 1]) && code[pos - 1] != code[pos])
-	if (!add_warning(p, code, pos, cnt,
-			 "A space was expected before %c.", code[pos]))
+	if (!add_warning
+	    (p, true, code, pos, cnt,
+	     "A space was expected before %c.", code[pos]))
 	  return (false);
       // Mais on verifie toujours l'interieur
       if (isspace(code[pos + 1]) && code[pos + 1] != code[pos])
-	if (!add_warning(p, code, pos, cnt,
-			 "No space was expected after %c.", code[pos]))
+	if (!add_warning
+	    (p, true, code, pos, cnt,
+	     "No space was expected after %c.", code[pos]))
 	  return (false);
       return (true);
     }
@@ -32,13 +36,15 @@ bool			check_parenthesis_space(t_parsing	*p,
     {
       // On verifie l'interieur
       if (pos > 0 && isspace(code[pos - 1]) && code[pos - 1] != code[pos])
-	if (!add_warning(p, code, pos, cnt,
-			 "No space was expected before %c.", code[pos]))
+	if (!add_warning
+	    (p, true, code, pos, cnt,
+	     "No space was expected before %c.", code[pos]))
 	  return (false);
       // Mais on laisse l'exterieur a d'autres verificateurs
       if (0 && !isspace(code[pos + 1]) && code[pos + 1] != code[pos])
-	if (!add_warning(p, code, pos, cnt,
-			 "A space was expected after %c.", code[pos]))
+	if (!add_warning
+	    (p, true, code, pos, cnt,
+	     "A space was expected after %c.", code[pos]))
 	  return (false);
       return (true);
     }

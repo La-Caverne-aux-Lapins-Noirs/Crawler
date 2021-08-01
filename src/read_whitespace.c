@@ -22,28 +22,31 @@ bool			read_whitespace(const char		*code,
       if (bunny_read_text(code, i, "/*"))
 	{
 	  ret = true;
-	  while (code[*i] && !bunny_read_text(code, i, "*/"))
+	  while (code[*i] && !bunny_check_text(code, i, "*/"))
 	    *i += 1;
 	  if (code[*i] == '\0')
 	    goto BadEnd;
+	  bunny_read_text(code, i, "*/");
 	}
       if (bunny_read_text(code, i, "//"))
 	{
 	  ret = true;
-	  while (code[*i] && !bunny_read_text(code, i, "\n"))
+	  while (code[*i] && !bunny_check_text(code, i, "\n"))
 	    *i += 1;
 	  if (!code[*i])
 	    goto GoodEnd;
+	  bunny_read_text(code, i, "\n");
 	}
       if (bunny_read_text(code, i, "#")) // Au cas ou il reste du preprocesseur
 	{
 	  ret = true;
 	  do
 	    {
-	      while (code[*i] && !bunny_read_text(code, i, "\n"))
+	      while (code[*i] && !bunny_check_text(code, i, "\n"))
 		*i += 1;
 	      if (!code[*i])
 		goto GoodEnd;
+	      bunny_read_text(code, i, "\n");
 	    }
 	  while (code[*i - 1] == '\\');
 	}

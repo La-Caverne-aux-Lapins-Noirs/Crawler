@@ -24,7 +24,7 @@ int			check_trailing_whitespace(t_parsing		*p,
 	  if (j != i - 1)
 	    {
 	      if (!add_warning
-		  (p, code, j, &p->no_trailing_whitespace.counter,
+		  (p, IZ(p, &j), code, j, &p->no_trailing_whitespace.counter,
 		   "Trailing whitespace found."))
 		return (-1);
 	    }

@@ -15,6 +15,8 @@ int			check_no_empty_line(t_parsing		*p,
 					    int			begin,
 					    int			end)
 {
+  if (!IZ(p, &pos))
+    return (1);
   int			i = begin;
   int			dbl = 0;
 
@@ -25,7 +27,7 @@ int			check_no_empty_line(t_parsing		*p,
       if ((dbl > 0 && sep == false) || (dbl > 1 && sep == true))
 	{
 	  if (!add_warning
-	      (p, code, pos, &p->no_empty_line_in_function.counter,
+	      (p, true, code, pos, &p->no_empty_line_in_function.counter,
 	       "Forbidden empty line in scope."))
 	    return (-1);
 	  return (1);

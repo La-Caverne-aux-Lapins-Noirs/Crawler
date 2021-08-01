@@ -42,7 +42,7 @@ int			check_one_space_around(t_parsing	*p,
   return (1);
 
  Bad:
-  if (!add_warning(p, code, pos, cnt,
+  if (!add_warning(p, IZ(p, &pos), code, pos, cnt,
 		   "A single space was expected around the operator."))
     return (-1);
   return (1);

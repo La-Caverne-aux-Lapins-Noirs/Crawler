@@ -17,7 +17,6 @@ bool			add_new_type(t_parsing				*p,
   for (i = 0; i < p->last_new_type; ++i)
     if (strcmp(sym, p->new_type[i].name) == 0)
       {
-	printf("Retrieving type %s\n", sym);
 	if (p->new_type[i].size == -1)
 	  p->new_type[i].size = size;
 	strcpy(p->last_declaration.last_type, sym);

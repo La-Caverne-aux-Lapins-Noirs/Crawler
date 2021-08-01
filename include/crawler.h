@@ -21,6 +21,9 @@ int			trace(void);
   return (p->last_error_msg[++p->last_error_id + trace()] = (a " (" STRINGIFY(__LINE__) ")" ), -1)
 # define		SYMBOL_SIZE				127
 
+# define		IZ(p, i)					\
+  ((p)->header.value == false || (p)->last_declaration.last_header <= *(i))
+
 typedef enum		e_style
   {
     MIXED_CASE,		// THIS_IS_IT
@@ -62,17 +65,29 @@ typedef struct		s_last_function
   char			last_type[1024];
   char			symbol[1024];
   int			nbr_if;
+  int			nbr_variable;
   int			indent_depth;
   int			last_line;
   int			last_char;
   int			nbr_pointer;
+  int			ptr_acc;
   int			last_type_size;
   int			cumulated_attribute_size;
   int			scope_depth;
+  int			scope_length;
   bool			was_defining;
   bool			was_named;
   t_type		copied_parameters[16]; // 16, ca devrait aller...
   int			nbr_copied_parameters;
+  int			last_header; ////////////////// IL FAUT L'EXPLOITER !!!!
+  int			header_line; ////////////////// IL FAUT L'EXPLOITER !!!!
+
+  int			parameter_type_alignment;
+  int			local_parameter_name_alignment;
+  int			local_symbol_alignment;
+
+  int			global_parameter_name_alignment;
+  int			global_symbol_alignment;
 }			t_last_function;
 
 typedef struct		s_criteria
@@ -97,13 +112,13 @@ typedef struct		s_string_critera
 typedef struct		s_parsing
 {
   const char		*file;
+  t_bunny_configuration	*configuration;
 
   t_type		new_type[8192];
   size_t		last_new_type;
 
   char			typedef_stack[16][SYMBOL_SIZE + 1];
   int			typedef_stack_top;
-
   
   t_last_function	last_declaration;
 
@@ -113,6 +128,7 @@ typedef struct		s_parsing
   int			maximum_error_points;
   int			nbr_error_points;
   int			nbr_mistakes;
+  char			header_data[4096];
   t_criteria		*criteria;
 
   // About functions inside files
@@ -153,20 +169,21 @@ typedef struct		s_parsing
   t_criteria		indent_style; // 0: GNU, 1: BSD, 2: K&R
   t_criteria		base_indent; // taille de l'indentation
   t_criteria		tab_or_space; // 0: espace, autre: taille de la tabulation
-  // Indentation style moi
-  t_criteria		function_variable_definition_alignment; // A FAIRE =====
-  t_criteria		parameter_type_alignment; // A FAIRE ========
-  t_criteria		parameter_name_alignment; // A FAIRE ========
-  t_criteria		global_function_variable_alignment; // A FAIRE
-  t_criteria		global_parameter_name_alignment; // A FAIRE =
+  t_criteria		function_variable_definition_alignment;
+  t_criteria		parameter_type_alignment;
+  t_criteria		parameter_name_alignment;
+  t_criteria		global_function_variable_alignment;
+  t_criteria		global_parameter_name_alignment;
 
   // Capacité de fonctions
   t_criteria		single_instruction_per_line;
-  t_criteria		max_column_width;
+  t_criteria		max_column_width; ///////////////// LA MESURE DOIT SE FAIRE SUR LE FICHIER AVANT LE PASSAGE DU PRE PROCESSEUR!
   t_criteria		max_function_length;
   t_criteria		max_parameter;
   t_criteria		only_by_reference;
   t_criteria		always_braces;
+  t_criteria		avoid_braces;
+  t_criteria		maximum_scope_length; // A FAIRE ============
 
   // Espaces et sauts de lignes
   t_criteria		declaration_statement_separator;
@@ -176,15 +193,20 @@ typedef struct		s_parsing
   t_criteria		space_after_statement;
   t_criteria		space_around_binary_operator;
   t_criteria		space_after_comma;
+  t_criteria		newline_before_logic; // A FAIRE ========== (42)
 
   // Autre trucs...
-  t_string_criteria	header; // A FAIRE ==========================
+  t_string_criteria	header;
   t_criteria		ptr_symbol_on_name;
   t_criteria		ptr_symbol_on_type;
   t_criteria		inbetween_ptr_symbol_space;
   t_criteria		all_globals_are_const;
   t_criteria		no_magic_value;
   t_criteria		no_short_name;
+  t_criteria		maximum_variable;
+  t_criteria		no_global;
+  t_criteria		return_parenthesis;
+  t_criteria		sizeof_parenthesis;
 
   // Mot clefs et operateurs
   t_criteria		for_forbidden;
@@ -284,7 +306,8 @@ void			reset_last_declaration(t_parsing		*f);
 void			load_norm_configuration(t_parsing		*p,
 						t_bunny_configuration	*e);
 char			*load_c_file(const char				*file,
-				     t_bunny_configuration		*exe);
+				     t_bunny_configuration		*exe,
+				     bool				preprocessed);
 
 int			tcpopen(const char				*module_name,
 				const char				*cmd,
@@ -294,6 +317,7 @@ int			tcpopen(const char				*module_name,
 				size_t					msg_size);
 
 bool			add_warning(t_parsing				*p,
+				    bool				real,
 				    const char				*code,
 				    int					pos,
 				    int					*cnt,
@@ -380,5 +404,18 @@ bool			check_last_parameter_is_reference(t_parsing	*p,
 bool			add_new_type(t_parsing				*p,
 				     const char				*sym,
 				     int				size);
+
+bool			check_header(t_parsing				*p,
+				     const char				*code);
+
+int			count_to_new_line(t_parsing			*p,
+					  const char			*code,
+					  int				pos);
+
+// A appeler pour verifier le code non préprocéssé
+int			check_header_file(t_parsing			*p,
+					  const char			*code);
+int			check_all_lines_width(t_parsing			*p,
+					      const char		*code);
 
 #endif	/*		__CRAWLER_H__					*/

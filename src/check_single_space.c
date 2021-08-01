@@ -12,6 +12,8 @@ int			check_single_space(t_parsing		*p,
 					   const char		*code,
 					   int			pos)
 {
+  if (!IZ(p, &pos))
+    return (1);
   if (!p->space_after_statement.value)
     return (1);
 
@@ -22,8 +24,9 @@ int			check_single_space(t_parsing		*p,
   return (1);
 
  Bad:
-  if (!add_warning(p, code, pos, &p->space_after_statement.counter,
-		   "A single space was expected after the statement."))
+  if (!add_warning
+      (p, true, code, pos, &p->space_after_statement.counter,
+       "A single space was expected after the statement."))
     return (-1);
   return (1);
 }
