@@ -86,4 +86,12 @@ void			full_write_with_arrow(t_parsing		*p,
 	   "cat -n << EOF | sed 's/%d/>>/g'\n%s\nEOF\n", line, code);
   IGN(system(&buffer[0]));
 }
+
+void			write_indent(t_parsing			*p)
+{
+  IGN(write(1,
+	    "--------------------------------------------------",
+	    p->last_declaration.indent_depth));
+  IGN(write(1, "\n", 1));
+}
 // LCOV_EXCL_STOP

@@ -2,7 +2,7 @@
 int		foo(int		argc,
 		    int		gard)
 {
-  int		i;
+  int		*i;
   int		j;
   
   return (0);

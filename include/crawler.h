@@ -67,6 +67,7 @@ typedef struct		s_last_function
   int			nbr_if;
   int			nbr_variable;
   int			indent_depth;
+  int			depth_bonus;
   int			last_line;
   int			last_char;
   int			nbr_pointer;
@@ -79,15 +80,8 @@ typedef struct		s_last_function
   bool			was_named;
   t_type		copied_parameters[16]; // 16, ca devrait aller...
   int			nbr_copied_parameters;
-  int			last_header; ////////////////// IL FAUT L'EXPLOITER !!!!
-  int			header_line; ////////////////// IL FAUT L'EXPLOITER !!!!
-
-  int			parameter_type_alignment;
-  int			local_parameter_name_alignment;
-  int			local_symbol_alignment;
-
-  int			global_parameter_name_alignment;
-  int			global_symbol_alignment;
+  int			last_header;
+  int			header_line;
 }			t_last_function;
 
 typedef struct		s_criteria
@@ -121,6 +115,13 @@ typedef struct		s_parsing
   int			typedef_stack_top;
   
   t_last_function	last_declaration;
+
+  // Etait dans last_declaration, mais doivent survivre au reset...
+  int			local_symbol_alignment;
+  int			local_parameter_type_alignment;
+  int			local_parameter_name_alignment;
+  int			global_parameter_name_alignment;
+  int			global_symbol_alignment;
 
   const char		*last_error_msg[256];
   int			last_error_id;
@@ -169,15 +170,15 @@ typedef struct		s_parsing
   t_criteria		indent_style; // 0: GNU, 1: BSD, 2: K&R
   t_criteria		base_indent; // taille de l'indentation
   t_criteria		tab_or_space; // 0: espace, autre: taille de la tabulation
-  t_criteria		function_variable_definition_alignment;
+  t_criteria		symbol_alignment; // noms de fonctions, structures, tdef et variables
   t_criteria		parameter_type_alignment;
   t_criteria		parameter_name_alignment;
-  t_criteria		global_function_variable_alignment;
-  t_criteria		global_parameter_name_alignment;
+  t_criteria		file_parameter_name_alignment;
+  t_criteria		file_symbol_alignment;
 
   // Capacité de fonctions
   t_criteria		single_instruction_per_line;
-  t_criteria		max_column_width; ///////////////// LA MESURE DOIT SE FAIRE SUR LE FICHIER AVANT LE PASSAGE DU PRE PROCESSEUR!
+  t_criteria		max_column_width;
   t_criteria		max_function_length;
   t_criteria		max_parameter;
   t_criteria		only_by_reference;
@@ -371,6 +372,7 @@ void			print_line_and_position(t_parsing		*p,
 						const char		*code,
 						int			pos,
 						bool			position);
+void			write_indent(t_parsing				*p);
 bool			read_whitespace(const char			*code,
 					ssize_t				*i);
 int			check_single_space(t_parsing			*p,
@@ -411,6 +413,12 @@ bool			check_header(t_parsing				*p,
 int			count_to_new_line(t_parsing			*p,
 					  const char			*code,
 					  int				pos);
+
+bool			check_on_same_line(t_parsing			*p,
+					   const char			*code,
+					   int				i,
+					   const char			*tok,
+					   bool				right);
 
 // A appeler pour verifier le code non préprocéssé
 int			check_header_file(t_parsing			*p,

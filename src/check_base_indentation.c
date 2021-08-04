@@ -67,10 +67,18 @@ int			check_base_indentation(t_parsing		*p,
       return (1);
     }
   ilen = tab * p->tab_or_space.value + space;
-  if (ilen != p->last_declaration.indent_depth * p->base_indent.value)
+  if (ilen != (p->last_declaration.indent_depth + p->last_declaration.depth_bonus)
+      * p->base_indent.value)
     {
-      // full_write_with_arrow(p, code, pos); // Debug
-      // printf("Calculated indentation: %.2f\n", (float)ilen / p->base_indent.value); // Dbg
+      /*
+	print_line_and_position(p, code, pos, true);
+	full_write_with_arrow(p, code, pos); // Debug
+	printf("Calculated indentation: %.2f (%d, %d)\n",
+	(float)ilen / p->base_indent.value,
+	ilen, p->base_indent.value
+	); // Dbg
+      */
+      p->last_declaration.depth_bonus = 0;
       if (!add_warning
 	  (p, true, code, pos, &p->base_indent.counter,
 	   "Bad indentation. "
@@ -81,6 +89,7 @@ int			check_base_indentation(t_parsing		*p,
 	return (-1);
       return (1);
     }
+  p->last_declaration.depth_bonus = 0;
   return (1);
 }
 

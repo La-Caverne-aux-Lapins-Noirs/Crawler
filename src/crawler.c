@@ -384,6 +384,23 @@ int			read_selection_statement(t_parsing	*p,
 	RETURN ("Missing statement after 'if (condition)'."); // LCOV_EXCL_LINE
       if (bunny_read_text(code, i, "else"))
 	{
+	  bool		elsefix = false;
+	  ssize_t	j = *i;
+
+	  if (bunny_read_text(code, &j, "if") == false)
+	    {
+	      if (p->indent_style.value == GNU_STYLE)
+		{
+		  p->last_declaration.indent_depth += 1;
+		  elsefix = true;
+		}
+	      else if (bunny_read_text(code, &j, "{") == false)
+		p->last_declaration.depth_bonus = 1;
+	    }
+	  if (!check_on_same_line(p, code, *i - 5, "}", false))
+	    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
+	  if (!check_on_same_line(p, code, *i, "{", true))
+	    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 	  p->last_declaration.after_statement = true;
 	  if (p->else_forbidden.value)
 	    if (!add_warning
@@ -394,6 +411,8 @@ int			read_selection_statement(t_parsing	*p,
 	    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 	  if (check_white_then_newline(p, code, *i, true) == false)
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+	  if (elsefix)
+	    p->last_declaration.indent_depth -= 1;
 	  if (read_statement(p, code, i) != 1)
 	    RETURN ("Missing statement after 'else'."); // LCOV_EXCL_LINE
 	}
@@ -672,31 +691,49 @@ int			read_statement(t_parsing		*p,
 				       const char		*code,
 				       ssize_t			*i)
 {
+  bool			singleindent = false;
   int			ret;
 
   if ((ret = read_labeled_statement(p, code, i)) != 0)
     return (ret);
+
   read_whitespace(code, i);
-  if (!bunny_check_text(code, i, "{") &&
-      p->last_declaration.after_statement &&
-      p->always_braces.value)
-    if (!add_warning
-	(p, IZ(p, i), code, *i, &p->always_braces.counter,
-	 "'{' is mandatory after if, while, do, for or switch statement."))
-      RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+  if (!bunny_check_text(code, i, "{"))
+    {
+      if (p->last_declaration.after_statement &&
+	  p->always_braces.value)
+	if (!add_warning
+	    (p, IZ(p, i), code, *i, &p->always_braces.counter,
+	     "'{' is mandatory after if, while, do, for or switch statement."))
+	  RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+
+      /*
+      // Pas d'accolade, il faut quand même indenter.
+      if (p->indent_style.value != GNU_STYLE)
+	{
+	  p->last_declaration.indent_depth += 1;
+	  singleindent = true;
+	}
+      */
+    }
   p->last_declaration.after_statement = false;
   p->last_declaration.scope_length = 0;
   if ((ret = read_compound_statement(p, code, i)) != 0)
-    return (ret);
+    goto Return;
   if ((ret = read_expression_statement(p, code, i)) != 0)
-    return (ret);
+    goto Return;
   if ((ret = read_selection_statement(p, code, i)) != 0)
-    return (ret);
+    goto Return;
   if ((ret = read_iteration_statement(p, code, i)) != 0)
-    return (ret);
+    goto Return;
   if ((ret = read_jump_statement(p, code, i)) != 0)
-    return (ret);
+    goto Return;
   return (0);
+
+ Return:
+  if (singleindent)
+    p->last_declaration.indent_depth -= 1;
+  return (ret);
 }
 
 int			read_statement_list(t_parsing		*p,
@@ -732,16 +769,22 @@ int			read_compound_statement(t_parsing	*p,
 	  // On verifie que l'accolade est bien seule sur sa ligne
 	  if ((ret = check_is_alone(p, "{", code, *i)) == -1)
 	    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
+
 	  // Style GNU, on indente avant { si on est dans le scope global
-	  if (p->indent_style.value == GNU_STYLE && p->last_declaration.indent_depth != 0)
+	  if (p->indent_style.value == GNU_STYLE
+	      && p->last_declaration.indent_depth != 0)
 	    p->last_declaration.indent_depth += 1;
+
 	  if (check_base_indentation(p, code, *i) == -1)
 	    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 	}
+      else if (p->last_declaration.indent_depth != 0
+	       && !check_on_same_line(p, code, *i, "{", true))
+	RETURN("Memory exhausted."); // LCOV_EXCL_LINE
     }
   if (bunny_read_text(code, i, "{") == false)
     return (0);
-  // On augmente l'indentation apres {
+  // On augmente l'indentation
   p->last_declaration.indent_depth += 1;
 
   separator = false;
@@ -771,18 +814,16 @@ int			read_compound_statement(t_parsing	*p,
 
   end = *i;
 
-  // Style GNU, on desindente après si on était pas dans le scope global
-  if (p->base_indent.value)
-    {
-      if (p->indent_style.value != KNR_STYLE)
-	{
-	  p->last_declaration.indent_depth -= 1;
-	  if ((ret = check_is_alone(p, "}", code, *i)) == -1)
-	    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
-	}
-    }
+  // On diminue l'indentation
+  if (p->last_declaration.indent_depth > 0)
+    p->last_declaration.indent_depth -= 1;
+
+  read_whitespace(code, i);
   if (check_base_indentation(p, code, *i) == -1)
     RETURN("Memory exhausted."); // LCOV_EXCL_LINE
+  if (p->indent_style.value != KNR_STYLE)
+    if ((check_is_alone(p, "}", code, *i)) == -1)
+      RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
   if (bunny_read_text(code, i, "}") == false)
     RETURN ("Missing '}' after '{ values'."); // LCOV_EXCL_LINE
   if (p->avoid_braces.active && p->last_declaration.scope_length > 1)
@@ -792,10 +833,11 @@ int			read_compound_statement(t_parsing	*p,
       RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
   if (check_white_then_newline(p, code, *i, false) == false)
     RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
-  // On diminue l'indentation avant }
-  if (p->last_declaration.indent_depth > 0)
-    p->last_declaration.indent_depth -= 1;
 
+  // Style GNU, on desindente après si on était pas dans le scope global
+  if (p->base_indent.value && p->indent_style.value == GNU_STYLE)
+    p->last_declaration.indent_depth -= 1;
+  
   // On verifie l'absence de ligne vide, en dehors du séparator
   if (p->no_empty_line_in_function.value)
     if (check_no_empty_line(p, code, *i, separator, begin, end) == -1)
@@ -844,7 +886,7 @@ int			read_function_declaration(t_parsing	*p,
 
   // L'indentation du nom de fonction
   read_whitespace(code, i);
-  p->last_declaration.local_symbol_alignment = count_to_new_line(p, code, *i);
+  p->local_symbol_alignment = count_to_new_line(p, code, *i);
   
   //////////////////////
   // Le nom de fonction
@@ -1782,7 +1824,7 @@ int			read_type_specifier(t_parsing		*p,
       bool		ret = true;
       int		j = *i;
 
-      p->last_declaration.local_symbol_alignment = count_to_new_line(p, code, j);
+      p->local_symbol_alignment = count_to_new_line(p, code, j);
       if (read_identifier(p, code, i, false)) // optionnel
 	{
 	  p->last_declaration.was_named = true;
@@ -2046,9 +2088,8 @@ int			read_parameter_list(t_parsing		*p,
   int			alignment = 0;
 
   cnt = 0;
-  p->last_declaration.parameter_type_alignment = 0;
-  p->last_declaration.local_parameter_name_alignment = 0;
-  
+  p->local_parameter_type_alignment = -1;
+  p->local_parameter_name_alignment = -1;
   do
     {
       if (cnt > 0)
@@ -2060,9 +2101,9 @@ int			read_parameter_list(t_parsing		*p,
       if (p->parameter_type_alignment.value)
 	{
 	  alignment = count_to_new_line(p, code, *i);
-	  if (p->last_declaration.parameter_type_alignment == 0)
-	    p->last_declaration.parameter_type_alignment = alignment;
-	  if (p->last_declaration.parameter_type_alignment != alignment)
+	  if (p->local_parameter_type_alignment == -1)
+	    p->local_parameter_type_alignment = alignment;
+	  if (p->local_parameter_type_alignment != alignment)
 	    if (!add_warning
 		(p, IZ(p, i), code, *i, &p->parameter_type_alignment.counter,
 		 "Parameter types must be aligned."))
@@ -2212,9 +2253,9 @@ int			read_direct_declarator(t_parsing	*p,
       int		cnt;
 
       cnt = count_to_new_line(p, code, j);
-      if (p->last_declaration.local_parameter_name_alignment == 0)
-	p->last_declaration.local_parameter_name_alignment = cnt;
-      if (cnt != p->last_declaration.local_parameter_name_alignment)
+      if (p->local_parameter_name_alignment == -1)
+	p->local_parameter_name_alignment = cnt;
+      if (cnt != p->local_parameter_name_alignment)
 	if (!add_warning
 	    (p, IZ(p, &j), code, j, &p->parameter_name_alignment.counter,
 	     "Parameter names must be aligned."))
@@ -2225,16 +2266,16 @@ int			read_direct_declarator(t_parsing	*p,
   if ((p->last_declaration.inside_function
        || p->last_declaration.inside_union
        || p->last_declaration.inside_struct
-       ) && p->function_variable_definition_alignment.value)
+       ) && p->symbol_alignment.value)
     {
       int		cnt;
 
       cnt = count_to_new_line(p, code, j);
-      if (p->last_declaration.local_symbol_alignment == 0)
-	p->last_declaration.local_symbol_alignment = cnt;
-      if (cnt != p->last_declaration.local_symbol_alignment)
+      if (p->local_symbol_alignment == -1)
+	p->local_symbol_alignment = cnt;
+      if (cnt != p->local_symbol_alignment)
 	if (!add_warning
-	    (p, IZ(p, &j), code, j, &p->function_variable_definition_alignment.counter,
+	    (p, IZ(p, &j), code, j, &p->symbol_alignment.counter,
 	     "Function and variable names must be aligned."))
 	  RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
     }
@@ -2538,8 +2579,14 @@ int			read_translation_unit(t_parsing		*p,
 
   p->file = file;
   p->last_declaration.indent_depth = 0;
-  p->last_declaration.global_parameter_name_alignment = 0;
-  p->last_declaration.global_symbol_alignment = 0;
+
+  p->local_parameter_type_alignment = -1;
+  p->local_parameter_name_alignment = -1;
+  p->local_symbol_alignment = -1;
+  p->global_parameter_name_alignment = -1;
+  p->global_symbol_alignment = -1;
+
+  
   gl_bunny_read_whitespace = read_whitespace;
   if (check_header(p, code) == false)
     ret = -1;
@@ -2578,39 +2625,35 @@ int			read_translation_unit(t_parsing		*p,
 	} // LCOV_EXCL_STOP
       else
 	{
-	  if (p->last_declaration.global_parameter_name_alignment == 0)
+	  if (p->global_parameter_name_alignment == -1)
 	    {
-	      if (p->last_declaration.local_parameter_name_alignment != 0)
-		p->last_declaration.global_parameter_name_alignment =
-		  p->last_declaration.local_parameter_name_alignment;
+	      if (p->local_parameter_name_alignment != -1)
+		p->global_parameter_name_alignment = p->local_parameter_name_alignment;
 	    }
-	  else if (p->last_declaration.global_parameter_name_alignment
-		   != p->last_declaration.local_parameter_name_alignment)
+	  else if (p->local_parameter_name_alignment != -1 &&
+		   p->global_parameter_name_alignment != p->local_parameter_name_alignment)
 	    {
 	      if (!add_warning
-		  (p, IZ(p, i), code, *i, &p->global_parameter_name_alignment.counter,
+		  (p, IZ(p, i), code, *i, &p->file_parameter_name_alignment.counter,
 		   "Parameter name must be aligned globally in your file."))
 		RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
-	      p->last_declaration.global_parameter_name_alignment =
-		p->last_declaration.local_parameter_name_alignment;
+	      p->global_parameter_name_alignment = p->local_parameter_name_alignment;
 	    }
 
-	  if (p->last_declaration.global_symbol_alignment == 0)
+	  if (p->global_symbol_alignment == -1)
 	    {
-	      if (p->last_declaration.local_symbol_alignment != 0)
-		p->last_declaration.global_symbol_alignment =
-		  p->last_declaration.local_symbol_alignment;
+	      if (p->local_symbol_alignment != -1)
+		p->global_symbol_alignment = p->local_symbol_alignment;
 	    }
-	  else if (p->last_declaration.global_symbol_alignment
-		   != p->last_declaration.local_symbol_alignment)
+	  else if (p->local_symbol_alignment != -1 &&
+		   p->global_symbol_alignment != p->local_symbol_alignment)
 	    {
 	      if (!add_warning
-		  (p, IZ(p, i), code, *i, &p->global_function_variable_alignment.counter,
+		  (p, IZ(p, i), code, *i, &p->file_symbol_alignment.counter,
 		   "Function and variable name must be aligned "
 		   "globally in your file."))
 		RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
-	      p->last_declaration.global_symbol_alignment =
-		p->last_declaration.local_symbol_alignment;
+	      p->global_symbol_alignment = p->local_symbol_alignment;
 	    }
 
 	  cnt += ret;
@@ -2797,7 +2840,7 @@ int			check_all_lines_width(t_parsing		*p,
 	j = j + 1;
       if (check_line_width(p, code, i, j) == -1)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
-      i = j;
+      i = (j += (code[j] != '\0' ? 1 : 0));
     }
   return (1);
 }
@@ -2919,13 +2962,11 @@ void			load_norm_configuration(t_parsing	*p,
       strxcpy(&p->header_data[0], str, sizeof(p->header_data), strlen(str));
     }
 
-  fetch_criteria(e, &p->function_variable_definition_alignment,
-		 "FunctionVariableDefinitionAlignment");
+  fetch_criteria(e, &p->symbol_alignment, "FunctionVariableDefinitionAlignment");
   fetch_criteria(e, &p->parameter_type_alignment, "ParameterTypeAlignment");
   fetch_criteria(e, &p->parameter_name_alignment, "ParameterNameAlignment");
-  fetch_criteria(e, &p->global_function_variable_alignment,
-		 "GlobalFunctionVariableDefinitionAlignment");
-  fetch_criteria(e, &p->global_parameter_name_alignment, "GlobalParameterNameAlignment");
+  fetch_criteria(e, &p->file_symbol_alignment, "GlobalFunctionVariableDefinitionAlignment");
+  fetch_criteria(e, &p->file_parameter_name_alignment, "GlobalParameterNameAlignment");
 
   fetch_criteria(e, &p->inbetween_ptr_symbol_space, "SpaceAroundInbetweenPointerStars");
   fetch_criteria(e, &p->ptr_symbol_on_name, "PointerStarOnName");

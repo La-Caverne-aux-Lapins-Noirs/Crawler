@@ -6,8 +6,8 @@ int foo(int argc, int argv)
   return (0);
 }
 
-int bar(int i,
-	int j)
+int            bar(double i,
+		   int j)
 {
   int k;
 

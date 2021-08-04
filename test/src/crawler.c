@@ -23,7 +23,7 @@ int			main(void)
   load_norm_configuration(&p, cnf);
   gl_bunny_read_whitespace = read_whitespace;
   p.criteria = &p.function_per_file;
-  goto NOW;
+  // goto NOW;
 
   /////////////////////////
   // ON TESTE LE PARSING //
@@ -79,6 +79,20 @@ int			main(void)
   
   i = 0; assert(read_unary_expression(&p, "++--~(const double)sizeof(int)", &i) == 1);
 
+  p.indent_style.value = KNR_STYLE;
+  p.base_indent.counter = 0;
+  assert(check_on_same_line(&p, "    {    ", 2, "{", true));
+  assert(p.base_indent.counter == 0);
+  assert(check_on_same_line(&p, "   \n{\n   ", 2, "{", true));
+  assert(p.base_indent.counter == 1);
+  
+  p.base_indent.counter = 0;
+  assert(check_on_same_line(&p, "    }    ", 7, "}", false));
+  assert(p.base_indent.counter == 0);
+  assert(check_on_same_line(&p, "   \n}\n   ", 7, "}", false));
+  assert(p.base_indent.counter == 1);
+  p.indent_style.value = 0;
+  
   i = 0;
   s =
     "register auto unsigned float const volatile /*             */ "
@@ -1274,6 +1288,7 @@ int			main(void)
   p.indent_style.value = GNU_STYLE;
   p.base_indent.value = 2;
   p.tab_or_space.value = 8;
+  p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.base_indent.counter == 0);
@@ -1508,10 +1523,11 @@ int			main(void)
   p.max_column_width.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
+  check_all_lines_width(&p, s);
   assert(p.space_after_statement.counter == 0);
   assert(p.space_around_binary_operator.counter == 0);
   assert(p.space_after_comma.counter == 0);
-  assert(p.max_column_width.counter == 2);
+  assert(p.max_column_width.counter == 4);
 
   i = 0;
   s =
@@ -1846,7 +1862,6 @@ int			main(void)
   // On verifie l'indentation basique //
   //////////////////////////////////////
 
- NOW:
   p.base_indent.active = true;
   p.base_indent.value = 2;
   p.tab_or_space.active = true;
@@ -1857,7 +1872,7 @@ int			main(void)
   assert(s = load_c_file(file, cnf, false));
   i = 0;
   p.last_error_id = -1;
-  p.indent_style.value = 0;
+  p.indent_style.value = GNU_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
@@ -1865,7 +1880,7 @@ int			main(void)
 
   i = 0;
   p.last_error_id = -1;
-  p.indent_style.value = 1;
+  p.indent_style.value = ALLMAN_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
@@ -1873,45 +1888,55 @@ int			main(void)
 
   i = 0;
   p.last_error_id = -1;
-  p.indent_style.value = 2;
+  p.indent_style.value = KNR_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.base_indent.counter != 0);
 
   //////////// STYLE BSD
+  p.base_indent.active = true;
+  p.base_indent.value = 2;
+  p.tab_or_space.active = true;
+  p.tab_or_space.value = 8;
+  
   file = "./res/bsd.c";
   assert(s = load_c_file(file, cnf, false));
   i = 0;
   p.last_error_id = -1;
-  p.indent_style.value = 1;
+  p.indent_style.value = GNU_STYLE;
   p.base_indent.counter = 0;
-  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+  if (read_translation_unit(&p, file, s, &i, true) != 1)
     goto Error;
   assert(p.base_indent.counter != 0);
 
   i = 0;
   p.last_error_id = -1;
-  p.indent_style.value = 1;
+  p.indent_style.value = ALLMAN_STYLE;
   p.base_indent.counter = 0;
-  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+  if (read_translation_unit(&p, file, s, &i, true) != 1)
     goto Error;
   assert(p.base_indent.counter == 0);
 
   i = 0;
   p.last_error_id = -1;
-  p.indent_style.value = 2;
+  p.indent_style.value = KNR_STYLE;
   p.base_indent.counter = 0;
-  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+  if (read_translation_unit(&p, file, s, &i, true) != 1)
     goto Error;
   assert(p.base_indent.counter != 0);
 
   //////////// STYLE K&R
+  p.base_indent.active = true;
+  p.base_indent.value = 2;
+  p.tab_or_space.active = true;
+  p.tab_or_space.value = 8;
+  
   file = "./res/knr.c";
   assert(s = load_c_file(file, cnf, false));
   i = 0;
   p.last_error_id = -1;
-  p.indent_style.value = 0;
+  p.indent_style.value = GNU_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
@@ -1919,7 +1944,7 @@ int			main(void)
 
   i = 0;
   p.last_error_id = -1;
-  p.indent_style.value = 1;
+  p.indent_style.value = ALLMAN_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
@@ -1927,7 +1952,7 @@ int			main(void)
 
   i = 0;
   p.last_error_id = -1;
-  p.indent_style.value = 2;
+  p.indent_style.value = KNR_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
@@ -1939,65 +1964,74 @@ int			main(void)
   // On verifie l'indentation intermediaire //
   ////////////////////////////////////////////
 
-  // Pas d'indentation des symboles
-  p.function_variable_definition_alignment.value = 1;
+  // On aligne tout.
+  p.tab_or_space.active = true;
+  p.tab_or_space.value = 8;
+  p.symbol_alignment.active = true;
+  p.symbol_alignment.value = 1;
+  p.parameter_type_alignment.active = true;
   p.parameter_type_alignment.value = 1;
+  p.parameter_name_alignment.active = true;
   p.parameter_name_alignment.value = 1;
-  p.global_function_variable_alignment.value = 1;
-  p.global_parameter_name_alignment.value = 1;
+  p.file_symbol_alignment.active = true;
+  p.file_symbol_alignment.value = 1;
+  p.file_parameter_name_alignment.active = true;
+  p.file_parameter_name_alignment.value = 1;
   
   i = 0;
   p.last_error_id = -1;
   file = "./res/classic.c";
   assert(s = load_c_file(file, cnf, false));
-  p.function_variable_definition_alignment.counter = 0;
+  p.symbol_alignment.counter = 0;
   p.parameter_type_alignment.counter = 0;
   p.parameter_name_alignment.counter = 0;
-  p.global_function_variable_alignment.counter = 0;
-  p.global_parameter_name_alignment.counter = 0;
+  p.file_symbol_alignment.counter = 0;
+  p.file_parameter_name_alignment.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
-  assert(p.function_variable_definition_alignment.counter != 0);
-  assert(p.parameter_type_alignment.counter != 0);
+  assert(p.symbol_alignment.counter != 0);
+  assert(p.symbol_alignment.counter != 0);
   assert(p.parameter_name_alignment.counter != 0);
-  assert(p.global_function_variable_alignment.counter != 0);
-  assert(p.global_parameter_name_alignment.counter != 0);
+  assert(p.file_symbol_alignment.counter != 0);
+  assert(p.file_parameter_name_alignment.counter != 0);
 
   // Indentation des symboles hors paramètre
   i = 0;
   p.last_error_id = -1;
   file = "./res/local.c";
   assert(s = load_c_file(file, cnf, false));
-  p.function_variable_definition_alignment.counter = 0;
+  
+  p.symbol_alignment.counter = 0;
   p.parameter_type_alignment.counter = 0;
   p.parameter_name_alignment.counter = 0;
-  p.global_function_variable_alignment.counter = 0;
-  p.global_parameter_name_alignment.counter = 0;
+  p.file_symbol_alignment.counter = 0;
+  p.file_parameter_name_alignment.counter = 0;
+
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
-  assert(p.function_variable_definition_alignment.counter == 0);
+  assert(p.symbol_alignment.counter == 0);
   assert(p.parameter_type_alignment.counter == 0);
   assert(p.parameter_name_alignment.counter == 0);
-  assert(p.global_function_variable_alignment.counter != 0);
-  assert(p.global_parameter_name_alignment.counter != 0);
+  assert(p.file_symbol_alignment.counter != 0);
+  assert(p.file_parameter_name_alignment.counter != 0);
 
   // Indentation des symboles
   i = 0;
   p.last_error_id = -1;
   file = "./res/global.c";
   assert(s = load_c_file(file, cnf, false));
-  p.function_variable_definition_alignment.counter = 0;
+  p.symbol_alignment.counter = 0;
   p.parameter_type_alignment.counter = 0;
   p.parameter_name_alignment.counter = 0;
-  p.global_function_variable_alignment.counter = 0;
-  p.global_parameter_name_alignment.counter = 0;
+  p.file_symbol_alignment.counter = 0;
+  p.file_parameter_name_alignment.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
-  assert(p.function_variable_definition_alignment.counter == 0);
+  assert(p.symbol_alignment.counter == 0);
   assert(p.parameter_type_alignment.counter == 0);
   assert(p.parameter_name_alignment.counter == 0);
-  assert(p.global_function_variable_alignment.counter == 0);
-  assert(p.global_parameter_name_alignment.counter == 0);
+  assert(p.file_symbol_alignment.counter == 0);
+  assert(p.file_parameter_name_alignment.counter == 0);
 
   /////////////////////////////////
   // GRAND TEST FINAL DE PARSING //

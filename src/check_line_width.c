@@ -19,7 +19,7 @@ int			check_line_width(t_parsing		*p,
   int			last_newline = 0;
   int			i = begin;
 
-  while (i != end && code[i])
+  while (i < end && code[i])
     {
       if (code[i] == '\n')
 	last_newline = 0;

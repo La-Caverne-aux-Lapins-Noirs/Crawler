@@ -24,9 +24,23 @@ int			count_to_new_line(t_parsing		*p,
   int			tabsize = p->tab_or_space.value;
   int			column = 0;
   int			i = pos;
-  bool			stars = true;
+  int			stars = 0;
+  bool			cntstar = true;
 
   while (i >= 0 && code[i] != '\n')
+    {
+      if (i != pos)
+	{
+	  if (code[i] != '*')
+	    cntstar = false;
+	  else if (cntstar)
+	    stars += 1;
+	}
+      i -= 1;
+    }
+  if (code[i] == '\n')
+    i += 1;
+  while (i < pos - stars)
     {
       if (code[i] == '\t')
 	{
@@ -38,22 +52,14 @@ int			count_to_new_line(t_parsing		*p,
 		 "Space are only authorized after tabulation and not inside."
 		 ))
 	      return (-1);
-	  column += tabsize;
+	  column = column + tabsize - column % tabsize;
 	}
-      else if (code[i] == '*' && stars == false)
-	// On incremente pas, de sorte a ce que le décompte de colonne
-	// commence ici: void func(int   *x)
-	//                               ^
-	// et non au x
-	{}
       else
-	{
-	  stars = false;
-	  column += 1;
-	}
-      i -= 1;
+	column += 1;
+      i = i + 1;
     }
   if (code[i] == '\n')
     i += 1;
   return (column);
 }
+
