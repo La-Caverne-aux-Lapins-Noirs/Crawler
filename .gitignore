@@ -1,9 +1,11 @@
-test/trace
+lib/test/trace
 *.gcno
 *.gcda
-test/report/
-test/src/crawler
-coverage.info
+*.htm
+*.html
+lib/test/report/
+lib/test/src/crawler
+lib/test/coverage.info
 *~
 #*
 

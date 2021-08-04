@@ -14,14 +14,14 @@
 
 int			usage(const char	*s)
 {
-  fprintf(stderr, "%s: Usage is:\n"
+  fprintf(stderr, "%s: Usage is:\n\n"
 	  "\t%s -c configuration [files]+"
 	  "\tTo test conformity\n"
 	  "\t%s -m [files]+"
-	  "\tTo create a function call map (Not implemented yet)\n"
+	  "\t\t\tTo create a function call map (Not implemented yet)\n"
 	  "\t%s -d [files]+"
-	  "\tTo create a Dabsic script with prototypes and types (Not implemented yet)\n"
-	  "\n\n\t-q to mute error messages\n"
+	  "\t\t\tTo create a Dabsic script with prototypes and types (Not implemented yet)\n"
+	  "\n"
 	  , s, s, s, s);
   return (EXIT_FAILURE);
 }
