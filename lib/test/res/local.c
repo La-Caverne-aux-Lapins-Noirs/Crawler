@@ -1,43 +1,43 @@
 
-int		foo(int		argc,
+static int	foo(int		argc,
 		    int		gard)
 {
-  int		*i;
-  int		j;
+  int		*variable;
+  int		other;
   
   return (0);
 }
 
-int	*lol(int	sem)
+static int		*lol(int	sem)
 {
-  int	*k;
-  int	l;
+  int			*key;
+  int			lol;
 
-  return (0);
+  return (1);
 }
 
-int		mdr(void)
+static int	mdr(void)
 {
   int		zou;
   int		*zou;
   int		zou;
   int		*zoubida;
 
-  return (42);
+  return (2);
 }
 
-int		*ptdr(int		a,
-		      int		b,
-		      int		c,
-		      int		d)
+static int	*ptdr(int		abc,
+		      int		bcd,
+		      int		cde,
+		      int		def)
 {
   int		i;
 
-  return (0);
+  return (3);
 }
 
-int		lolilol(int	a)
+int		local(int	abc)
 {
-  return (a);
+  return (4);
 }
 

@@ -147,7 +147,7 @@ IndentationToken = 1
   Points = 1
 ]
 
-[GLobalFunctionVariableDefinitionAlignment
+[GlobalFunctionVariableDefinitionAlignment
   'L'allignement défini par FunctionVariableDefinitionAlignment
   'doit etre réalisé localement ET globalement
   Value = true
@@ -266,6 +266,17 @@ PASCAL_CASE = 3 'ThisIsIt
 ]
 
 [EnumInfix
+  Value = "cln_" 'The infix that is mandatory
+  Position = "Prefix" 'Or Suffix
+  Points = 1 'How many error points are gonna be added if not respected
+]
+
+[EnumConstantStyle
+  Value = [].MIXED_CASE
+  Points = 1
+]
+
+[EnumConstantInfix
   Value = "cln_" 'The infix that is mandatory
   Position = "Prefix" 'Or Suffix
   Points = 1 'How many error points are gonna be added if not respected

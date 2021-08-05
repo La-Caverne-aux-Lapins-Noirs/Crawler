@@ -56,6 +56,7 @@ typedef struct		s_last_function
   bool			is_const;
   bool			is_volatile;
   bool			inside_function;
+  bool			inside_function_name;
   bool			inside_variable;
   bool			inside_struct;
   bool			inside_union;
@@ -82,6 +83,7 @@ typedef struct		s_last_function
   int			nbr_copied_parameters;
   int			last_header;
   int			header_line;
+  int			end_of_declaration;
 }			t_last_function;
 
 typedef struct		s_criteria
@@ -130,7 +132,9 @@ typedef struct		s_parsing
   int			nbr_error_points;
   int			nbr_mistakes;
   char			header_data[4096];
-  t_criteria		*criteria;
+  int			last_line_marker;
+  int			last_line_marker_line;
+  t_criteria		start[0];
 
   // About functions inside files
   t_criteria		function_per_file;

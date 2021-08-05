@@ -1,0 +1,228 @@
+
+[Header
+  Value = [Text(END)
+/*
+** %FirstName %FamilyName "%NickName"
+** %Login - <%Mail>
+**
+** - La Caverne Aux Lapins Noirs -
+** - %ProjectName - %Year
+*/
+END]
+  Points = 10
+]
+
+[FunctionPerFile
+  Value = 5
+  Points = 1
+]
+
+[FunctionMatchingPath
+  Value = true
+  Points = 1
+]
+
+[NonStaticFunctionPerFile
+  Value = 1
+  Points = 1
+]
+
+[MaximumLineWidth
+  Value = 80
+  Points = 1
+]
+
+[MaximumFunctionLength
+  Value = 25
+  Points = 2
+]
+
+[MaximumFunctionParameter
+  Value = 4
+  Points = 2
+]
+
+[OnlyByReference
+  Value = 4
+  POints = 1
+]
+
+[LocalVariableInlineInitForbidden
+  Value = 1
+  Points = 2
+]
+
+[AllGlobalsAreConst
+  Value = true
+  Points = 2
+]
+
+IndentationStyle = 0
+IndentationToken = 8
+[IndentationSize
+  Value = 2
+  Points = 1
+]
+
+
+[FunctionVariableDefinitionAlignment
+  Value = true
+  Points = 1
+]
+
+[GlobalFunctionVariableDefinitionAlignment
+  Value = true
+  Points = 1
+]
+
+[ParameterTypeAlignment
+  Value = true
+  Points = 1
+]
+
+[ParameterNameAlignment
+  Value = true
+  Points = 1
+]
+
+[GlobalParameterNameAlignment
+  Value = true
+  Points = 1
+]
+
+[DeclarationStatementSeparator
+  Value = true
+  Points = 1
+]
+
+[NoEmptyLineInFunction
+  Value = true
+  Points = 1
+]
+
+[TrailingWhitespace
+  Value = true
+  Points = 1
+]
+
+[SingleInstructionPerLine
+  Value = true
+  Points = 2
+]
+
+[GlobalStyle
+  Value = 1 'Snake Case
+  Points = 1
+]
+
+[GlobalVariableInfix
+  Value = "gl_"
+  Position = "Prefix"
+  Points = 1
+]
+
+[StructInfix
+  Value = "s_"
+  Position = "Prefix"
+  Points = 1
+]
+
+[EnumInfix
+  Value = "e_"
+  Position = "Prefix"
+  Points = 1
+]
+
+[EnumConstantStyle
+  Value = 0 'MIXED_CASE
+  Points = 1
+]
+
+[UnionInfix
+  Value = "u_"
+  Position = "Prefix"
+  Points = 1
+]
+
+[TypedefInfix
+  Value = "t_"
+  Position = "Prefix"
+  Points = 1
+]
+
+[TypedefMatching
+  Value = true
+  Points = 1
+]
+
+[NoShortName
+  Value = 3
+  Points = 1
+]
+
+[PointStarOnName
+  Value = true
+  Points = 1
+]
+
+[SpaceAroundInbetweenPointerStars
+  Value = true
+  Points = 1
+]
+
+[NoSpaceInsideParenthesis
+  Value = true
+  Points = 1
+]
+
+[SpaceAroundBinaryOperator
+  Value = true
+  Points = 1
+]
+
+[SpaceAfterStatement
+  Value = true
+  Points = 1
+]
+
+[SpaceAfterComma
+  Value = true
+  Points = 1
+]
+
+[ReturnParenthesis
+  Value = true
+  Points = 1
+]
+
+[SizeOfParenthesis
+  Value = true
+  Points = 1
+]
+
+[Gotoforbidden
+  Value = true
+  Points = 5
+]
+
+[BreakForbidden
+  Value = true
+  Points = 5
+]
+
+[ForForbidden
+  Value = true
+  Points = 5
+]
+
+[SwitchForbidden
+  Value = true
+  Points = 5
+]
+
+'Eventuellement...
+[InlineModificationForbidden
+  Value = true
+  Points = 5
+]
+

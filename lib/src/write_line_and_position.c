@@ -28,12 +28,21 @@ int			write_line_and_position(const char	*code,
     j += 1;
   if (code[j] == '\n')
     j -= 1;
+  if (j - i <= 0)
+    {
+      buf[0] = '\n';
+      buf[1] = '\0';
+      return (0);
+    }
   k += snprintf(&buf[k], len - k, "%.*s\n", j - i + 1, &code[i]);
   if (!position)
     return (k);
   while (i < pos)
     {
-      k += snprintf(&buf[k], len - k, " ");
+      if (code[i] == '\t')
+	k += snprintf(&buf[k], len - k, "\t");
+      else
+	k += snprintf(&buf[k], len - k, " ");
       i += 1;
     }
   k += snprintf(&buf[k], len - k, "^\n");

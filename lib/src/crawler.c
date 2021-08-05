@@ -15,6 +15,8 @@
 #include		<ctype.h>
 #include		"crawler.h"
 
+extern t_parsing	*gl_parsing_save;
+
 char			*strcasestr(const char			*haystack,
 				    const char			*needle);
 
@@ -258,28 +260,35 @@ int			read_identifier(t_parsing		*p,
   else
     p->last_declaration.symbol[0] = '\0'; // LCOV_EXCL_LINE
 
-  if (p->no_short_name.active && (int)strlen(&p->last_declaration.symbol[0]) < p->no_short_name.value)
+  // On verifie la validité du nom
+  // Si on monitore les noms trops courts de parametre
+  // et qu'on allait déclarer un paramètre ou une variable
+  // ou un attribut
+  if (p->no_short_name.active
+      && (p->last_declaration.inside_parameter
+	  || p->last_declaration.inside_variable
+	  || p->last_declaration.inside_function_name
+	  || p->last_declaration.inside_struct
+	  || p->last_declaration.inside_union
+	  )
+      && (int)strlen(&p->last_declaration.symbol[0]) < p->no_short_name.value)
     {
-      if (strcmp(&p->last_declaration.symbol[0], "i") == 0)
-	return (1);
-      if (strcmp(&p->last_declaration.symbol[0], "j") == 0)
-	return (1);
-      if (strcmp(&p->last_declaration.symbol[0], "k") == 0)
-	return (1);
-      if (strcmp(&p->last_declaration.symbol[0], "cnt") == 0)
-	return (1);
-      if (strcmp(&p->last_declaration.symbol[0], "ret") == 0)
-	return (1);
-      if (strcmp(&p->last_declaration.symbol[0], "end") == 0)
-	return (1);
-      if (strcmp(&p->last_declaration.symbol[0], "go") == 0)
-	return (1);
-      if (!add_warning(p, IZ(p, i), code, *i, &p->no_short_name.counter,
-		       "The name '%s' is too short. Minimum was %d.",
-		       &p->last_declaration.symbol[0], p->no_short_name.value))
-	RETURN ("Memory exhausted"); // LCOV_EXCL_LINE
+      int z;
+      const char *valid[] =
+	{
+	  "i", "j", "k", "cnt", "ret", "end", "go",
+	  "win", "nbr"
+	};
+      for (z = 0; z < (int)NBRCELL(valid); ++z)
+	if (strcmp(&p->last_declaration.symbol[0], valid[z]) == 0)
+	  break ;
+      if (z == (int)NBRCELL(valid))
+	if (!add_warning(p, IZ(p, i), code, *i, &p->no_short_name.counter,
+			 "The name '%s' is too short. Minimum was %d.",
+			 &p->last_declaration.symbol[0], p->no_short_name.value))
+	  RETURN ("Memory exhausted"); // LCOV_EXCL_LINE
     }
-
+  
   return (1);
 }
 
@@ -796,9 +805,21 @@ int			read_compound_statement(t_parsing	*p,
   // Il y a eu des déclarations et on veut qu'il y ai une ligne de séparation
   if (p->declaration_statement_separator.active && ret != *i)
     {
-      while (isblank(code[*i]))
-	*i += 1;
-      if (code[*i] != '\n' || code[*i + 1] != '\n')
+      int	j = *i;
+      int	nl = 0;
+      
+      // On va remonter tant qu'il y a des espaces
+      while (j > 0 && isspace(code[j - 1]))
+	j -= 1;
+      // Puis on repart a l'endroit
+      while (j != *i)
+	{
+	  if (code[j] == '\n')
+	    if ((nl += 1) == 2)
+	      p->last_declaration.end_of_declaration = j;
+	  j += 1;
+	}
+      if (nl <= 1)
 	{
 	  if (!add_warning
 	      (p, IZ(p, i), code, *i, &p->declaration_statement_separator.counter,
@@ -859,8 +880,10 @@ int			read_declaration_list(t_parsing		*p,
   int			cnt = 0;
   int			ret;
 
+  p->last_declaration.inside_variable = true;
   while ((ret = read_declaration(p, code, i)) == 1)
     cnt += 1;
+  p->last_declaration.inside_variable = false;
   if (ret == -1)
     return (-1);
   return (cnt >= 1 ? 1 : 0);
@@ -870,19 +893,25 @@ int			read_function_declaration(t_parsing	*p,
 						  const char	*code,
 						  ssize_t	*i)
 {
-  t_criteria		save[&p->end[0] - p->criteria]; // Assez d'espace pour tout.
+  size_t		len = (size_t)&p->end[0] - (size_t)&p->start[0];
+  t_criteria		*save = malloc(len); // Assez d'espace pour tout.
   t_last_function	savefunc;
   ssize_t		k = *i; // Au cas ou cela ne soit pas une declaration de fonction mais de type.
   ssize_t		j;
   int			last_new_type = p->last_new_type;
   int			ret;
 
-  memcpy(&save[0], p->criteria, sizeof(save));
+  if (!save)
+    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+  memcpy(save, &p->start[0], len);
   memcpy(&savefunc, &p->last_declaration, sizeof(savefunc));
   reset_last_declaration(p);
   // Le type de retour
   if (read_declaration_specifiers(p, code, i) == -1)
-    return (-1);
+    {
+      free(save);
+      return (-1);
+    }
 
   // L'indentation du nom de fonction
   read_whitespace(code, i);
@@ -891,13 +920,21 @@ int			read_function_declaration(t_parsing	*p,
   //////////////////////
   // Le nom de fonction
   j = *i;
+  p->last_declaration.inside_function_name = true;
   if (read_declarator(p, code, i) == -1)
-    return (-1);
+    {
+      free(save);
+      return (-1);
+    }
+  p->last_declaration.inside_function_name = false;
   // On verifie donc le nom si c'est une fonction non statique
   if (!p->last_declaration.is_static)
     {
       if (check_style(p, "function", &p->last_declaration.symbol[0], &p->function_style, &p->function_infix, code, j) == false)
-	RETURN("Memory exhausted."); // LCOV_EXCL_LINE
+	{
+	  free(save);
+	  RETURN("Memory exhausted."); // LCOV_EXCL_LINE
+	}
       if (p->function_matching_path.active && p->non_static_function_per_file.value == 1)
 	{
 	  char target[512];
@@ -905,13 +942,19 @@ int			read_function_declaration(t_parsing	*p,
 	  store_real_typename
 	    (p, &target[0], &p->last_declaration.symbol[0], sizeof(target), 4);
 	  if (compare_file_and_function_name(p, &target[0], code, j) == -1)
-	    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
+	    {
+	      free(save);
+	      RETURN("Memory exhausted."); // LCOV_EXCL_LINE
+	    }
 	}
     }
 
   // L'assignation eventuelle...
   if (read_declaration_list(p, code, i) == -1)
-    return (-1);
+    {
+      free(save);
+      return (-1);
+    }
   // Pour savoir si les variables sont globales ou locales, par exemple...
   p->last_declaration.inside_function = true;
 
@@ -939,7 +982,10 @@ int			read_function_declaration(t_parsing	*p,
 		     p->last_declaration.copied_parameters[j].name,
 		     p->last_declaration.copied_parameters[j].size
 		     ))
-		  RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+		  {
+		    free(save);
+		    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+		  }
 	      }
 	  p->last_declaration.nbr_copied_parameters = 0;
 	}
@@ -954,10 +1000,11 @@ int			read_function_declaration(t_parsing	*p,
   // On revient en arrière, ca n'était pas une declaration de fonction.
   *i = k;
   // On fait revenir en arrière egalement le compte d'erreur du coup, ca on va les recompter
-  memcpy(p->criteria, &save[0], sizeof(save));
+  memcpy(&p->start[0], save, len);
   // memcpy(&p->last_declaration, &savefunc, sizeof(savefunc)); // XXXXXXXXXXXXXXXXXXXXXX
   // De même, les types eventuellements déclarés ne le sont pas...
   p->last_new_type = last_new_type;
+  free(save);
   return (0);
 }
 
@@ -978,7 +1025,7 @@ int			read_primary_expression(t_parsing	*p,
   if (bunny_read_double(code, i, &val2))
     {
       if (p->no_magic_value.active && p->last_declaration.last_char < *i)
-	if (val > 1.0 || val < 1.0)
+	if (val2 > 1.0 || val2 < -1.0)
 	  if (!add_warning
 	      (p, IZ(p, i), code, *i, &p->no_magic_value.counter,
 	       "Magic values are forbidden. %f found.",
@@ -1015,7 +1062,7 @@ int			read_primary_expression(t_parsing	*p,
       if (!bunny_read_text(code, &j, ")"))
 	RETURN ("Missing ')' after '(expression'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	  (p, code, *i, ')', &p->no_space_inside_parenthesis.counter))
+	  (p, code, j, ')', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       *i = j;
       return (1);
@@ -2577,6 +2624,8 @@ int			read_translation_unit(t_parsing		*p,
   int			cnt = 0;
   int			ret;
 
+  gl_parsing_save = p;
+  
   p->file = file;
   p->last_declaration.indent_depth = 0;
 
@@ -2586,7 +2635,6 @@ int			read_translation_unit(t_parsing		*p,
   p->global_parameter_name_alignment = -1;
   p->global_symbol_alignment = -1;
 
-  
   gl_bunny_read_whitespace = read_whitespace;
   if (check_header(p, code) == false)
     ret = -1;
@@ -2618,7 +2666,7 @@ int			read_translation_unit(t_parsing		*p,
 	      printf("^\n");
 	      printf("Error backtrack:\n");
 	      while (p->last_error_id > 0)
-		printf("- %s\n", p->last_error_msg[--p->last_error_id]);
+		printf(" - %s\n", p->last_error_msg[--p->last_error_id]);
 	    }
 	  gl_bunny_read_whitespace = NULL;
 	  return (-1);
@@ -2663,11 +2711,12 @@ int			read_translation_unit(t_parsing		*p,
 
   gl_bunny_read_whitespace = NULL;
 
-  for (t_criteria *c = p->criteria; c != &p->end[0]; ++c)
+  p->nbr_error_points = 0;
+  for (t_criteria *c = &p->start[0]; c < &p->end[0]; ++c)
     {
       if (!c->active)
 	continue ;
-      if (c->value > c->counter)
+      if (c->counter > 0)
 	{
 	  p->nbr_mistakes += 1;
 	  p->nbr_error_points += c->pts;
@@ -2857,7 +2906,6 @@ void			load_norm_configuration(t_parsing	*p,
   p->nbr_error_points = 0; // Le nombre de points d'erreur accumulés
   fetchi(e, &p->maximum_error_points, "Tolerance", -1);
 
-  p->criteria = &p->function_per_file;
   fetch_criteria(e, &p->function_per_file, "FunctionPerFile");
   fetch_criteria(e, &p->non_static_function_per_file, "NonStaticFunctionPerFile");
 
@@ -3013,7 +3061,13 @@ char		*load_c_file(const char				*file,
   if (preprocessed)
     {
       if (!bunny_configuration_getf(exe, &cmd, "PrecompilationCommand"))
-	cmd = "gcc -E -CC -I./ -I./include/ -I/usr/local/include/ %s";
+	cmd =
+	  "cat %s | tr \" \\t\" \"\\036\\037\" "
+	  "| "
+	  "cpp -std=c11 -E -CC -I./ -I./include/ -I/usr/local/include/ "
+	  "| "
+	  "tr \"\\036\\037\" \" \\t\" "
+	  ;
     }
   else
     cmd = "cat %s";

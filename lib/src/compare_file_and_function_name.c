@@ -45,7 +45,7 @@ int			compare_file_and_function_name(t_parsing	*p,
     {
       if (add_warning
 	  (p, true, code, pos, &p->function_matching_path.counter,
-	   "Function %s does not match its path name %s.\n",
+	   "Function %s does not match its path name %s.",
 	   func, &buffer[0]) == false)
 	RETURN("Memory exhausted."); // LCOV_EXCL_LINE
     }

@@ -22,7 +22,6 @@ int			main(void)
   assert(cnf = bunny_new_configuration());
   load_norm_configuration(&p, cnf);
   gl_bunny_read_whitespace = read_whitespace;
-  p.criteria = &p.function_per_file;
   // goto NOW;
 
   /////////////////////////
@@ -401,6 +400,7 @@ int			main(void)
   s = " void FUNCTION_NAME(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
+  p.function_infix.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_infix.counter == 1);
@@ -409,40 +409,48 @@ int			main(void)
   s = " void PFX_FUNCTION__NAME(void) { }  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
+  p.function_infix.counter = 0;
+  p.function_style.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
-  assert(p.function_infix.counter == 1);
+  assert(p.function_infix.counter == 0);
   assert(p.function_style.counter == 1);
 
   i = 0;
   s = " void FUNCTION_NAME(void);  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
+  p.function_infix.counter = 0;
+  p.function_style.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   // Les prototypes ne comptent pas dans le décompte des fonctions mal écrites
   // car on peut prototyper des fonctions externes
-  assert(p.function_infix.counter == 1);
-  assert(p.function_style.counter == 1);
+  assert(p.function_infix.counter == 0);
+  assert(p.function_style.counter == 0);
 
   i = 0;
   s = " void pfx_function_name(void) {}  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
+  p.function_infix.counter = 0;
+  p.function_style.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
-  assert(p.function_infix.counter == 1);
-  assert(p.function_style.counter == 2);
+  assert(p.function_infix.counter == 0);
+  assert(p.function_style.counter == 1);
 
   i = 0;
   s = " void pfx_function_name(void);  ";
   p.last_error_id = -1;
   p.last_new_type = 0;
+  p.function_infix.counter = 0;
+  p.function_style.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   // Comme au dessus, ca ne compte pas quand c'est juste un prototype
-  assert(p.function_infix.counter == 1);
-  assert(p.function_style.counter == 2);
+  assert(p.function_infix.counter == 0);
+  assert(p.function_style.counter == 0);
 
   i = 0;
   bunny_configuration_setf(cnf, "Suffix", "FunctionNameInfix.Position");

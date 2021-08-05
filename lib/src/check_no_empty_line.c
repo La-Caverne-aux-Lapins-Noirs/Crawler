@@ -24,7 +24,8 @@ int			check_no_empty_line(t_parsing		*p,
     {
       if (i < end - 1 && code[i] == '\n' && code[i - 1] == '\n')
 	dbl += 1;
-      if ((dbl > 0 && sep == false) || (dbl > 1 && sep == true))
+      if (((dbl > 0 && sep == false) || (dbl > 1 && sep == true))
+	  && i > p->last_declaration.end_of_declaration)
 	{
 	  if (!add_warning
 	      (p, true, code, pos, &p->no_empty_line_in_function.counter,
