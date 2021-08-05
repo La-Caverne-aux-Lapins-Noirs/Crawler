@@ -1,0 +1,91 @@
+
+@font-face
+{
+    font-family: futura;
+    src: url("futura.ttf");
+}
+
+*
+{
+    font-family: futura;
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+body
+{
+    text-align: center;
+    background-color: lightgray;
+}
+
+h1
+{
+    color: black;
+}
+
+table
+{
+    margin-top: 1%;
+    margin-left: 2.5%;
+    width: 95%;
+    height: 99%;
+}
+
+td
+{
+    text-align: center;
+    height: 100%;
+}
+
+div
+{
+    border: 1px solid lightgray;
+    border-radius: 25px;
+    background-color: white;
+}
+
+.full
+{
+    width: 100%;
+    height: 100%;
+}
+
+.overflow
+{
+    overflow: auto;
+}
+
+.half
+{
+    width: 100%;
+    height: 50%;
+}
+
+.buttons
+{
+    text-align: center;
+}
+
+.buttons > div
+{
+    line-height: 30px;
+    width: 33%;
+    height: 30px;
+    float: left;
+}
+
+.criteria
+{
+    width: 100%;
+    height: 150px;
+}
+
+.halfstack
+{
+    display: inline-block;
+    vertical-align: top;
+    width: calc(50% - 10px);
+    height: 100%;
+}
+
