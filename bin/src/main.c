@@ -115,8 +115,7 @@ int			main(int		argc,
 
 	  int		k;
 
-	  printf("Detected conformity errors:\n");
-	  for (k = 0; k < parsingtmp.last_error_id; ++k)
+	  for (k = 0; k <= parsingtmp.last_error_id; ++k)
 	    {
 	      if (color)
 		{
@@ -130,9 +129,12 @@ int			main(int		argc,
 	    }
 	  if (color)
 	    printf("\033[00m\n");
-	  printf("Amount of warning: %d.\n", k);
-	  printf("Amount of different kind of mistakes: %d.\n", parsingtmp.nbr_mistakes);
-	  printf("Amount of error points: %d.\n", parsingtmp.nbr_error_points);
+	  if (k)
+	    printf("Amount of warning: %d.\n", k);
+	  if (parsingtmp.nbr_mistakes)
+	    printf("Amount of different kind of mistakes: %d.\n", parsingtmp.nbr_mistakes);
+	  if (parsingtmp.nbr_error_points)
+	    printf("Amount of error points: %d.\n", parsingtmp.nbr_error_points);
 	  working_file += 1;
 	  total_error += parsingtmp.nbr_error_points;
 	}

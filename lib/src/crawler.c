@@ -935,12 +935,14 @@ int			read_function_declaration(t_parsing	*p,
 	  free(save);
 	  RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 	}
-      if (p->function_matching_path.active && p->non_static_function_per_file.value == 1)
+      if (p->function_matching_path.active
+	  && p->non_static_function_per_file.active
+	  && p->non_static_function_per_file.value == 1)
 	{
 	  char target[512];
 
 	  store_real_typename
-	    (p, &target[0], &p->last_declaration.symbol[0], sizeof(target), 4);
+	    (p, &target[0], &p->last_declaration.function[0], sizeof(target), 4);
 	  if (compare_file_and_function_name(p, &target[0], code, j) == -1)
 	    {
 	      free(save);
@@ -965,10 +967,31 @@ int			read_function_declaration(t_parsing	*p,
 	{
 	  // On a limité le nombre de fonction par fichier - donc on compte les fonctions
 	  if (p->function_per_file.active)
-	    p->function_per_file.counter += 1;
+	    {
+	      if ((p->last_declaration.function_per_file += 1)
+		  == p->function_per_file.value + 1)
+		{ // On vient de dépasser le maximum
+		  if (add_warning(p, true, code, *i, &p->function_per_file.counter,
+				  "Too many functions found in file. "
+				  "%d was the maximum.",
+				  p->function_per_file.value))
+		    RETURN ("Memory exhausted.");
+		}
+	    }
 	  if (p->non_static_function_per_file.active)
 	    if (!p->last_declaration.is_static)
-	      p->non_static_function_per_file.counter += 1;
+	      {
+		if ((p->last_declaration.non_static_function_per_file += 1)
+		    == p->non_static_function_per_file.value + 1)
+		  { // On vient de dépasser le maximum
+		    if (add_warning(p, true, code, *i,
+				    &p->non_static_function_per_file.counter,
+				    "Too many non static functions found in file. "
+				    "%d was the maximum.",
+				    p->non_static_function_per_file.value))
+		      RETURN ("Memory exhausted.");
+		  }
+	      }
 	  if (p->only_by_reference.active)
 	    for (int j = 0; j < p->last_declaration.nbr_copied_parameters; ++j)
 	      {
@@ -2349,6 +2372,7 @@ int			read_direct_declarator(t_parsing	*p,
 	      (p, code, *i, '(',
 	       &p->no_space_inside_parenthesis.counter))
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+	  strcpy(p->last_declaration.function, p->last_declaration.symbol);
 	  p->last_declaration.inside_parameter = true;
 	  if ((ret = read_parameter_type_list(p, code, i)) == -1)
 	    RETURN ("Problem encountered with parameter declaration after '('."); // LCOV_EXCL_LINE
@@ -2718,6 +2742,7 @@ int			read_translation_unit(t_parsing		*p,
 	continue ;
       if (c->counter > 0)
 	{
+	  // printf("Mistake : %d\n", c - &p->start[0]);
 	  p->nbr_mistakes += 1;
 	  p->nbr_error_points += c->pts;
 	}

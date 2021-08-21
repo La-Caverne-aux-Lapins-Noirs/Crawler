@@ -43,7 +43,7 @@ static int	*ptdr(int	abc,
   return (3);
 }
 
-int		global(int	abc)
+int		res_global(int	abc)
 {
   return (4);
 }

@@ -65,6 +65,7 @@ typedef struct		s_last_function
   bool			after_statement;
   char			last_type[1024];
   char			symbol[1024];
+  char			function[1024];
   int			nbr_if;
   int			nbr_variable;
   int			indent_depth;
@@ -84,6 +85,8 @@ typedef struct		s_last_function
   int			last_header;
   int			header_line;
   int			end_of_declaration;
+  int			function_per_file;
+  int			non_static_function_per_file;
 }			t_last_function;
 
 typedef struct		s_criteria
@@ -167,7 +170,7 @@ typedef struct		s_parsing
   t_criteria		typedef_matching;
 
   //
-  t_criteria		function_matching_path;
+  t_criteria		function_matching_path; // ERROR TEST
   t_criteria		local_variable_inline_init_forbidden;
 
   // Indentation
