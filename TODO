@@ -1,3 +1,6 @@
+- Il faut retirer le nombre de ligne avant le début du fichier aux indicateurs
+  de sorte à ne pas compter les lignes issues du preprocesseur;
+
 - Il manque le test d'indentation de switch et des labels.
 - Il manque l'indentation des structures et unions
 
