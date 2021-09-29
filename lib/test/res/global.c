@@ -2,8 +2,7 @@
 ** Jason Brillante "Damdoshi"
 ** jabril - <jason.brillante@gmail.com>
 **
-** - La Caverne Aux Lapins Noirs -
-** - Test - 2021
+** Test - 2021
 */
 
 static int	foo(int		argc,

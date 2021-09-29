@@ -288,7 +288,7 @@ int			read_identifier(t_parsing		*p,
 			 &p->last_declaration.symbol[0], p->no_short_name.value))
 	  RETURN ("Memory exhausted"); // LCOV_EXCL_LINE
     }
-  
+
   return (1);
 }
 
@@ -645,7 +645,7 @@ int			read_jump_statement(t_parsing		*p,
   if (bunny_read_text(code, i, "return"))
     {
       bool		flag = false;
-      
+
       if (p->return_forbidden.value)
 	if (!add_warning
 	    (p, IZ(p, i), code, *i, &p->return_forbidden.counter,
@@ -672,7 +672,7 @@ int			read_jump_statement(t_parsing		*p,
       if (p->return_parenthesis.active && flag == false)
 	{
 	  int j;
-	  
+
 	  for (j = *i; j >= 0 && (isspace(code[j]) || code[j] == ';'); --j);
 	  if (code[j] != ')')
 	    if (!add_warning
@@ -818,7 +818,7 @@ int			read_compound_statement(t_parsing	*p,
     {
       int	j = *i;
       int	nl = 0;
-      
+
       // On va remonter tant qu'il y a des espaces
       while (j > 0 && isspace(code[j - 1]))
 	j -= 1;
@@ -869,7 +869,7 @@ int			read_compound_statement(t_parsing	*p,
   // Style GNU, on desindente après si on était pas dans le scope global
   if (p->base_indent.value && p->indent_style.value == GNU_STYLE)
     p->last_declaration.indent_depth -= 1;
-  
+
   // On verifie l'absence de ligne vide, en dehors du séparator
   if (p->no_empty_line_in_function.value)
     if (check_no_empty_line(p, code, *i, separator, begin, end) == -1)
@@ -927,7 +927,7 @@ int			read_function_declaration(t_parsing	*p,
   // L'indentation du nom de fonction
   read_whitespace(code, i);
   p->local_symbol_alignment = count_to_new_line(p, code, *i);
-  
+
   //////////////////////
   // Le nom de fonction
   j = *i;
@@ -1716,7 +1716,7 @@ int			read_struct_declarator_list(t_parsing	*p,
 	      else if (p->last_declaration.cumulated_attribute_size <
 		       p->last_declaration.last_type_size)
 		p->last_declaration.cumulated_attribute_size =
-		  p->last_declaration.last_type_size;		
+		  p->last_declaration.last_type_size;
 	    }
 	  cnt += ret;
 	}
@@ -1735,7 +1735,7 @@ int			read_struct_declaration(t_parsing	*p,
   /////////////////////////////////////////
   // On est DANS la structure ou l'union //
   /////////////////////////////////////////
-  
+
   // Lit le type et tout le tralala d'une declaration d'attribut
   if ((a = read_specifier_qualifier_list(p, code, i)) != 1)
     return (a);
@@ -1824,7 +1824,7 @@ int			read_type_specifier(t_parsing		*p,
 	{"unsigned", sizeof(unsigned)}
 	// , "__int8_t", "__int16_t", "__int32_t", "__int64_t"
       };
-  
+
   // Standard types
   for (size_t j = 0; j < NBRCELL(typ); ++j)
     if (read_keyword(p, code, i, typ[j].name, gl_second_char))
@@ -1912,7 +1912,7 @@ int			read_type_specifier(t_parsing		*p,
 	}
       else
 	p->last_declaration.was_named = false;
-      
+
       // On enregistre le symbole pour pouvoir le comparer avec le typedef plus tard
       if (p->last_declaration.is_typedef && p->typedef_matching.active && p->last_declaration.scope_depth == 0)
 	{
@@ -1964,7 +1964,7 @@ int			read_type_specifier(t_parsing		*p,
       p->last_declaration.inside_union = punion;
       p->last_declaration.inside_struct = pstruct;
       return (1);
-    }  
+    }
   return (0);
 }
 
@@ -2188,7 +2188,7 @@ int			read_parameter_list(t_parsing		*p,
 		 "Parameter types must be aligned."))
 	      RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	}
-      
+
       if (bunny_read_text(code, i, "..."))
 	return (1);
       p->last_declaration.ptr_acc = 0;
@@ -2358,7 +2358,7 @@ int			read_direct_declarator(t_parsing	*p,
 	     "Function and variable names must be aligned."))
 	  RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
     }
-  
+
   bool			once;
 
   do
@@ -2658,7 +2658,7 @@ int			read_translation_unit(t_parsing		*p,
   int			ret;
 
   gl_parsing_save = p;
-  
+
   p->file = file;
   p->last_declaration.indent_depth = 0;
 
@@ -3037,7 +3037,7 @@ void			load_norm_configuration(t_parsing	*p,
   if (fetch_string_criteria(e, &p->header, "Header"))
     {
       const char	*str;
-      
+
       (void)(bunny_configuration_getf(e, &str, "Header.Value")
 	     || bunny_configuration_getf(e, &str, "Header[1]")
 	     || bunny_configuration_getf(e, &str, "Header"));
