@@ -89,7 +89,7 @@ int			main(int		argc,
 	    continue ;
 	  if (test_ext(argv[i], ".c") == false && test_ext(argv[i], ".h") == false)
 	    continue ;
-	  const char	*s;
+	  const char	*s; // dedans se retrouve bunny big buffer
 	  ssize_t	j;
 
 	  total_file += 1;

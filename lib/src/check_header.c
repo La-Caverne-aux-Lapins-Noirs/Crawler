@@ -33,7 +33,7 @@ bool			check_header(t_parsing		*p,
 	  char		tmpbuffer[256];
 	  ssize_t	tmp = src;
 	  const char	*str;
-	  
+
 	  if (!bunny_read_field(template, &src))
 	    continue ;
 	  snprintf(tmpbuffer, sizeof(tmpbuffer), "%.*s", (int)(src - tmp), &template[tmp]);

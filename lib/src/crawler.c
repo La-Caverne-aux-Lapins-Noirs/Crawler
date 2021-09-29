@@ -38,13 +38,17 @@ static bool		bad_style(t_parsing			*p,
 				  const char			*code,
 				  int				pos)
 {
+  if (p->last_line_marker > pos)
+    return (true);
   const char		*sname[] = {"uppercased snake case", "snake case", "camel case", "pascal case"};
   char			buffer[512];
 
   style->counter += 1;
   snprintf(&buffer[0], sizeof(buffer),
 	   "Badly styled symbol %s. Expected style was %s for %s. (%s, line %d)",
-	   symbol, sname[style->value], context, p->file, bunny_which_line(code, pos));
+	   symbol, sname[style->value], context, p->file,
+	   bunny_which_line(code, pos) - p->last_line_marker_line
+	   );
   if ((p->last_error_msg[++p->last_error_id] = bunny_strdup(&buffer[0])) == NULL)
     { // LCOV_EXCL_START
       p->last_error_id -= 1;
@@ -60,17 +64,17 @@ static bool		bad_infix(t_parsing			*p,
 				  const char			*code,
 				  int				pos)
 {
+  if (p->last_line_marker > pos)
+    return (true);
   char			buffer[512];
 
   infix->counter += 1;
   snprintf(&buffer[0], sizeof(buffer),
 	   "Missing %s %s for %s in symbol %s. (%s, line %d)",
 	   infix->position == 0 ? "prefix" : "suffix",
-	   &infix->value[0],
-	   context,
-	   symbol,
-	   p->file,
-	   bunny_which_line(code, pos));
+	   &infix->value[0], context, symbol, p->file,
+	   bunny_which_line(code, pos) - p->last_line_marker_line
+	   );
   if ((p->last_error_msg[++p->last_error_id] = bunny_strdup(&buffer[0])) == NULL)
     { // LCOV_EXCL_START
       p->last_error_id -= 1;
@@ -2669,11 +2673,29 @@ int			read_translation_unit(t_parsing		*p,
   p->global_parameter_name_alignment = -1;
   p->global_symbol_alignment = -1;
 
+  // Recherche du dernier marqueur du preprocessor
+  ret = strlen(code);
+  while (ret > 0 && code[ret] != '#')
+    ret -= 1;
+  if (code[ret] == '#')
+    while (code[ret] && code[ret] != '\n')
+      ret += 1;
+  p->last_line_marker = ret;
+  p->last_line_marker_line = 0;
+  while (ret > 0)
+    {
+      if (code[ret] == '\n')
+	p->last_line_marker_line += 1;
+      ret -= 1;
+    }
+
   gl_bunny_read_whitespace = read_whitespace;
-  if (check_header(p, code) == false)
+  /*
+    if (check_header(p, code) == false)
     ret = -1;
-  else
-    ret = 1;
+    else
+  */
+  ret = 1;
   while (ret == 1 && code[*i])
     {
       if ((ret = read_external_declaration(p, code, i)) == -1)

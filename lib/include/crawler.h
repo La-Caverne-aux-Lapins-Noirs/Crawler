@@ -21,8 +21,12 @@ int			trace(void);
   return (p->last_error_msg[++p->last_error_id + trace()] = (a " (" STRINGIFY(__LINE__) ")" ), -1)
 # define		SYMBOL_SIZE				127
 
-# define		IZ(p, i)					\
+# ifdef DEACTIVATED
+#  define		IZ(p, i)				\
   ((p)->header.value == false || (p)->last_declaration.last_header <= *(i))
+# else
+#  define		IZ(p, i)				true
+# endif
 
 typedef enum		e_style
   {
@@ -116,7 +120,7 @@ typedef struct		s_parsing
 
   char			typedef_stack[16][SYMBOL_SIZE + 1];
   int			typedef_stack_top;
-  
+
   t_last_function	last_declaration;
 
   // Etait dans last_declaration, mais doivent survivre au reset...
