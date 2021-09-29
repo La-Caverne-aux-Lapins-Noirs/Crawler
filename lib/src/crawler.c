@@ -368,7 +368,7 @@ int			read_selection_statement(t_parsing	*p,
       if (!bunny_read_text(code, i, "("))
 	RETURN ("Missing '(' after 'if'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value == 0 && !check_parenthesis_space
-	  (p, code, *i, '(', &p->no_space_inside_parenthesis.counter))
+	  (p, code, *i - 1, '(', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (check_base_indentation(p, code, *i) == -1)
 	RETURN("Memory exhausted."); // LCOV_EXCL_LINE
@@ -377,7 +377,7 @@ int			read_selection_statement(t_parsing	*p,
       if (!bunny_read_text(code, i, ")"))
 	RETURN ("Missing ')' after 'if (condition'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value == 0 && !check_parenthesis_space
-	  (p, code, *i, ')', &p->no_space_inside_parenthesis.counter))
+	  (p, code, *i - 1, ')', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, true) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
@@ -455,14 +455,14 @@ int			read_selection_statement(t_parsing	*p,
       if (!bunny_read_text(code, i, "("))
 	RETURN ("Missing '(' after 'switch'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	  (p, code, *i, '(', &p->no_space_inside_parenthesis.counter))
+	  (p, code, *i - 1, '(', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (read_expression(p, code, i) != 1)
 	RETURN ("Missing expression after 'switch ('."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ")"))
 	RETURN ("Missing ')' after 'switch (expression'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	  (p, code, *i, ')', &p->no_space_inside_parenthesis.counter))
+	  (p, code, *i - 1, ')', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, true) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
@@ -492,14 +492,14 @@ int			read_iteration_statement(t_parsing	*p,
       if (!bunny_read_text(code, i, "("))
 	RETURN ("Missing '(' after 'while'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	  (p, code, *i, '(', &p->no_space_inside_parenthesis.counter))
+	  (p, code, *i - 1, '(', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (read_expression(p, code, i) != 1)
 	RETURN ("Missing condition after 'while ('."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ")"))
 	RETURN ("Missing ')' after 'while(condition'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	  (p, code, *i, ')', &p->no_space_inside_parenthesis.counter))
+	  (p, code, *i - 1, ')', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, true) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
@@ -531,14 +531,14 @@ int			read_iteration_statement(t_parsing	*p,
       if (!bunny_read_text(code, i, "("))
 	RETURN ("Missing '(' after after 'do statement while'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	  (p, code, *i, '(', &p->no_space_inside_parenthesis.counter))
+	  (p, code, *i - 1, '(', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (read_expression(p, code, i) != 1)
 	RETURN ("Missing condition after 'do statement while ('."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ")"))
 	RETURN ("Missing ')' after 'do statement while (condition'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	  (p, code, *i, ')', &p->no_space_inside_parenthesis.counter))
+	  (p, code, *i - 1, ')', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ";"))
 	RETURN ("Missing ';' after 'do statement while (condition)'."); // LCOV_EXCL_LINE
@@ -560,7 +560,7 @@ int			read_iteration_statement(t_parsing	*p,
       if (!bunny_read_text(code, i, "("))
 	RETURN ("Missing '(' after 'for'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	  (p, code, *i, '(', &p->no_space_inside_parenthesis.counter))
+	  (p, code, *i - 1, '(', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       p->last_declaration.inside_for_statement = true;
       if (read_expression_statement(p, code, i) != 1)
@@ -573,7 +573,7 @@ int			read_iteration_statement(t_parsing	*p,
       if (!bunny_read_text(code, i, ")"))
 	RETURN ("Missing ')' after 'for (initialization; condition; increment'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	  (p, code, *i, ')', &p->no_space_inside_parenthesis.counter))
+	  (p, code, *i - 1, ')', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, true) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
@@ -1087,14 +1087,14 @@ int			read_primary_expression(t_parsing	*p,
   if (bunny_read_text(code, &j, "("))
     {
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	  (p, code, *i, '(', &p->no_space_inside_parenthesis.counter))
+	  (p, code, j - 1, '(', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (read_expression(p, code, &j) != 1)
 	RETURN ("Problem encountered in expression after '('."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, &j, ")"))
 	RETURN ("Missing ')' after '(expression'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	  (p, code, j, ')', &p->no_space_inside_parenthesis.counter))
+	  (p, code, j - 1, ')', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       *i = j;
       return (1);
@@ -1151,14 +1151,14 @@ int			read_postfix_expression(t_parsing	*p,
 	{
 	  once = true;
 	  if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	      (p, code, *i, '(', &p->no_space_inside_parenthesis.counter))
+	      (p, code, *i - 1, '(', &p->no_space_inside_parenthesis.counter))
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	  if (read_argument_expression_list(p, code, i) == -1)
 	    RETURN ("Problem encountered with argument list after '('."); // LCOV_EXCL_LINE
 	  if (!bunny_read_text(code, i, ")"))
 	    RETURN ("Missing ')' after '(argument'."); // LCOV_EXCL_LINE
 	  if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	      (p, code, *i, ')', &p->no_space_inside_parenthesis.counter))
+	      (p, code, *i - 1, ')', &p->no_space_inside_parenthesis.counter))
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	}
       if (bunny_read_text(code, i, ".") || bunny_read_text(code, i, "->"))
@@ -1240,14 +1240,14 @@ int			read_unary_expression(t_parsing		*p,
 	  if (bunny_read_text(code, i, "("))
 	    {
 	      if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-		  (p, code, *i, '(', &p->no_space_inside_parenthesis.counter))
+		  (p, code, *i - 1, '(', &p->no_space_inside_parenthesis.counter))
 		RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	      if (read_type_name(p, code, i) != 1)
 		RETURN ("Problem encountered with type name after 'sizeof('."); // LCOV_EXCL_LINE
 	      if (!bunny_read_text(code, i, ")"))
 		RETURN ("Missing ')' after 'sizeof(type name'."); // LCOV_EXCL_LINE
 	      if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-		  (p, code, *i, ')', &p->no_space_inside_parenthesis.counter))
+		  (p, code, *i - 1, ')', &p->no_space_inside_parenthesis.counter))
 		RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	      return (1);
 	    }
@@ -1287,7 +1287,7 @@ int			read_cast_expression(t_parsing		*p,
   if (bunny_read_text(code, &j, "("))
     {
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	  (p, code, j, '(', &p->no_space_inside_parenthesis.counter))
+	  (p, code, j - 1, '(', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (read_type_name(p, code, &j) == 1)
 	{
@@ -1295,7 +1295,7 @@ int			read_cast_expression(t_parsing		*p,
 	  if (!bunny_read_text(code, i, ")"))
 	    RETURN ("Missing ')' after '(typename'."); // LCOV_EXCL_LINE
 	  if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
-	      (p, code, *i, ')', &p->no_space_inside_parenthesis.counter))
+	      (p, code, *i - 1, ')', &p->no_space_inside_parenthesis.counter))
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	  return (read_cast_expression(p, code, i));
 	}
@@ -2096,7 +2096,7 @@ int			read_direct_abstract_declarator(t_parsing *p,
       if (bunny_read_text(code, i, "("))
 	{
 	  if (!check_parenthesis_space
-	      (p, code, *i, '(',
+	      (p, code, *i - 1, '(',
 	       &p->no_space_inside_parenthesis.counter))
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	  int		ret;
@@ -2109,7 +2109,7 @@ int			read_direct_abstract_declarator(t_parsing *p,
 	  p->last_declaration.inside_parameter = false;
 	  if (!bunny_read_text(code, i, ")"))
 	    RETURN ("Missing ')' after '( parameter list"); // LCOV_EXCL_LINE
-	  if (!check_parenthesis_space(p, code, *i, ')',
+	  if (!check_parenthesis_space(p, code, *i - 1, ')',
 				       &p->no_space_inside_parenthesis.counter))
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	}
@@ -2256,7 +2256,7 @@ int			read_direct_declarator(t_parsing	*p,
     {
       if (bunny_read_text(code, i, "(")) // Y a t il des paramètres?
 	{
-	  if (!check_parenthesis_space(p, code, *i, '(',
+	  if (!check_parenthesis_space(p, code, *i - 1, '(',
 				       &p->no_space_inside_parenthesis.counter))
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	  p->last_declaration.inside_parameter = true;
@@ -2265,7 +2265,7 @@ int			read_direct_declarator(t_parsing	*p,
 	  p->last_declaration.inside_parameter = false;
 	  if (!bunny_read_text(code, i, ")"))
 	    RETURN ("Missing ')' after '(declaration'."); // LCOV_EXCL_LINE
-	  if (!check_parenthesis_space(p, code, *i, ')',
+	  if (!check_parenthesis_space(p, code, *i - 1, ')',
 				       &p->no_space_inside_parenthesis.counter))
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	  return (1);
@@ -2378,7 +2378,7 @@ int			read_direct_declarator(t_parsing	*p,
 
 	  once = true;
 	  if (!check_parenthesis_space
-	      (p, code, *i, '(',
+	      (p, code, *i - 1, '(',
 	       &p->no_space_inside_parenthesis.counter))
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	  strcpy(p->last_declaration.function, p->last_declaration.symbol);
@@ -2391,7 +2391,7 @@ int			read_direct_declarator(t_parsing	*p,
 	  p->last_declaration.inside_parameter = false;
 	  if (!bunny_read_text(code, i, ")"))
 	    RETURN ("Missing ')' after '( parameter list"); // LCOV_EXCL_LINE
-	  if (!check_parenthesis_space(p, code, *i, ')',
+	  if (!check_parenthesis_space(p, code, *i - 1, ')',
 				       &p->no_space_inside_parenthesis.counter))
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	}
@@ -2538,7 +2538,7 @@ int			read_gcc_attribute_list_node(t_parsing	*p,
   if (bunny_read_text(code, i, "("))
     {
       if (!check_parenthesis_space
-	  (p, code, *i, '(',
+	  (p, code, *i - 1, '(',
 	   &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       int		unused;
@@ -2555,11 +2555,12 @@ int			read_gcc_attribute_list_node(t_parsing	*p,
 	  cnt += 1;
 	}
       while (bunny_read_text(code, i, ","));
-      if (!check_parenthesis_space
-	  (p, code, *i, ')', &p->no_space_inside_parenthesis.counter))
-	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (bunny_read_text(code, i, ")") == false)
 	RETURN("Missing ')' to close attribute parameter."); // LCOV_EXCL_LINE
+      if (!check_parenthesis_space
+	  (p, code, *i - 1, ')', &p->no_space_inside_parenthesis.counter))
+	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+
     }
   return (1);
 }
@@ -2574,7 +2575,7 @@ int			read_gcc_attribute(t_parsing		*p,
     {
       if (bunny_read_text(code, i, "((") == false)
 	RETURN("\"((\" was expected after __attribute__."); // LCOV_EXCL_LINE
-      if (!check_parenthesis_space(p, code, *i, '(',
+      if (!check_parenthesis_space(p, code, *i - 1, '(',
 				   &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       bool		comma_end = false;
@@ -2590,7 +2591,7 @@ int			read_gcc_attribute(t_parsing		*p,
 		RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 	      comma_end = true;
 	    }
-	  if (!check_parenthesis_space(p, code, *i, ')',
+	  if (!check_parenthesis_space(p, code, *i - 1, ')',
 				       &p->no_space_inside_parenthesis.counter))
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	}
@@ -2599,7 +2600,7 @@ int			read_gcc_attribute(t_parsing		*p,
       if (bunny_read_text(code, i, "))") == false)
 	RETURN("\"))\" was expected to close __attribute__."); // LCOV_EXCL_LINE
       if (!check_parenthesis_space
-	  (p, code, *i, ')', &p->no_space_inside_parenthesis.counter))
+	  (p, code, *i - 1, ')', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       cnt += 1;
     }

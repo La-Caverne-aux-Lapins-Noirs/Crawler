@@ -14,6 +14,7 @@ bool			check_parenthesis_space(t_parsing	*p,
 						char		dir,
 						int		*cnt)
 {
+  // Cette fonction doit etre appellée avec pos SUR la parenthese
   if (!IZ(p, &pos))
     return (true);
   if (dir == '(')
