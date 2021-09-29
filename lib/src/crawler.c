@@ -393,7 +393,7 @@ int			read_selection_statement(t_parsing	*p,
 	RETURN ("Missing statement after 'if (condition)'."); // LCOV_EXCL_LINE
       if (bunny_read_text(code, i, "else"))
 	{
-	  bool		elsefix = 0;
+	  int		elsefix = 0;
 	  ssize_t	j = *i;
 
 	  if (bunny_read_text(code, &j, "if") == false)
