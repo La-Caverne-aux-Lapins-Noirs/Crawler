@@ -85,8 +85,6 @@ typedef struct		s_last_function
   int			last_header;
   int			header_line;
   int			end_of_declaration;
-  int			function_per_file;
-  int			non_static_function_per_file;
 }			t_last_function;
 
 typedef struct		s_criteria
@@ -127,6 +125,8 @@ typedef struct		s_parsing
   int			local_parameter_name_alignment;
   int			global_parameter_name_alignment;
   int			global_symbol_alignment;
+  int			ldec_function_per_file;
+  int			ldec_non_static_function_per_file;
 
   const char		*last_error_msg[256];
   int			last_error_id;

@@ -393,18 +393,29 @@ int			read_selection_statement(t_parsing	*p,
 	RETURN ("Missing statement after 'if (condition)'."); // LCOV_EXCL_LINE
       if (bunny_read_text(code, i, "else"))
 	{
-	  bool		elsefix = false;
+	  bool		elsefix = 0;
 	  ssize_t	j = *i;
 
 	  if (bunny_read_text(code, &j, "if") == false)
 	    {
 	      if (p->indent_style.value == GNU_STYLE)
 		{
-		  p->last_declaration.indent_depth += 1;
-		  elsefix = true;
+		  if (bunny_check_text(code, &j, "{") == false)
+		    {
+		      elsefix = 1;
+		      p->last_declaration.depth_bonus += 1;
+		    }
+		  else
+		    {
+		      elsefix = 2;
+		      p->last_declaration.indent_depth += 1;
+		    }
 		}
-	      else if (bunny_read_text(code, &j, "{") == false)
-		p->last_declaration.depth_bonus = 1;
+	      else if (bunny_check_text(code, &j, "{") == false)
+		{
+		  elsefix = 1;
+		  p->last_declaration.depth_bonus += 1;
+		}
 	    }
 	  if (!check_on_same_line(p, code, *i - 5, "}", false))
 	    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
@@ -420,8 +431,11 @@ int			read_selection_statement(t_parsing	*p,
 	    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 	  if (check_white_then_newline(p, code, *i, true) == false)
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
-	  if (elsefix)
+	  if (elsefix == 2)
 	    p->last_declaration.indent_depth -= 1;
+	  if (elsefix == 1)
+	    p->last_declaration.depth_bonus -= 1;
+	  p->last_declaration.after_statement = false;
 	  if (read_statement(p, code, i) != 1)
 	    RETURN ("Missing statement after 'else'."); // LCOV_EXCL_LINE
 	}
@@ -716,14 +730,12 @@ int			read_statement(t_parsing		*p,
 	     "'{' is mandatory after if, while, do, for or switch statement."))
 	  RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 
-      /*
-      // Pas d'accolade, il faut quand même indenter.
-      if (p->indent_style.value != GNU_STYLE)
+      // Pas d'accolade, il faut quand même indenter, si c'est pas une ouverture de fonc
+      if (p->indent_style.value == GNU_STYLE && p->last_declaration.after_statement)
 	{
-	  p->last_declaration.indent_depth += 1;
+	  p->last_declaration.depth_bonus += 1;
 	  singleindent = true;
 	}
-      */
     }
   p->last_declaration.after_statement = false;
   p->last_declaration.scope_length = 0;
@@ -737,11 +749,10 @@ int			read_statement(t_parsing		*p,
     goto Return;
   if ((ret = read_jump_statement(p, code, i)) != 0)
     goto Return;
-  return (0);
-
+  ret = 0;
  Return:
   if (singleindent)
-    p->last_declaration.indent_depth -= 1;
+    p->last_declaration.depth_bonus -= 1;
   return (ret);
 }
 
@@ -968,10 +979,9 @@ int			read_function_declaration(t_parsing	*p,
 	  // On a limité le nombre de fonction par fichier - donc on compte les fonctions
 	  if (p->function_per_file.active)
 	    {
-	      if ((p->last_declaration.function_per_file += 1)
-		  == p->function_per_file.value + 1)
+	      if ((p->ldec_function_per_file += 1) == p->function_per_file.value + 1)
 		{ // On vient de dépasser le maximum
-		  if (add_warning(p, true, code, *i, &p->function_per_file.counter,
+		  if (!add_warning(p, true, code, *i, &p->function_per_file.counter,
 				  "Too many functions found in file. "
 				  "%d was the maximum.",
 				  p->function_per_file.value))
@@ -981,14 +991,13 @@ int			read_function_declaration(t_parsing	*p,
 	  if (p->non_static_function_per_file.active)
 	    if (!p->last_declaration.is_static)
 	      {
-		if ((p->last_declaration.non_static_function_per_file += 1)
-		    == p->non_static_function_per_file.value + 1)
+		if ((p->ldec_non_static_function_per_file += 1) == p->non_static_function_per_file.value + 1)
 		  { // On vient de dépasser le maximum
-		    if (add_warning(p, true, code, *i,
-				    &p->non_static_function_per_file.counter,
-				    "Too many non static functions found in file. "
-				    "%d was the maximum.",
-				    p->non_static_function_per_file.value))
+		    if (!add_warning(p, true, code, *i,
+				     &p->non_static_function_per_file.counter,
+				     "Too many non static functions found in file. "
+				     "%d was the maximum.",
+				     p->non_static_function_per_file.value))
 		      RETURN ("Memory exhausted.");
 		  }
 	      }
@@ -2043,11 +2052,11 @@ int			read_declaration_specifiers(t_parsing	*p,
 	      store_real_typename(p, buffer, &p->last_declaration.symbol[0], sizeof(buffer), 2);
 	      if (strcmp(buffer, p->typedef_stack[p->typedef_stack_top]) != 0)
 		{
-		  if (add_warning
+		  if (!add_warning
 		      (p, IZ(p, &j), code, j, &p->typedef_matching.counter,
 		       "Typedef name '%s' does not match the typedefed type name '%s'.",
 		       buffer, p->typedef_stack[p->typedef_stack_top]
-		       ) == false)
+		       ))
 		    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 		}
 	      p->typedef_stack_top -= 1;
@@ -3029,9 +3038,9 @@ void			load_norm_configuration(t_parsing	*p,
     {
       const char	*str;
       
-      bunny_configuration_getf(e, &str, "Header.Value")
-	|| bunny_configuration_getf(e, &str, "Header[1]")
-	|| bunny_configuration_getf(e, &str, "Header");
+      (void)(bunny_configuration_getf(e, &str, "Header.Value")
+	     || bunny_configuration_getf(e, &str, "Header[1]")
+	     || bunny_configuration_getf(e, &str, "Header"));
       strxcpy(&p->header_data[0], str, sizeof(p->header_data), strlen(str));
     }
 

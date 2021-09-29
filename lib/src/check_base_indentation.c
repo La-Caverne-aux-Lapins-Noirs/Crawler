@@ -67,8 +67,7 @@ int			check_base_indentation(t_parsing		*p,
       return (1);
     }
   ilen = tab * p->tab_or_space.value + space;
-  if (ilen != (p->last_declaration.indent_depth + p->last_declaration.depth_bonus)
-      * p->base_indent.value)
+  if (ilen != (p->last_declaration.indent_depth + p->last_declaration.depth_bonus) * p->base_indent.value)
     {
       /*
 	print_line_and_position(p, code, pos, true);
@@ -78,18 +77,18 @@ int			check_base_indentation(t_parsing		*p,
 	ilen, p->base_indent.value
 	); // Dbg
       */
-      p->last_declaration.depth_bonus = 0;
       if (!add_warning
 	  (p, true, code, pos, &p->base_indent.counter,
 	   "Bad indentation. "
 	   "Indentation width is %d where %d was expected.",
 	   ilen,
-	   p->last_declaration.indent_depth * p->base_indent.value
+	   (p->last_declaration.indent_depth + p->last_declaration.depth_bonus) * p->base_indent.value
 	   ))
 	return (-1);
+      p->last_declaration.depth_bonus = 0;
       return (1);
     }
-  p->last_declaration.depth_bonus = 0;
+  // p->last_declaration.depth_bonus = 0;
   return (1);
 }
 

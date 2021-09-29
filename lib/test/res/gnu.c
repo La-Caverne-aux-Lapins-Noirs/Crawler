@@ -35,4 +35,3 @@ int gnu_style(int argc)
 
   return (0);
 }
-

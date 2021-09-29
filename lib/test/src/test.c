@@ -337,7 +337,7 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.function_per_file.active);
-  assert(p.function_per_file.counter == 3);
+  assert(p.function_per_file.counter == 1);
   assert(p.function_per_file.value == 2);
   assert(p.function_per_file.pts == 3);
 
@@ -352,16 +352,15 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.non_static_function_per_file.active);
-  assert(p.non_static_function_per_file.counter == 1);
+  assert(p.non_static_function_per_file.counter == 0);
   assert(p.non_static_function_per_file.value == 1);
   assert(p.non_static_function_per_file.pts == 1);
 
-  // Verification des styles, suffixes et prefixes A CODER
   i = 0;
   bunny_configuration_setf(cnf, 1, "NonStaticFunctionPerFile[0]");
   bunny_configuration_setf(cnf, -1, "NonStaticFunctionPerFile[1]");
   load_norm_configuration(&p, cnf);
-  s = "  static void func1(void){ } static void func2(void){ } void func3(void){ } ";
+  s = "  static void func1(void){ } void func2(void){ } void func3(void){ } ";
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
@@ -1869,13 +1868,22 @@ int			main(void)
   //////////////////////////////////////
   // On verifie l'indentation basique //
   //////////////////////////////////////
-
   p.base_indent.active = true;
   p.base_indent.value = 2;
   p.tab_or_space.active = true;
   p.tab_or_space.value = 8;
 
-  //////////// STYLE GNU
+  //////////// STYLE GNU  
+  file = "./res/abs.c";
+  assert(s = load_c_file(file, cnf, false));
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.value = GNU_STYLE;
+  p.base_indent.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter == 0);
+ 
   file = "./res/gnu.c";
   assert(s = load_c_file(file, cnf, false));
   i = 0;
@@ -1901,22 +1909,14 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.base_indent.counter != 0);
-
+  
   //////////// STYLE BSD
   p.base_indent.active = true;
   p.base_indent.value = 2;
   p.tab_or_space.active = true;
   p.tab_or_space.value = 8;
-  
   file = "./res/bsd.c";
   assert(s = load_c_file(file, cnf, false));
-  i = 0;
-  p.last_error_id = -1;
-  p.indent_style.value = GNU_STYLE;
-  p.base_indent.counter = 0;
-  if (read_translation_unit(&p, file, s, &i, true) != 1)
-    goto Error;
-  assert(p.base_indent.counter != 0);
 
   i = 0;
   p.last_error_id = -1;
@@ -1926,6 +1926,14 @@ int			main(void)
     goto Error;
   assert(p.base_indent.counter == 0);
 
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.value = GNU_STYLE;
+  p.base_indent.counter = 0;
+  if (read_translation_unit(&p, file, s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter != 0);
+  
   i = 0;
   p.last_error_id = -1;
   p.indent_style.value = KNR_STYLE;
