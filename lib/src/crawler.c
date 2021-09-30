@@ -429,7 +429,9 @@ int			read_selection_statement(t_parsing	*p,
 	      RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	  if (check_base_indentation(p, code, *i) == -1)
 	    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
-	  if (check_white_then_newline(p, code, *i, true) == false)
+	  j = *i;
+	  if (!bunny_check_text(code, &j, "if") &&
+	      check_white_then_newline(p, code, *i, true) == false)
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	  if (elsefix == 2)
 	    p->last_declaration.indent_depth -= 1;

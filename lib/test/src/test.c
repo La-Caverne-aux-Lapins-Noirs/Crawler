@@ -22,7 +22,7 @@ int			main(void)
   assert(cnf = bunny_new_configuration());
   load_norm_configuration(&p, cnf);
   gl_bunny_read_whitespace = read_whitespace;
-  // goto NOW;
+  goto NOW;
 
   /////////////////////////
   // ON TESTE LE PARSING //
@@ -2174,6 +2174,18 @@ int			main(void)
     goto Error;
   assert(p.max_function_length.counter == 1);
 
+ NOW:
+  file = "./res/abs3.c";
+  assert(s = load_c_file(file, cnf, false));
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.value = GNU_STYLE;
+  p.base_indent.counter = 0;
+  p.single_instruction_per_line.active = true;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.base_indent.counter == 0);
+  assert(p.single_instruction_per_line.counter == 0);
   return (EXIT_SUCCESS);
 
  Error: // LCOV_EXCL_START
