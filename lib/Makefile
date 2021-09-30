@@ -29,7 +29,7 @@
   ETC_DIR	?=	/etc/technocore/
   LIB_TESTDIR	?=	$(HOME)/.froot/lib/
 
-  LIB		=	-llapin -ldl -lm -lstdc++ -lavcall	\
+  LIB		=	-L$(HOME)/.froot/lib/ -llapin -ldl -lm -lstdc++ -lavcall	\
 			-lgcov -rdynamic
   CONFIG	?=	$(FLAG) -fPIC -std=c11 -Wno-format-security		\
 			-Wall -Wextra
@@ -53,7 +53,7 @@
   LOGFILE	=	errors~
   ERRLOG	=	2>> $(LOGFILE)
 
-  HEADER	=	-I./include/
+  HEADER	=	-I./include/ $(HOME)/.froot/include/
 
   DEFLT		=	"\033[00m"
   PINK		=	"\033[1;35m"

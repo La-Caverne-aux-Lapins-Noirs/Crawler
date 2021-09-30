@@ -5,16 +5,15 @@
 ** %FirstName %FamilyName "%NickName"
 ** %Login - <%Mail>
 **
-** - La Caverne Aux Lapins Noirs -
-** - %ProjectName - %Year
+** %ProjectName - %Year
 */
 END]
-  Points = 10
+  Points = 5
 ]
 
 [FunctionPerFile
   Value = 5
-  Points = 1
+  Points = 3
 ]
 
 [FunctionMatchingPath
@@ -34,17 +33,17 @@ END]
 
 [MaximumFunctionLength
   Value = 25
-  Points = 2
+  Points = 5
 ]
 
 [MaximumFunctionParameter
   Value = 4
-  Points = 2
+  Points = 3
 ]
 
 [OnlyByReference
-  Value = 4
-  POints = 1
+  Value = 16
+  Points = 1
 ]
 
 [LocalVariableInlineInitForbidden
@@ -54,7 +53,7 @@ END]
 
 [AllGlobalsAreConst
   Value = true
-  Points = 2
+  Points = 5
 ]
 
 IndentationStyle = 0
@@ -107,7 +106,7 @@ IndentationToken = 8
 
 [SingleInstructionPerLine
   Value = true
-  Points = 2
+  Points = 3
 ]
 
 [GlobalStyle
@@ -116,7 +115,7 @@ IndentationToken = 8
 ]
 
 [GlobalVariableInfix
-  Value = "gl_"
+  Value = "g_"
   Position = "Prefix"
   Points = 1
 ]
@@ -160,7 +159,7 @@ IndentationToken = 8
   Points = 1
 ]
 
-[PointStarOnName
+[PointerStarOnName
   Value = true
   Points = 1
 ]
@@ -200,14 +199,14 @@ IndentationToken = 8
   Points = 1
 ]
 
-[Gotoforbidden
+[GotoForbidden
   Value = true
   Points = 5
 ]
 
 [BreakForbidden
   Value = true
-  Points = 5
+  Points = 2
 ]
 
 [ForForbidden
@@ -217,12 +216,17 @@ IndentationToken = 8
 
 [SwitchForbidden
   Value = true
-  Points = 5
+  Points = 2
 ]
 
-'Eventuellement...
+[AvoidBracesForSingleLine
+  Value = true
+  Points = 1
+]
+
+'Eventuellement... On interdit ++ et --
 [InlineModificationForbidden
   Value = true
-  Points = 5
+  Points = 2
 ]
 
