@@ -14,19 +14,16 @@ bool			check_parenthesis_space(t_parsing	*p,
 						char		dir,
 						int		*cnt)
 {
+  int			i;
+
   // Cette fonction doit etre appellée avec pos SUR la parenthese
   if (!IZ(p, &pos))
     return (true);
   if (dir == '(')
     {
-      // Désactivé car redondant avec d'autres vérifications
-      if (0 && pos > 0 && !isspace(code[pos - 1]) && code[pos - 1] != code[pos])
-	if (!add_warning
-	    (p, true, code, pos, cnt,
-	     "A space was expected before %c.", code[pos]))
-	  return (false);
-      // Mais on verifie toujours l'interieur
-      if (isspace(code[pos + 1]) && code[pos + 1] != code[pos])
+      // On verifie l'interieur
+      for (i = 1; isblank(code[pos + i]); ++i);
+      if (code[pos + i] != '\n' && code[pos + i] != '\r' && i != 1)
 	if (!add_warning
 	    (p, true, code, pos, cnt,
 	     "No space was expected after %c.", code[pos]))
@@ -36,16 +33,11 @@ bool			check_parenthesis_space(t_parsing	*p,
   else if (dir == ')')
     {
       // On verifie l'interieur
-      if (pos > 0 && isspace(code[pos - 1]) && code[pos - 1] != code[pos])
+      for (i = -1; pos + i > 0 && isblank(code[pos + i]); --i);
+      if (code[pos + i] != '\n' && code[pos + i] != '\r' && i != -1)
 	if (!add_warning
 	    (p, true, code, pos, cnt,
 	     "No space was expected before %c.", code[pos]))
-	  return (false);
-      // Mais on laisse l'exterieur a d'autres verificateurs
-      if (0 && !isspace(code[pos + 1]) && code[pos + 1] != code[pos])
-	if (!add_warning
-	    (p, true, code, pos, cnt,
-	     "A space was expected after %c.", code[pos]))
 	  return (false);
       return (true);
     }
