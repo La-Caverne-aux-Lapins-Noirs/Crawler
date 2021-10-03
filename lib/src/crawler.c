@@ -2802,35 +2802,39 @@ int			read_translation_unit(t_parsing		*p,
 	} // LCOV_EXCL_STOP
       else
 	{
-	  if (p->global_parameter_name_alignment == -1)
+	  // On enregistre les indentations au niveau global uniquement dans la partie élève...
+	  if (p->last_line_marker < *i)
 	    {
-	      if (p->local_parameter_name_alignment != -1)
-		p->global_parameter_name_alignment = p->local_parameter_name_alignment;
-	    }
-	  else if (p->local_parameter_name_alignment != -1 &&
-		   p->global_parameter_name_alignment != p->local_parameter_name_alignment)
-	    {
-	      if (!add_warning
-		  (p, IZ(p, i), code, *i, &p->file_parameter_name_alignment.counter,
-		   "Parameter name must be aligned globally in your file."))
-		RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
-	      p->global_parameter_name_alignment = p->local_parameter_name_alignment;
-	    }
+	      if (p->global_parameter_name_alignment == -1)
+		{
+		  if (p->local_parameter_name_alignment != -1)
+		    p->global_parameter_name_alignment = p->local_parameter_name_alignment;
+		}
+	      else if (p->local_parameter_name_alignment != -1 &&
+		       p->global_parameter_name_alignment != p->local_parameter_name_alignment)
+		{
+		  if (!add_warning
+		      (p, IZ(p, i), code, *i, &p->file_parameter_name_alignment.counter,
+		       "Parameter name must be aligned globally in your file."))
+		    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+		  p->global_parameter_name_alignment = p->local_parameter_name_alignment;
+		}
 
-	  if (p->global_symbol_alignment == -1)
-	    {
-	      if (p->local_symbol_alignment != -1)
-		p->global_symbol_alignment = p->local_symbol_alignment;
-	    }
-	  else if (p->local_symbol_alignment != -1 &&
-		   p->global_symbol_alignment != p->local_symbol_alignment)
-	    {
-	      if (!add_warning
-		  (p, IZ(p, i), code, *i, &p->file_symbol_alignment.counter,
-		   "Function and variable name must be aligned "
-		   "globally in your file."))
-		RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
-	      p->global_symbol_alignment = p->local_symbol_alignment;
+	      if (p->global_symbol_alignment == -1)
+		{
+		  if (p->local_symbol_alignment != -1)
+		    p->global_symbol_alignment = p->local_symbol_alignment;
+		}
+	      else if (p->local_symbol_alignment != -1 &&
+		       p->global_symbol_alignment != p->local_symbol_alignment)
+		{
+		  if (!add_warning
+		      (p, IZ(p, i), code, *i, &p->file_symbol_alignment.counter,
+		       "Function and variable name must be aligned "
+		       "globally in your file."))
+		    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+		  p->global_symbol_alignment = p->local_symbol_alignment;
+		}
 	    }
 
 	  cnt += ret;
