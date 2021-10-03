@@ -8,4 +8,8 @@
 
 - Il faut pouvoir verifier la vérification de certaines fonctions (malloc, open, close, read, write)
 
+
 - Une option pour extraire l'ensemble des noms de fonctions appelés (pour la triche), post préprocesseur, sous le début du fichier bien sur.
+
+- Remplacer tous les RETURN par des add_error qui indique la ligne dans le code...
+

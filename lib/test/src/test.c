@@ -22,7 +22,7 @@ int			main(void)
   assert(cnf = bunny_new_configuration());
   load_norm_configuration(&p, cnf);
   gl_bunny_read_whitespace = read_whitespace;
-  goto NOW;
+  // goto NOW;
 
   /////////////////////////
   // ON TESTE LE PARSING //
@@ -75,7 +75,7 @@ int			main(void)
   i = 0; assert(read_unary_operator(&p, "-", &i) == 1);
   i = 0; assert(read_unary_operator(&p, "~", &i) == 1);
   i = 0; assert(read_unary_operator(&p, "!", &i) == 1);
-  
+
   i = 0; assert(read_unary_expression(&p, "++--~(const double)sizeof(int)", &i) == 1);
 
   p.indent_style.value = KNR_STYLE;
@@ -84,14 +84,14 @@ int			main(void)
   assert(p.base_indent.counter == 0);
   assert(check_on_same_line(&p, "   \n{\n   ", 2, "{", true));
   assert(p.base_indent.counter == 1);
-  
+
   p.base_indent.counter = 0;
   assert(check_on_same_line(&p, "    }    ", 7, "}", false));
   assert(p.base_indent.counter == 0);
   assert(check_on_same_line(&p, "   \n}\n   ", 7, "}", false));
   assert(p.base_indent.counter == 1);
   p.indent_style.value = 0;
-  
+
   i = 0;
   s =
     "register auto unsigned float const volatile /*             */ "
@@ -578,7 +578,7 @@ int			main(void)
   i = 0;
   bunny_delete_configuration(cnf);
   cnf = bunny_new_configuration();
-  
+
   bunny_configuration_setf(cnf, SNAKE_CASE, "GlobalVariableNameStyle.Value");
   bunny_configuration_setf(cnf, 10, "GlobalVariableNameStyle.Points");
   bunny_configuration_setf(cnf, "gl_", "GlobalVariableNameInfix[0]");
@@ -650,7 +650,7 @@ int			main(void)
   bunny_configuration_setf(cnf, "s_", "GlobalInfix[0]");
   bunny_configuration_setf(cnf, "Prefix", "GlobalInfix[1]");
   bunny_configuration_setf(cnf, 8, "GlobalInfix[2]");
-  
+
   bunny_configuration_setf(cnf, SNAKE_CASE, "StructNameStyle");
   bunny_configuration_setf(cnf, 10, "StructNameStylePts");
   bunny_configuration_setf(cnf, "s_", "StructNameInfix.Value");
@@ -686,7 +686,7 @@ int			main(void)
   bunny_configuration_setf(cnf, "su_", "UnionAttributeNameInfix.Value");
   bunny_configuration_setf(cnf, 0, "UnionAttributeNameInfix.Position");
   bunny_configuration_setf(cnf, 8, "UnionAttributeNameInfix.Points");
-  
+
   bunny_configuration_setf(cnf, SNAKE_CASE, "TypedefNameStyle.Value");
   bunny_configuration_setf(cnf, 10, "TypedefNameStyle.Points");
   bunny_configuration_setf(cnf, "t_", "TypedefNameInfix.Value");
@@ -695,7 +695,7 @@ int			main(void)
 
   bunny_configuration_setf(cnf, 1, "TypedefMatching.Value");
   bunny_configuration_setf(cnf, 3, "TypedefNameStyle.Points");
-  
+
   load_norm_configuration(&p, cnf);
   s =
     " struct s_struct { int sa_a; int sa_b; int sa_c2; }; \n"
@@ -802,7 +802,7 @@ int			main(void)
   assert(p.no_trailing_whitespace.counter == 6);
   assert(p.no_empty_line_in_function.counter == 1);
   assert(p.single_instruction_per_line.counter == 3);
-  
+
   bunny_configuration_setf(cnf, 1, "DeclarationStatementSeparator");
   load_norm_configuration(&p, cnf);
   i = 0;
@@ -1077,7 +1077,7 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.return_forbidden.counter == 1);
-  
+
   i = 0;
   s =
     "void func(void)\n"
@@ -1299,7 +1299,7 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.base_indent.counter == 0);
-  
+
   i = 0;
   s =
     "void func(void)\n"
@@ -1348,7 +1348,7 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.base_indent.counter == 1);
-  
+
   i = 0;
   s =
     "void func(void)\n"
@@ -1487,7 +1487,7 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.all_globals_are_const.counter == 0);
-  
+
   // Espaces
   i = 0;
   s =
@@ -1667,6 +1667,23 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.inbetween_ptr_symbol_space.counter == 1);
+  assert(p.ptr_symbol_on_name.counter == 0);
+  assert(p.ptr_symbol_on_type.counter == 0);
+
+  i = 0;
+  s =
+    "int* const func(int* const ptr, int *a);"
+    ;
+  load_norm_configuration(&p, cnf);
+  p.inbetween_ptr_symbol_space.value = 1;
+  p.inbetween_ptr_symbol_space.counter = 0;
+  p.ptr_symbol_on_name.value = 0;
+  p.ptr_symbol_on_type.value = 0;
+  p.ptr_symbol_on_name.counter = 0;
+  p.ptr_symbol_on_type.counter = 0;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.inbetween_ptr_symbol_space.counter == 2);
   assert(p.ptr_symbol_on_name.counter == 0);
   assert(p.ptr_symbol_on_type.counter == 0);
 
@@ -1865,6 +1882,16 @@ int			main(void)
     goto Error;
   // assert(p.header.counter == 1);
 
+  i = 0;
+  s =
+    "typedef long u_int64_t;\n"
+    "typedef int register_t __attribute__ ((__mode__ (__word__)));\n"
+    ;
+  cnf = bunny_new_configuration();
+  load_norm_configuration(&p, cnf);
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+
   //////////////////////////////////////
   // On verifie l'indentation basique //
   //////////////////////////////////////
@@ -1873,7 +1900,7 @@ int			main(void)
   p.tab_or_space.active = true;
   p.tab_or_space.value = 8;
 
-  //////////// STYLE GNU  
+  //////////// STYLE GNU
   file = "./res/abs.c";
   assert(s = load_c_file(file, cnf, false));
   i = 0;
@@ -1883,7 +1910,7 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.base_indent.counter == 0);
- 
+
   file = "./res/gnu.c";
   assert(s = load_c_file(file, cnf, false));
   i = 0;
@@ -1909,7 +1936,7 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.base_indent.counter != 0);
-  
+
   //////////// STYLE BSD
   p.base_indent.active = true;
   p.base_indent.value = 2;
@@ -1933,7 +1960,7 @@ int			main(void)
   if (read_translation_unit(&p, file, s, &i, true) != 1)
     goto Error;
   assert(p.base_indent.counter != 0);
-  
+
   i = 0;
   p.last_error_id = -1;
   p.indent_style.value = KNR_STYLE;
@@ -1947,7 +1974,7 @@ int			main(void)
   p.base_indent.value = 2;
   p.tab_or_space.active = true;
   p.tab_or_space.value = 8;
-  
+
   file = "./res/knr.c";
   assert(s = load_c_file(file, cnf, false));
   i = 0;
@@ -1993,7 +2020,7 @@ int			main(void)
   p.file_symbol_alignment.value = 1;
   p.file_parameter_name_alignment.active = true;
   p.file_parameter_name_alignment.value = 1;
-  
+
   i = 0;
   p.last_error_id = -1;
   file = "./res/classic.c";
@@ -2016,7 +2043,7 @@ int			main(void)
   p.last_error_id = -1;
   file = "./res/local.c";
   assert(s = load_c_file(file, cnf, false));
-  
+
   p.symbol_alignment.counter = 0;
   p.parameter_type_alignment.counter = 0;
   p.parameter_name_alignment.counter = 0;
@@ -2176,7 +2203,6 @@ int			main(void)
     goto Error;
   assert(p.max_function_length.counter == 1);
 
- NOW:
   file = "./res/abs3.c";
   assert(s = load_c_file(file, cnf, false));
   i = 0;
@@ -2188,6 +2214,26 @@ int			main(void)
     goto Error;
   assert(p.base_indent.counter == 0);
   assert(p.single_instruction_per_line.counter == 0);
+
+  // VERIF DE PARSING SIMPLE
+  file = "./res/memset.c";
+  assert(s = load_c_file(file, cnf, true));
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.active = false;
+  p.single_instruction_per_line.active = false;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+
+  file = "./res/gergios.c";
+  assert(s = load_c_file(file, cnf, true));
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  p.ansi_c = false;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+
   return (EXIT_SUCCESS);
 
  Error: // LCOV_EXCL_START

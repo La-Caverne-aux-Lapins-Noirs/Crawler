@@ -2,6 +2,13 @@
 int bsd_style(int argc)
 {
   if (argc == 0)
+    i = i + 1;
+  else if (argc == 2)
+    j = j + 1;
+  else
+    k = k + 1;
+
+  if (argc == 0)
   {
     while (i < 10)
     {
@@ -19,13 +26,6 @@ int bsd_style(int argc)
   {
     k = k + 1;
   }
-
-  if (argc == 0)
-    i = i + 1;
-  else if (argc == 2)
-    j = j + 1;
-  else
-    k = k + 1;
 
   while (i < 10)
     k = k + 1;

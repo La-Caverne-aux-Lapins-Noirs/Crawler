@@ -1,7 +1,7 @@
 /*
 ** Jason Brillante "Damdoshi"
-** Hanged Bunny Studio 2014-2021
-** Pentacle Technologie 2008-2021
+** Hanged Bunny Studio 2014-2022
+** Pentacle Technologie 2008-2022
 **
 ** C-C-C CRAWLER!
 ** Configurable C Code Crawler !
@@ -12,6 +12,7 @@
 ** https://www.lysator.liu.se/c/ANSI-C-grammar-y.html
 */
 
+#include		<fcntl.h>
 #include		<ctype.h>
 #include		"crawler.h"
 
@@ -25,6 +26,12 @@ char			*strcasestr(const char			*haystack,
 
 static const char	*gl_first_char = "azertyuiopqsdfghjklmwxcvbnAZERTYUIOPQSDFGHJKLMWXCVBN_";
 static const char	*gl_second_char = "azertyuiopqsdfghjklmwxcvbnAZERTYUIOPQSDFGHJKLMWXCVBN_0123456789";
+
+int			crawler_stop(void)
+{
+  // Ici, on s'arrete.
+  return (-1);
+}
 
 void			reset_last_declaration(t_parsing	*p)
 {
@@ -231,7 +238,8 @@ int			read_identifier(t_parsing		*p,
     {
       "if", "for", "double", "while", "switch", "break", "goto", "continue", "return",
       "const", "volatile", "default", "case", "typedef", "extern", "static", "auto", "register",
-      "void", "char", "short", "int", "long", "float", "do", "signed", "unsigned"
+      "void", "char", "short", "int", "long", "float", "do", "signed", "unsigned",
+      "restrict", "__restrict"
     };
   ssize_t		j = *i;
   int			x;
@@ -736,8 +744,8 @@ int			read_statement(t_parsing		*p,
 	     "'{' is mandatory after if, while, do, for or switch statement."))
 	  RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 
-      // Pas d'accolade, il faut quand même indenter, si c'est pas une ouverture de fonc
-      if (p->indent_style.value == GNU_STYLE && p->last_declaration.after_statement)
+      // On indente pareil dans tous les style, tant que c'est pas une ouverture de fonction;
+      if (p->last_declaration.after_statement)
 	{
 	  p->last_declaration.depth_bonus += 1;
 	  singleindent = true;
@@ -749,6 +757,13 @@ int			read_statement(t_parsing		*p,
     goto Return;
   if ((ret = read_expression_statement(p, code, i)) != 0)
     goto Return;
+  if ((ret = read_assembler(p, code, i)) != 0)
+    {
+      if (ret > 0)
+	if (bunny_read_text(code, i, ";") == false)
+	  RETURN("Missing ';' after asm declaration.");
+      goto Return;
+    }
   if ((ret = read_selection_statement(p, code, i)) != 0)
     goto Return;
   if ((ret = read_iteration_statement(p, code, i)) != 0)
@@ -801,6 +816,7 @@ int			read_compound_statement(t_parsing	*p,
 	      && p->last_declaration.indent_depth != 0)
 	    p->last_declaration.indent_depth += 1;
 
+	  // On verifie l'indentation de l'accolade
 	  if (check_base_indentation(p, code, *i) == -1)
 	    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 	}
@@ -812,44 +828,56 @@ int			read_compound_statement(t_parsing	*p,
     return (0);
   // On augmente l'indentation
   p->last_declaration.indent_depth += 1;
+  int			fnd;
 
-  separator = false;
-  read_whitespace(code, i);
-  ret = *i;
+  // Si on est en C ANSI, on a qu'un seul bloc de declaration de variable AU DEBUT
+  // Après, on peut déclarer des blocs de variables n'importe ou.
   begin = *i;
-  if (read_declaration_list(p, code, i) == -1)
-    return (-1);
-  // Il y a eu des déclarations et on veut qu'il y ai une ligne de séparation
-  if (p->declaration_statement_separator.active && ret != *i)
+  separator = 0;
+  do
     {
-      int	j = *i;
-      int	nl = 0;
+      int		ok = 0;
 
-      // On va remonter tant qu'il y a des espaces
-      while (j > 0 && isspace(code[j - 1]))
-	j -= 1;
-      // Puis on repart a l'endroit
-      while (j != *i)
+      fnd = 0;
+      read_whitespace(code, i);
+      ret = *i;
+      if ((ok = read_declaration_list(p, code, i)) == -1)
+	return (-1);
+      fnd += ok;
+
+      // Il y a eu des déclarations et on veut qu'il y ai une ligne de séparation
+      if (p->declaration_statement_separator.active && ret != *i)
 	{
-	  if (code[j] == '\n')
-	    if ((nl += 1) == 2)
-	      p->last_declaration.end_of_declaration = j;
-	  j += 1;
+	  int	j = *i;
+	  int	nl = 0;
+
+	  // On va remonter tant qu'il y a des espaces
+	  while (j > 0 && isspace(code[j - 1]))
+	    j -= 1;
+	  // Puis on repart a l'endroit
+	  while (j != *i)
+	    {
+	      if (code[j] == '\n')
+		if ((nl += 1) == 2)
+		  p->last_declaration.end_of_declaration = j;
+	      j += 1;
+	    }
+	  if (nl <= 1)
+	    {
+	      if (!add_warning
+		  (p, IZ(p, i), code, *i, &p->declaration_statement_separator.counter,
+		   "An empty line was expected between variable declaration and "
+		   "statement."))
+		RETURN("Memory exhausted."); // LCOV_EXCL_LINE
+	    }
+	  else
+	    separator += 1;
 	}
-      if (nl <= 1)
-	{
-	  if (!add_warning
-	      (p, IZ(p, i), code, *i, &p->declaration_statement_separator.counter,
-	       "An empty line was expected between variable declaration and "
-	       "statement."))
-	    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
-	}
-      else
-	separator = true;
+      if ((ok = read_statement_list(p, code, i)) == -1)
+	return (-1);
+      fnd += ok;
     }
-  if (read_statement_list(p, code, i) == -1)
-    return (-1);
-
+  while (!p->ansi_c && fnd); // Si on est pas ANSI et qu'on a trouvé un truc...
   end = *i;
 
   // On diminue l'indentation
@@ -857,6 +885,7 @@ int			read_compound_statement(t_parsing	*p,
     p->last_declaration.indent_depth -= 1;
 
   read_whitespace(code, i);
+  // On verifie l'indentation de l'accolade
   if (check_base_indentation(p, code, *i) == -1)
     RETURN("Memory exhausted."); // LCOV_EXCL_LINE
   if (p->indent_style.value != KNR_STYLE)
@@ -1092,11 +1121,15 @@ int			read_primary_expression(t_parsing	*p,
 
   if (bunny_read_text(code, &j, "("))
     {
+      int		ret;
+
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
 	  (p, code, j - 1, '(', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
-      if (read_expression(p, code, &j) != 1)
+      if ((ret = read_expression(p, code, &j)) == -1)
 	RETURN ("Problem encountered in expression after '('."); // LCOV_EXCL_LINE
+      else if (ret == 0)
+	return (0);
       if (!bunny_read_text(code, &j, ")"))
 	RETURN ("Missing ')' after '(expression'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
@@ -1580,6 +1613,8 @@ int			read_expression(t_parsing		*p,
 
   if ((ret = read_assignment_expression(p, code, i)) == -1)
     return (-1);
+  if (ret == 1 && check_base_indentation(p, code, *i) == -1)
+    RETURN("Memory exhausted.");
   if (bunny_read_text(code, i, ","))
     {
       if (check_no_space_before_space_after(p, code, *i) == -1)
@@ -1648,6 +1683,16 @@ int			read_type_qualifier(t_parsing		*p,
   if (bunny_read_text(code, i, "volatile"))
     {
       p->last_declaration.is_volatile = true;
+      return (1);
+    }
+  if (bunny_read_text(code, i, "restrict"))
+    {
+      p->last_declaration.is_restrict = true;
+      return (1);
+    }
+  if (bunny_read_text(code, i, "__restrict"))
+    {
+      p->last_declaration.is_restrict = true;
       return (1);
     }
   return (0);
@@ -1827,7 +1872,8 @@ int			read_type_specifier(t_parsing		*p,
 	{"float", sizeof(float)},
 	{"double", sizeof(double)},
 	{"signed", sizeof(signed)},
-	{"unsigned", sizeof(unsigned)}
+	{"unsigned", sizeof(unsigned)},
+	{"__gnuc_va_list", sizeof(__gnuc_va_list)}
 	// , "__int8_t", "__int16_t", "__int32_t", "__int64_t"
       };
 
@@ -2080,6 +2126,8 @@ int			read_declaration_specifiers(t_parsing	*p,
 	  else
 	    add_new_type(p, p->last_declaration.symbol, p->last_declaration.last_type_size);
 
+	  if (read_gcc_attribute(p, code, i) == -1)
+	    return (-1);
 	}
       cnt += once ? 1 : 0;
     }
@@ -2613,18 +2661,38 @@ int			read_gcc_attribute(t_parsing		*p,
   return (cnt >= 1 ? 1 : 0);
 }
 
+int			read_assembler(t_parsing		*p,
+				       const char		*code,
+				       ssize_t			*i)
+{
+  if (bunny_read_text(code, i, "__asm__") == false && bunny_read_text(code, i, "asm") == false)
+    return (0);
+  if (bunny_read_text(code, i, "(") == false)
+    RETURN ("'(' was expected after asm.");
+
+  char			buffer[4096];
+
+  while (bunny_read_cstring(code, i, &buffer[0], sizeof(buffer)));
+
+  if (bunny_read_text(code, i, ")") == false)
+    RETURN ("')' was expected to close '(' in asm.");
+  return (1);
+}
+
 int			read_declaration(t_parsing		*p,
 					 const char		*code,
 					 ssize_t		*i)
 {
   int			ret;
 
-  if (check_base_indentation(p, code, *i) == -1)
-    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
   p->last_declaration.was_defining = false;
   if ((ret = read_declaration_specifiers(p, code, i)) != 1)
     return (ret);
+  if (check_base_indentation(p, code, *i) == -1)
+    RETURN("Memory exhausted."); // LCOV_EXCL_LINE
   if (read_init_declarator_list(p, code, i) == -1)
+    return (-1);
+  if (read_assembler(p, code, i) == -1)
     return (-1);
   if (read_gcc_attribute(p, code, i) == -1)
     return (-1);
@@ -2724,7 +2792,10 @@ int			read_translation_unit(t_parsing		*p,
 	      printf("^\n");
 	      printf("Error backtrack:\n");
 	      while (p->last_error_id > 0)
-		printf(" - %s\n", p->last_error_msg[--p->last_error_id]);
+		{
+		  printf(" - %s\n", p->last_error_msg[p->last_error_id]);
+		  p->last_error_id -= 1;
+		}
 	    }
 	  gl_bunny_read_whitespace = NULL;
 	  return (-1);
@@ -3107,33 +3178,92 @@ void			load_norm_configuration(t_parsing	*p,
   fetch_criteria(e, &p->else_forbidden, "ElseForbidden");
   fetch_criteria(e, &p->inline_mod_forbidden, "InlineModForbidden");
   fetch_criteria(e, &p->ternary_forbidden, "TernaryForbidden");
+
+  bunny_configuration_getf(e, &p->ansi_c, "AnsiC");
 }
 
 char		*load_c_file(const char				*file,
 			     t_bunny_configuration		*exe,
 			     bool				preprocessed)
 {
+  char		filename[512];
+  int		fd;
+  size_t	len;
+  size_t	wt;
+  ssize_t	rd;
+
+  if ((fd = open(file, O_RDONLY)) == -1)
+    return (NULL);
+  len = 0;
+  do
+    if ((rd = read(fd, &bunny_big_buffer[len], (sizeof(bunny_big_buffer) - 1) - len)) == -1)
+      {
+	close(fd);
+	return (NULL);
+      }
+    else
+      len += rd;
+  while (rd > 0);
+  close(fd);
+  bunny_big_buffer[len] = '\0';
+  bool		in_preproc;
+
+  in_preproc = false;
+  for (size_t i = 0; i < len; ++i)
+    if (bunny_big_buffer[i] == '#')
+      in_preproc = true;
+    else if (bunny_big_buffer[i] == '\n')
+      in_preproc = false;
+    else if (in_preproc == false)
+      {
+	if (bunny_big_buffer[i] == ' ')
+	  bunny_big_buffer[i] = '\036';
+	else if (bunny_big_buffer[i] == '\t')
+	  bunny_big_buffer[i] = '\037';
+      }
+
+  snprintf(&filename[0], sizeof(filename), "%s!", file);
+  if ((fd = open(filename, O_CREAT | O_TRUNC | O_WRONLY, 0644)) == -1)
+    return (NULL);
+  wt = 0;
+  do
+    if ((rd = write(fd, &bunny_big_buffer[wt], len - wt)) == -1)
+      {
+	close(fd);
+	unlink(filename);
+	return (NULL);
+      }
+    else
+      wt += rd;
+  while (rd > 0 && wt != len);
+  close(fd);
+
   char		buffer[512];
   const char	*cmd;
-  int		len;
+  int		length;
 
   if (preprocessed)
     {
       if (!bunny_configuration_getf(exe, &cmd, "PrecompilationCommand"))
-	cmd =
-	  "cat %s | tr \" \\t\" \"\\036\\037\" "
-	  "| "
-	  "cpp -std=c11 -E -CC -I./ -I./include/ -I/usr/local/include/ "
-	  "| "
-	  "tr \"\\036\\037\" \" \\t\" "
-	  ;
+	cmd = "cpp -std=c11 -E -CC -I./ -I./include/ -I/usr/local/include/ '%s' ";
     }
   else
-    cmd = "cat %s";
-  snprintf(&buffer[0], sizeof(buffer), cmd, file);
+    cmd = "cat '%s'";
+  snprintf(&buffer[0], sizeof(buffer), cmd, filename);
   cmd = &buffer[0];
-  len = sizeof(bunny_big_buffer);
-  if (tcpopen("c norm", cmd, &bunny_big_buffer[0], &len, NULL, 0) != 0)
-    return (NULL);
+  length = sizeof(bunny_big_buffer);
+  if (tcpopen("c norm", cmd, &bunny_big_buffer[0], &length, NULL, 0) != 0)
+    {
+      unlink(filename);
+      return (NULL);
+    }
+  for (size_t i = 0; bunny_big_buffer[i]; ++i)
+    {
+      if (bunny_big_buffer[i] == '\036')
+	bunny_big_buffer[i] = ' ';
+      else if (bunny_big_buffer[i] == '\037')
+	bunny_big_buffer[i] = '\t';
+    }
+  unlink(filename);
   return (&bunny_big_buffer[0]);
 }

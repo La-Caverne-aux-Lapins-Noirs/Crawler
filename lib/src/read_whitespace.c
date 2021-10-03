@@ -46,11 +46,14 @@ bool			read_whitespace(const char		*code,
 
 	  bunny_read_char(code, i, " \t\r\n");
 	  if (gl_parsing_save && bunny_read_integer(code, i, &line))
-	    if (bunny_read_cstring(code, i, &buffer[0], sizeof(buffer)))
-	      {
-		gl_parsing_save->last_line_marker = line;
-		gl_parsing_save->last_line_marker_line = bunny_which_line(code, *i);
-	      }
+	    {
+	      bunny_read_char(code, i, " \t\r\n");
+	      if (bunny_read_cstring(code, i, &buffer[0], sizeof(buffer)))
+		{
+		  // gl_parsing_save->last_line_marker = line;
+		  gl_parsing_save->last_line_marker_line = bunny_which_line(code, *i);
+		}
+	    }
 
 	  ret = true;
 	  do

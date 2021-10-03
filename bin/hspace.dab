@@ -1,7 +1,7 @@
 
-AnsiC = true
+AnsiC = false
 
-[Header
+[!Header
   Value = [Text(END)
 /*
 ** %FirstName %FamilyName "%NickName"
@@ -156,7 +156,7 @@ IndentationToken = 8
   Points = 1
 ]
 
-[NoShortName
+[!NoShortName
   Value = 3
   Points = 1
 ]
@@ -231,3 +231,4 @@ IndentationToken = 8
   Value = true
   Points = 2
 ]
+

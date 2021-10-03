@@ -18,7 +18,7 @@
 int			trace(void);
 
 #define			RETURN(a)				\
-  return (p->last_error_msg[++p->last_error_id + trace()] = (a " (" STRINGIFY(__LINE__) ")" ), -1)
+  return (p->last_error_msg[++p->last_error_id + trace()] = (a " (" STRINGIFY(__LINE__) ")" ), crawler_stop())
 # define		SYMBOL_SIZE				127
 
 # ifdef DEACTIVATED
@@ -58,6 +58,7 @@ typedef struct		s_last_function
   bool			is_auto;
   bool			is_register;
   bool			is_const;
+  bool			is_restrict;
   bool			is_volatile;
   bool			inside_function;
   bool			inside_function_name;
@@ -141,6 +142,7 @@ typedef struct		s_parsing
   char			header_data[4096];
   int			last_line_marker;
   int			last_line_marker_line;
+  bool			ansi_c;
   t_criteria		start[0];
 
   // About functions inside files
@@ -293,7 +295,10 @@ t_read
   read_specifier_qualifier_list,
   read_unary_operator,
   read_identifier_list,
-  read_external_declaration
+  read_external_declaration,
+  read_assembler,
+  read_gcc_attribute,
+  read_gcc_attribute_list_node
   ;
 
 int			read_identifier(t_parsing			*p,
@@ -358,7 +363,7 @@ int			check_trailing_whitespace(t_parsing		*p,
 int			check_no_empty_line(t_parsing			*p,
 					    const char			*code,
 					    int				pos,
-					    bool			separator,
+					    int				separator,
 					    int				begin,
 					    int				end);
 int			check_line_width(t_parsing			*p,
@@ -436,5 +441,7 @@ int			check_header_file(t_parsing			*p,
 					  const char			*code);
 int			check_all_lines_width(t_parsing			*p,
 					      const char		*code);
+
+int			crawler_stop(void);
 
 #endif	/*		__CRAWLER_H__					*/

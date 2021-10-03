@@ -19,6 +19,8 @@ int			check_base_indentation(t_parsing		*p,
   int			space = 0;
   bool			first_space = false;
   int			ilen;
+  int			begline;
+  int			endline;
 
   if (p->base_indent.active == false)
     return (1);
@@ -28,11 +30,15 @@ int			check_base_indentation(t_parsing		*p,
     return (1);
   p->last_declaration.last_line = ilen;
 
+  // On cherche le début de la ligne.
   read_whitespace(code, &i);
   while (i > 0 && code[i] != '\n')
     i -= 1;
   if (code[i] == '\n')
     i += 1;
+  begline = i;
+  for (endline = begline; code[endline] && code[endline] != '\n'; ++endline);
+
   while (code[i] == ' ' || code[i] == '\t')
     {
       if (code[i] == ' ')
@@ -70,13 +76,13 @@ int			check_base_indentation(t_parsing		*p,
   if (ilen != (p->last_declaration.indent_depth + p->last_declaration.depth_bonus) * p->base_indent.value)
     {
       /*
-	print_line_and_position(p, code, pos, true);
-	full_write_with_arrow(p, code, pos); // Debug
-	printf("Calculated indentation: %.2f (%d, %d)\n",
-	(float)ilen / p->base_indent.value,
-	ilen, p->base_indent.value
-	); // Dbg
+	printf("! % d %.*s\n",
+	(p->last_declaration.indent_depth + p->last_declaration.depth_bonus)
+	* p->base_indent.value,
+	endline - begline,
+	&code[begline]);
       */
+
       if (!add_warning
 	  (p, true, code, pos, &p->base_indent.counter,
 	   "Bad indentation. "
@@ -85,10 +91,19 @@ int			check_base_indentation(t_parsing		*p,
 	   (p->last_declaration.indent_depth + p->last_declaration.depth_bonus) * p->base_indent.value
 	   ))
 	return (-1);
-      p->last_declaration.depth_bonus = 0;
+      //p->last_declaration.depth_bonus = 0;
       return (1);
     }
-  // p->last_declaration.depth_bonus = 0;
+  else
+    {
+      /*
+	printf("  % d %.*s\n",
+	(p->last_declaration.indent_depth + p->last_declaration.depth_bonus)
+	* p->base_indent.value,
+	endline - begline,
+	&code[begline]);
+      */
+    }
   return (1);
 }
 

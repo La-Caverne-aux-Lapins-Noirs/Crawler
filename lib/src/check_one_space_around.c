@@ -14,7 +14,7 @@ int			check_one_space_around(t_parsing	*p,
 					       int		len,
 					       int		val,
 					       int		*cnt)
-{ 
+{
   if (!val)
     return (1);
   read_whitespace(code, &pos);
@@ -47,4 +47,3 @@ int			check_one_space_around(t_parsing	*p,
     return (-1);
   return (1);
 }
-

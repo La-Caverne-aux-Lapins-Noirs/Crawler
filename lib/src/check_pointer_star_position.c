@@ -8,6 +8,13 @@
 #include		<ctype.h>
 #include		"crawler.h"
 
+/*
+** Cette fonction verifie l'integralité des étoiles.
+** Les étoiles situés a droite (avant le nom de variable)
+** comme les étoiles placées juste après le premier type
+** et les étoiles placés de facon intermediaire.
+*/
+
 bool			check_pointer_star_position(t_parsing	*p,
 						    const char	*code,
 						    int		pos)
@@ -16,13 +23,21 @@ bool			check_pointer_star_position(t_parsing	*p,
   bool			first = true;
   bool			statement = false;
 
+  // On commence sur le nom de la variable.
+
   if (p->inbetween_ptr_symbol_space.value == 0 &&
       p->ptr_symbol_on_name.value == 0 &&
       p->ptr_symbol_on_type.value == 0)
     return (true);
-  if (i > 0 && code[i - 1] != '\n')
+
+  // On se dégage du nom de la variable
+  if (i > 0 && code[i - 1] != '\n' && code[i - 1] != '(' && code[i - 1] != ')' && code[i - 1] != ',')
     i -= 1;
-  while (i > 0 && code[i - 1] != '\n')
+
+  // On continue jusqu'au début de la ligne ou la première parenthèse ouvrante (si on est dans
+  // les paramètres) ou fermante (protection au cas ou l'on soit dans un pointeur sur fonction...)
+  // de meme que virgule pour la fin du paramètre...
+  while (i > 0 && code[i - 1] != '\n' && code[i - 1] != '(' && code[i - 1] != ')' && code[i - 1] != ',')
     {
       if (!isspace(code[i]) && code[i] != '*')
 	statement = true;
