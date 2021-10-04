@@ -32,8 +32,10 @@ int			usage(const char	*s)
 	  "\t\tTo create a function call map (Not implemented yet)\n\n"
 	  "\t%s -d [files]+\n"
 	  "\t\tTo create a Dabsic script with prototypes and types (Not implemented yet)\n"
+  	  "\t%s -f [files]+\n"
+	  "\t\tTo extract function calls (Not implemented yet)\n"
 	  "\n"
-	  , s, s, s, s);
+	  , s, s, s, s, s);
   return (EXIT_FAILURE);
 }
 

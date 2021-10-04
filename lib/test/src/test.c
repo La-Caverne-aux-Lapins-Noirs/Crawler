@@ -2236,6 +2236,18 @@ int			main(void)
 
   return (EXIT_SUCCESS);
 
+  //NOW:
+  i = 0;
+  file = "./res/gergios.c";
+  assert(cnf = bunny_open_configuration("../../bin/cln.dab", NULL));
+  load_norm_configuration(&p, cnf);
+  assert(s = load_c_file(file, cnf, false));
+  p.last_error_id = -1;
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+
+  return (EXIT_SUCCESS);
+
  Error: // LCOV_EXCL_START
   if (s)
     printf("Stopped at %s\nIn:\n%s\n\n", &s[i], s);
