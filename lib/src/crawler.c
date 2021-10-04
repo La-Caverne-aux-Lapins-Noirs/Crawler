@@ -2169,8 +2169,16 @@ int			read_direct_abstract_declarator(t_parsing *p,
 	}
       if (bunny_read_text(code, i, "["))
 	{
-	  if (read_constant_expression(p, code, i) == -1)
-	    RETURN ("Problem encountered with constant expression after '['."); // LCOV_EXCL_LINE
+	  if (p->ansi_c)
+	    {
+	      if (read_constant_expression(p, code, i) == -1)
+		RETURN ("Problem encountered with constant expression after '['."); // LCOV_EXCL_LINE
+	    }
+	  else
+	    {
+	      if (read_expression(p, code, i) == -1)
+		RETURN ("Problem encountered with expression after '['."); // LCOV_EXCL_LINE
+	    }
 	  if (!bunny_read_text(code, i, "]"))
 	    RETURN ("Missing ']' after '[constant'"); // LCOV_EXCL_LINE
 	}
@@ -2421,8 +2429,16 @@ int			read_direct_declarator(t_parsing	*p,
       if (bunny_read_text(code, i, "["))
 	{
 	  once = true;
-	  if (read_constant_expression(p, code, i) == -1)
-	    RETURN ("Problem encountered with constant expression after '['."); // LCOV_EXCL_LINE
+	  if (p->ansi_c)
+	    {
+	      if (read_constant_expression(p, code, i) == -1)
+		RETURN ("Problem encountered with constant expression after '['."); // LCOV_EXCL_LINE
+	    }
+	  else
+	    {
+	      if (read_expression(p, code, i) == -1)
+		RETURN ("Problem encountered with expression after '['."); // LCOV_EXCL_LINE
+	    }
 	  if (!bunny_read_text(code, i, "]"))
 	    RETURN ("Missing ']' after '[constant'."); // LCOV_EXCL_LINE
 	}
