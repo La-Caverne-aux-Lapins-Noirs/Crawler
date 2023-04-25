@@ -69,7 +69,6 @@
   SRC		=	$(wildcard src/*.c) $(wildcard src/*/*.c)
   OBJ		=	$(SRC:.c=.o)
   CNF		=	$(wildcard *.dab) $(wildcard *.d)
-  INC		=	./include/technocore_api.h
 
   LIBOBJ	=	$(filter-out src/main.o, $(OBJ))
 
@@ -106,7 +105,6 @@ check:			$(TESTLIB)
 install:
 			@$(CP) $(NAME) $(BIN_DIR)
 			@$(CP) $(CNF) $(ETC_DIR)
-			@$(CP) $(INC) $(INC_DIR)
 rmlog:
 			@$(RM) $(LOGFILE)
 clean:

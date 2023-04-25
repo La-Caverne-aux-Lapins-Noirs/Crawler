@@ -29,8 +29,8 @@
   ETC_DIR	?=	/etc/technocore/
   LIB_TESTDIR	?=	$(HOME)/.froot/lib/
 
-  LIB		=	-L$(HOME)/.froot/lib/ -llapin -ldl -lm -lstdc++ -lavcall	\
-			-lgcov -rdynamic
+  LIB		=	-L$(HOME)/.froot/lib/ -llapin -ldl -lm -lstdc++		\
+			-lavcall -lgcov -rdynamic
   CONFIG	?=	$(FLAG) -fPIC -std=c11 -Wno-format-security		\
 			-Wall -Wextra
 
@@ -68,7 +68,6 @@
   SRC		=	$(wildcard src/*.c) $(wildcard src/*/*.c)
   OBJ		=	$(SRC:.c=.o)
   CNF		=	$(wildcard *.dab) $(wildcard *.d)
-  INC		=	./include/technocore_api.h
 
   LIBOBJ	=	$(filter-out src/main.o, $(OBJ))
 
@@ -105,7 +104,6 @@ check:			$(TESTLIB)
 install:
 			@$(CP) $(NAME) $(BIN_DIR)
 			@$(CP) $(CNF) $(ETC_DIR)
-			@$(CP) $(INC) $(INC_DIR)
 rmlog:
 			@$(RM) $(LOGFILE)
 clean:
