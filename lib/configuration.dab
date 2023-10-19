@@ -93,7 +93,7 @@ TERMINATOR]
 ]
 
 [OnlyByReference
-  Value = 4 'Les paramètres faisant plus de Value octet DOIVENT etre des pointeurs
+  Value = 8 'Les paramètres faisant plus de Value octet DOIVENT etre des pointeurs
   Points = 1
 ]
 

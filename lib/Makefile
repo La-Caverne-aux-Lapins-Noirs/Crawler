@@ -23,9 +23,9 @@
   LINKER	?=	ar rcs
   TESTLINKER	?=	gcc -shared -fprofile-arcs $(LIB) -o
 
-  BIN_DIR	?=	/usr/bin/
-  LIB_DIR	?=	/usr/lib/
-  INC_DIR	?=	/usr/include/
+  BIN_DIR	?=	/usr/local/bin/
+  LIB_DIR	?=	/usr/local/lib/
+  INC_DIR	?=	/usr/local/include/
   ETC_DIR	?=	/etc/technocore/
   LIB_TESTDIR	?=	$(HOME)/.froot/lib/
 
@@ -48,6 +48,7 @@
   endif
 
   CP		=	cp -r
+  MD		=	mkdir -p
   RM		=	rm -f
   ECHO		=	/bin/echo -e
   LOGFILE	=	errors~
@@ -102,8 +103,11 @@ check:			$(TESTLIB)
 			@(cd test/ && $(MAKE) --no-print-directory)
 
 install:
-			@$(CP) $(NAME) $(BIN_DIR)
+			@$(MD) $(LIB_DIR)
+			@$(MD) $(ETC_DIR)
+			@$(CP) $(NAME) $(LIB_DIR)
 			@$(CP) $(CNF) $(ETC_DIR)
+			@$(CP) include/* $(INC_DIR)
 rmlog:
 			@$(RM) $(LOGFILE)
 clean:

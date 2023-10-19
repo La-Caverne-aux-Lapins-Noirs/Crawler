@@ -18,7 +18,7 @@
   INC_DIR	?=	/usr/include/
 
   LIB		=	-L$(HOME)/.froot/lib/ -L../ -L./ --whole-file -lcrawler -llapin		\
-			-lavcall -ldl -lm -lusb -lgcov -lstdc++
+			-lsfml-graphics -lsfml-window -lsfml-audio -lsfml-system -lavcall -ldl -lm -lusb -lgcov -lstdc++
   FLAGS		?=	-fPIC -std=c11 -Wno-format-security -Wall -Wextra	\
 			-O0 -Og -g -g3 -ggdb -fprofile-arcs -ftest-coverage	\
 			--coverage -rdynamic -fno-omit-frame-pointer		\

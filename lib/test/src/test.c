@@ -27,7 +27,7 @@ int			main(void)
   /////////////////////////
   // ON TESTE LE PARSING //
   /////////////////////////
-
+ 
   i = 0;
   s = "      \n\r\t      /* lel \n   */\n    // lol      \n     !";
   assert(read_whitespace(s, &i) == true);
