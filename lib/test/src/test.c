@@ -18,6 +18,9 @@ int			main(void)
   char			*file;
   char			*cfile;
 
+  if (chdir("./lib/test") != 0)
+    assert (chdir("./test") == 0);
+  
   memset(&p, 0, sizeof(p));
   assert(cnf = bunny_new_configuration());
   load_norm_configuration(&p, cnf);

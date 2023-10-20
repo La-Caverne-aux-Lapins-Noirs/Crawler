@@ -87,7 +87,7 @@ $(TESTLIB):		$(OBJ)
 			@$(TESTLINKER) $(TESTLIB) $(LIBOBJ) $(ERRLOG) &&	\
 			 $(ECHO) $(TEAL) "[OK]" $(GREEN) $(TESTLIB) $(DEFLT) || \
 			 $(ECHO) $(RED)  "[KO]" $(TESTLIB) $(DEFLT)
-			@$(CP) $(TESTLIB) $(LIB_TESTDIR)
+#			@$(CP) $(TESTLIB) $(LIB_TESTDIR)
 			@echo $(MODE_NAME)
 .c.o:
 			@$(COMPILER) -c $< -o $@ $(PROFILE) $(CONFIG)		\

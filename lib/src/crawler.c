@@ -3265,7 +3265,7 @@ char		*load_c_file(const char				*file,
   if (preprocessed)
     {
       if (!bunny_configuration_getf(exe, &cmd, "PrecompilationCommand"))
-	cmd = "cpp -std=c11 -E -CC -I./ -I./include/ -I/usr/local/include/ '%s' ";
+	cmd = "cpp -std=c11 -dD -E -P -I./ -I./include/ -I/usr/local/include/ '%s' ";
     }
   else
     cmd = "cat '%s'";
@@ -3277,6 +3277,7 @@ char		*load_c_file(const char				*file,
       unlink(filename);
       return (NULL);
     }
+  bunny_big_buffer[length] = '\0';
   for (size_t i = 0; bunny_big_buffer[i]; ++i)
     {
       if (bunny_big_buffer[i] == '\036')
