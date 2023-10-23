@@ -976,7 +976,9 @@ int			read_function_declaration(t_parsing	*p,
   // On verifie donc le nom si c'est une fonction non statique
   if (!p->last_declaration.is_static)
     {
-      if (check_style(p, "function", &p->last_declaration.symbol[0], &p->function_style, &p->function_infix, code, j) == false)
+      // On ne vérifie pas le style du nom du main...
+      if (strcmp(&p->last_declaration.symbol[0], "main") &&
+	  check_style(p, "function", &p->last_declaration.symbol[0], &p->function_style, &p->function_infix, code, j) == false)
 	{
 	  free(save);
 	  RETURN("Memory exhausted."); // LCOV_EXCL_LINE
@@ -2859,6 +2861,9 @@ int			read_translation_unit(t_parsing		*p,
     }
 
   gl_bunny_read_whitespace = NULL;
+  if (p->no_trailing_whitespace.value)
+    if (check_trailing_whitespace(p, code) == -1)
+      RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 
   p->nbr_error_points = 0;
   for (t_criteria *c = &p->start[0]; c < &p->end[0]; ++c)
@@ -2872,10 +2877,6 @@ int			read_translation_unit(t_parsing		*p,
 	  p->nbr_error_points += c->pts;
 	}
     }
-
-  if (p->no_trailing_whitespace.value)
-    if (check_trailing_whitespace(p, code) == -1)
-      RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 
   return (cnt >= 1 ? 1 : 0);
 }
