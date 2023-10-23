@@ -108,6 +108,7 @@ install:
 			@$(CP) $(NAME) $(LIB_DIR)
 			@$(CP) $(CNF) $(ETC_DIR)
 			@$(CP) include/* $(INC_DIR)
+			@echo "Installed"
 rmlog:
 			@$(RM) $(LOGFILE)
 clean:
