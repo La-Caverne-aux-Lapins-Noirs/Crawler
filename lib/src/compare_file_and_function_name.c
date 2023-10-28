@@ -18,11 +18,17 @@ int			compare_file_and_function_name(t_parsing	*p,
     return (1);
   const char * const	*split;
   const char		*tokens[4] = {"/", "\\", ".c", NULL};
+  const char		*start = p->file;
   char			buffer[512];
   int			i = 0;
   int			j;
 
-  if ((split = bunny_split(p->file, &tokens[0], true)) == NULL)
+  if (strncmp(start, "./", 2) == 0)
+    start += 2;
+  else if (strncmp(start, "/", 1) == 0)
+    start += 1;
+  
+  if ((split = bunny_split(start, &tokens[0], true)) == NULL)
     return (-1);
 
   for (j = 0; split[j]; ++j)

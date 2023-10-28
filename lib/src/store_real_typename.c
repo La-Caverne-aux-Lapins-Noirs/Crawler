@@ -47,7 +47,12 @@ int			store_real_typename(t_parsing		*p,
     }
   else if (typ == 4 && p->function_infix.active) // fonction
     {
-      if (p->function_infix.position == 0)
+      if (strcmp("main", symbol) == 0)
+	{
+	  spoint = 0;
+	  flen = 5;
+	}
+      else if (p->function_infix.position == 0)
 	spoint = strlen(p->function_infix.value);
       else
 	flen -= strlen(p->function_infix.value);
