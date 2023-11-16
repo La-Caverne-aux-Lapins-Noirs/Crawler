@@ -2248,7 +2248,6 @@ int			main(void)
   p.last_error_id = -1;
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
-
   return (EXIT_SUCCESS);
 
  Error: // LCOV_EXCL_START

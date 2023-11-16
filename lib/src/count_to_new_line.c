@@ -44,15 +44,20 @@ int			count_to_new_line(t_parsing		*p,
     {
       if (code[i] == '\t')
 	{
+	  int	tmptabsize = tabsize;
+	  
 	  if (tabsize == 0)
-	    if (!add_warning
-		(p, true, code, pos,
-		 &p->base_indent.counter,
-		 "Bad indentation. "
-		 "Space are only authorized after tabulation and not inside."
-		 ))
-	      return (-1);
-	  column = column + tabsize - column % tabsize;
+	    {
+	      if (!add_warning
+		  (p, true, code, pos,
+		   &p->base_indent.counter,
+		   "Bad indentation. "
+		   "Space are only authorized after tabulation and not inside."
+		   ))
+		return (-1);
+	      tmptabsize = 8;
+	    }
+	  column = column + tmptabsize - column % tmptabsize;
 	}
       else
 	column += 1;

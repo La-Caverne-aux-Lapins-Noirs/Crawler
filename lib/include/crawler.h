@@ -312,7 +312,7 @@ bool			check_style(t_parsing				*p,
 				    t_criteria				*style,
 				    t_string_criteria			*string_fix,
 				    const char				*code,
-				    int					pos);
+				    ssize_t				pos);
 
 int			read_translation_unit(t_parsing			*p,
 					      const char		*file,
@@ -443,5 +443,7 @@ int			check_all_lines_width(t_parsing			*p,
 					      const char		*code);
 
 int			crawler_stop(void);
+
+void			reset_norm_status(t_parsing			*p);
 
 #endif	/*		__CRAWLER_H__					*/

@@ -96,7 +96,7 @@ bool			check_style(t_parsing			*p,
 				    t_criteria			*style,
 				    t_string_criteria		*infix,
 				    const char			*code,
-				    int				pos)
+				    ssize_t			pos)
 {
   int			up = 0;
   int			down = 0;
@@ -208,8 +208,12 @@ bool			check_style(t_parsing			*p,
 	}
     }
 
+  if (strcmp(context, "function") == 0 &&
+      (bunny_strncasecmp(symbol, "test_", 5) == 0 ||
+       strncmp(symbol, "main", 5) == 0))
+    return (true);
   if (infix->active)
-    {
+    {      
       char		*s = strcasestr(symbol, &infix->value[0]);
 
       if (infix->position == 0) // Prefixe
@@ -289,7 +293,9 @@ int			read_identifier(t_parsing		*p,
       const char *valid[] =
 	{
 	  "i", "j", "k", "cnt", "ret", "end", "go",
-	  "win", "nbr"
+	  "win", "nbr", "val", "res", "x", "y", "z",
+	  "w", "h", "d", "wx", "wy", "wz", "hz", "hz", "ms",
+	  "us", "ns", "obj", "len", "str", "mem", "ptr"
 	};
       for (z = 0; z < (int)NBRCELL(valid); ++z)
 	if (strcmp(&p->last_declaration.symbol[0], valid[z]) == 0)
@@ -973,12 +979,31 @@ int			read_function_declaration(t_parsing	*p,
       return (-1);
     }
   p->last_declaration.inside_function_name = false;
+
+  ///// LE BLOC ETAIT ICI
+  
+
+  // L'assignation eventuelle...
+  if (read_declaration_list(p, code, i) == -1)
+    {
+      free(save);
+      return (-1);
+    }
+  // Pour savoir si les variables sont globales ou locales, par exemple...
+  p->last_declaration.inside_function = true;
+
+  // Le corps de fonction
+  if ((ret = read_compound_statement(p, code, i)) != 0)
+    {
+      if (ret > 0) // Si on a implémenté une fonction pour de vrai
+	{
+
   // On verifie donc le nom si c'est une fonction non statique
   if (!p->last_declaration.is_static)
     {
       // On ne vérifie pas le style du nom du main...
       if (strcmp(&p->last_declaration.symbol[0], "main") &&
-	  check_style(p, "function", &p->last_declaration.symbol[0], &p->function_style, &p->function_infix, code, j) == false)
+	  check_style(p, "function", &p->last_declaration.function[0], &p->function_style, &p->function_infix, code, j) == false)
 	{
 	  free(save);
 	  RETURN("Memory exhausted."); // LCOV_EXCL_LINE
@@ -999,20 +1024,9 @@ int			read_function_declaration(t_parsing	*p,
 	}
     }
 
-  // L'assignation eventuelle...
-  if (read_declaration_list(p, code, i) == -1)
-    {
-      free(save);
-      return (-1);
-    }
-  // Pour savoir si les variables sont globales ou locales, par exemple...
-  p->last_declaration.inside_function = true;
 
-  // Le corps de fonction
-  if ((ret = read_compound_statement(p, code, i)) != 0)
-    {
-      if (ret > 0) // Si on a implémenté une fonction pour de vrai
-	{
+
+	  
 	  // On a limité le nombre de fonction par fichier - donc on compte les fonctions
 	  if (p->function_per_file.active)
 	    {
@@ -3045,16 +3059,22 @@ int			check_all_lines_width(t_parsing		*p,
   return (1);
 }
 
+void			reset_norm_status(t_parsing		*p)
+{
+  // reset de certains compteurs qui ne peuvent etre transvasé de fichiers en fichiers
+  p->ldec_non_static_function_per_file = 0;
+}
+
 void			load_norm_configuration(t_parsing	*p,
 						t_bunny_configuration *e)
 {
   memset(p, 0, sizeof(*p));
-
+  
+  p->nbr_mistakes = 0; // Le nombre d'erreur faites
+  p->nbr_error_points = 0; // Le nombre de points d'erreur accumulés
   p->last_error_id = -1;
   p->configuration = e;
 
-  p->nbr_mistakes = 0; // Le nombre d'erreur faites
-  p->nbr_error_points = 0; // Le nombre de points d'erreur accumulés
   fetchi(e, &p->maximum_error_points, "Tolerance", -1);
 
   fetch_criteria(e, &p->function_per_file, "FunctionPerFile");
