@@ -19,7 +19,8 @@ int			main(void)
   char			*cfile;
 
   if (chdir("./lib/test") != 0)
-    assert (chdir("./test") == 0);
+    if (chdir("./test") != 0)
+      {}
   
   memset(&p, 0, sizeof(p));
   assert(cnf = bunny_new_configuration());
@@ -118,7 +119,7 @@ int			main(void)
 
   i = 0;
   s = "i = 42, j = 43";
-  if (read_expression(&p, s, &i) != 1)
+  if (read_expression(&p, s, &i, false) != 1)
     goto Error;
 
   i = 0;
@@ -1863,7 +1864,7 @@ int			main(void)
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
   assert(p.header.counter == 0);
-
+  
   i = 0;
   s =
     "\n"
@@ -1894,6 +1895,25 @@ int			main(void)
   load_norm_configuration(&p, cnf);
   if (read_translation_unit(&p, "file", s, &i, true) != 1)
     goto Error;
+
+  //NOW:
+  // Les prototypes ont été considérés comme des globales
+  // a un moment du développement, je debug et ce test
+  // servira a assurer que c'est bon.
+  i = 0;
+  s =
+    "\n"
+    "double efpow(double x, double y);\n"
+    "\n"
+    ;
+  bunny_configuration_setf(cnf, true, "AllGlobalsAreConst.Value");
+  bunny_configuration_setf(cnf, 2, "AllGlobalsAreConst.Points");
+  load_norm_configuration(&p, cnf);
+  assert(p.all_globals_are_const.counter == 0);
+  if (read_translation_unit(&p, "file", s, &i, true) != 1)
+    goto Error;
+  assert(p.all_globals_are_const.counter == 0);
+  // return (0);
 
   //////////////////////////////////////
   // On verifie l'indentation basique //

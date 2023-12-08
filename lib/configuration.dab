@@ -25,7 +25,7 @@
 [Header
   'Un ensemble de texte qui DOIT marquer le début de chaque fichier
   'Si aucun en-tête n'est défini, Crawler ne pourra pas verifier le style.
-  Value = [Text(TERMINATOR)
+  Value = [Text($, TERMINATOR)
 /*
 ** %FirstName %FamilyName %Nickname %Login <%Mail>
 ** %ProjectName %Year

@@ -240,13 +240,18 @@ typedef struct		s_parsing
 
 bool			read_whitespace(const char		*code,
 					ssize_t			*i);
+
+int			read_expression(t_parsing		*p,
+					const char		*code,
+					ssize_t			*i,
+					bool			start);
+
 typedef int		t_read(t_parsing			*p,
 			       const char			*code,
 			       ssize_t				*i);
 t_read
   read_function_declaration,
   read_primary_expression,
-  read_expression,
   read_postfix_expression,
   read_unary_expression,
   read_cast_expression,
@@ -261,7 +266,6 @@ t_read
   read_logical_and_expression,
   read_logical_or_expression,
   read_assignment_expression,
-  read_expression,
   read_conditional_expression,
   read_constant_expression,
   read_type_qualifier,

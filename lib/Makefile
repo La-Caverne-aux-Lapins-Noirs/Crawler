@@ -68,7 +68,7 @@
 
   SRC		=	$(wildcard src/*.c) $(wildcard src/*/*.c)
   OBJ		=	$(SRC:.c=.o)
-  CNF		=	$(wildcard *.dab) $(wildcard *.d)
+#  CNF		=	$(wildcard *.dab) $(wildcard *.d)
 
   LIBOBJ	=	$(filter-out src/main.o, $(OBJ))
 
@@ -106,7 +106,7 @@ install:
 			@$(MD) $(LIB_DIR)
 			@$(MD) $(ETC_DIR)
 			@$(CP) $(NAME) $(LIB_DIR)
-			@$(CP) $(CNF) $(ETC_DIR)
+#			@$(CP) $(CNF) $(ETC_DIR)
 			@$(CP) include/* $(INC_DIR)
 			@echo "Installed"
 rmlog:

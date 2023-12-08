@@ -64,7 +64,7 @@ int			store_real_typename(t_parsing		*p,
     }
   else if (typ == 4 && p->function_infix.active) // fonction
     {
-      if (strcmp("main", symbol) == 0 || strncasecmp("test_", symbol, 5) == 0)
+      if (strcmp("main", symbol) == 0 || bunny_strncasecmp("test_", symbol, 5) == 0)
 	{
 	  spoint = 0;
 	  flen = strlen(symbol);

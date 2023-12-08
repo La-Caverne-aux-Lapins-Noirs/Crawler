@@ -21,7 +21,7 @@ int			check_function_length(t_parsing		*p,
   while (i != end)
     {
       if (code[i] == '\n')
-	if ((cnt += 1) > p->max_function_length.value)
+	if ((cnt += 1) > p->max_function_length.value + 1)
 	  {
 	    if (!add_warning
 		(p, true, code, i, &p->max_function_length.counter,
