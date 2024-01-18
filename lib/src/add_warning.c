@@ -20,6 +20,18 @@ bool			add_warning(t_parsing			*p,
     return (true);
   if (p->last_line_marker > pos)
     return (true);
+  if (p->last_error_id + 1 > NBRCELL(p->last_error_msg))
+    return (true);
+  if (p->last_error_id + 1 >= NBRCELL(p->last_error_msg))
+    {
+      if ((p->last_error_msg[++p->last_error_id] =
+	   bunny_strdup("Too many errors encountered. Stop reporting.")) == NULL)
+	{ // LCOV_EXCL_START
+	  p->last_error_id -= 1;
+	  return (false);
+	} // LCOV_EXCL_STOP
+      return (true);
+    }
   char			buf[2048];
   va_list		lst;
   int			end;

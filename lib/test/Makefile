@@ -22,7 +22,7 @@
   FLAGS		?=	-fPIC -std=c11 -Wno-format-security -Wall -Wextra	\
 			-O0 -Og -g -g3 -ggdb -fprofile-arcs -ftest-coverage	\
 			--coverage -rdynamic -fno-omit-frame-pointer		\
-			-fno-align-functions -fno-align-loops
+			-fno-align-functions -fno-align-loops -DFTRACE
 
   RM		=	rm -rf
   ECHO		=	/bin/echo -e
@@ -59,7 +59,8 @@ $(OBJ):
 			 ($(LIB_TO_TEST) $@ $(FERRLOG) &&			\
 			 $(ECHO) $(TEAL) "[OK]" $(GREEN)$(notdir $@)		\
 			 $(DEFLT) ||						\
-			 $(ECHO) $(RED) "[KO]" $(notdir $@) $(DEFLT))
+			 $(ECHO) $(RED) "[KO]" $(notdir $@) $(DEFLT)) ||	\
+			 echo -n ""
 
 $(REPORT):		$(OBJ)
 			@lcov --directory . --directory $(SRC_DIR) -c		\

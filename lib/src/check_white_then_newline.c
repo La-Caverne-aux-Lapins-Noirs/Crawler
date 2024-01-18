@@ -10,11 +10,10 @@
 
 bool			check_white_then_newline(t_parsing	*p,
 						 const char	*code,
-						 int		pos,
+						 ssize_t	pos,
 						 bool		statement)
 {
-  
-  int			i = pos;
+  ssize_t		i = pos;
 
   if (p->single_instruction_per_line.active == false)
     return (true);

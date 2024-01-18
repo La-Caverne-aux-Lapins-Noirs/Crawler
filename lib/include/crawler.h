@@ -1,7 +1,8 @@
 /*
 ** Jason Brillante "Damdoshi"
 ** Hanged Bunny Studio 2014-2021
-** Pentacle Technologie 2008-2021
+** Pentacle Technologie 2008-2024
+** EFRITS SAS 2022-2024
 **
 ** C-C-C CRAWLER!
 ** Configurable C Code Crawler !
@@ -119,7 +120,8 @@ typedef struct		s_parsing
   t_type		new_type[8192];
   size_t		last_new_type;
 
-  char			typedef_stack[16][SYMBOL_SIZE + 1];
+  // Pourquoi 128? Hum...
+  char			typedef_stack[128][SYMBOL_SIZE + 1];
   int			typedef_stack_top;
 
   t_last_function	last_declaration;
@@ -133,7 +135,7 @@ typedef struct		s_parsing
   int			ldec_function_per_file;
   int			ldec_non_static_function_per_file;
 
-  const char		*last_error_msg[256];
+  const char		*last_error_msg[4096];
   int			last_error_id;
 
   int			maximum_error_points;
@@ -204,6 +206,7 @@ typedef struct		s_parsing
   t_criteria		no_empty_line_in_function;
   t_criteria		no_trailing_whitespace;
   t_criteria		no_space_inside_parenthesis;
+  t_criteria		no_space_inside_brackets;
   t_criteria		space_after_statement;
   t_criteria		space_around_binary_operator;
   t_criteria		space_after_comma;
@@ -221,6 +224,7 @@ typedef struct		s_parsing
   t_criteria		no_global;
   t_criteria		return_parenthesis;
   t_criteria		sizeof_parenthesis;
+  t_criteria		forbidden_type;
 
   // Mot clefs et operateurs
   t_criteria		for_forbidden;
@@ -250,7 +254,7 @@ typedef int		t_read(t_parsing			*p,
 			       const char			*code,
 			       ssize_t				*i);
 t_read
-  read_function_declaration,
+  read_function_definition,
   read_primary_expression,
   read_postfix_expression,
   read_unary_expression,
@@ -322,7 +326,8 @@ int			read_translation_unit(t_parsing			*p,
 					      const char		*file,
 					      const char		*code,
 					      ssize_t			*i,
-					      bool			verbose);
+					      bool			verbose,
+					      bool			was_preprocessed);
 void			reset_last_declaration(t_parsing		*f);
 void			load_norm_configuration(t_parsing		*p,
 						t_bunny_configuration	*e);
@@ -381,7 +386,7 @@ int			check_function_length(t_parsing			*p,
 					      int			end);
 bool			check_white_then_newline(t_parsing		*p,
 						 const char		*code,
-						 int			pos,
+						 ssize_t		pos,
 						 bool			statement);
 int			write_line_and_position(const char		*code,
 						int			pos,

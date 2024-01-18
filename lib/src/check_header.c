@@ -17,6 +17,7 @@
 bool			check_header(t_parsing		*p,
 				     const char		*code)
 {
+  /// Cette fonction n'est appelée que sur du code non préprocessé
   if (p->header.active == false)
     return (true);
   const char		*template = &p->header_data[0];
@@ -45,7 +46,8 @@ bool			check_header(t_parsing		*p,
     }
   buffer[tar] = '\0';
   gl_bunny_read_whitespace = read_whitespace;
-  ssize_t		cursor = strlen(code) - tar;
+  // Le header est censé etre tout en haut du fichier
+  ssize_t		cursor = 0; // strlen(code) - tar;
 
   while (cursor >= 0)
     {
@@ -55,8 +57,19 @@ bool			check_header(t_parsing		*p,
       cursor -= 1;
     }
   if (cursor < 0 && p->header.counter == 0)
-    if (!add_warning(p, true, code, 0, &p->header.counter, "The header is absent or misformed."))
-      return (false);
+    {
+      // Le header peut tout à fait etre avant le marqueur, car les #include sont apres
+      // les en tete.
+      int		tmp = p->last_line_marker;
+
+      p->last_line_marker = 0;
+      if (!add_warning(p, true, code, 0, &p->header.counter, "The header is absent or misformed."))
+	{
+	  p->last_line_marker = tmp;
+	  return (false);
+	}
+      p->last_line_marker = tmp;
+    }
   p->last_declaration.last_header = cursor;
   p->last_declaration.header_line = bunny_which_line(code, cursor);
   return (true);

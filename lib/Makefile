@@ -32,7 +32,7 @@
   LIB		=	-L$(HOME)/.froot/lib/ -llapin -ldl -lm -lstdc++		\
 			-lavcall -lgcov -rdynamic
   CONFIG	?=	$(FLAG) -fPIC -std=c11 -Wno-format-security		\
-			-Wall -Wextra
+			-Wall -Wextra # -DFTRACE
 
   DEBUG		=	-O0 -Og -g -g3 -ggdb -fprofile-arcs -ftest-coverage	\
 			--coverage -fno-omit-frame-pointer -fno-align-functions	\

@@ -19,7 +19,7 @@ bool			check_parenthesis_space(t_parsing	*p,
   // Cette fonction doit etre appellée avec pos SUR la parenthese
   if (!IZ(p, &pos))
     return (true);
-  if (dir == '(')
+  if (dir == '(' || dir == '[')
     {
       // On verifie l'interieur
       for (i = 1; isblank(code[pos + i]); ++i);
@@ -30,7 +30,7 @@ bool			check_parenthesis_space(t_parsing	*p,
 	  return (false);
       return (true);
     }
-  else if (dir == ')')
+  else if (dir == ')' || dir == ']')
     {
       // On verifie l'interieur
       for (i = -1; pos + i > 0 && isblank(code[pos + i]); --i);

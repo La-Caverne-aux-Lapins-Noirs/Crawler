@@ -470,3 +470,11 @@ PASCAL_CASE = 3 'ThisIsIt
   Points = 5
 ]
 
+[TypeRestriction
+  Value = true
+  Points = 5
+  [ForbiddenTypes
+    complex
+  ]
+]
+
