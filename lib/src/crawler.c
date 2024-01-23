@@ -2296,6 +2296,8 @@ int			read_declaration_specifiers(t_parsing	*p,
 						    ssize_t	*i)
 {
   size_t		last_new_type = p->last_new_type;
+  bool			just_typedefed = false;
+  bool			init_typedef = p->last_declaration.is_typedef;
   int			ret;
   int			cnt = 0;
   bool			once;
@@ -2331,10 +2333,12 @@ int			read_declaration_specifiers(t_parsing	*p,
       prev_ptr = p->last_declaration.nbr_pointer;
       once = (once || (ret == 1));
       cnt += once ? 1 : 0;
+      if (p->last_declaration.is_typedef && init_typedef == false)
+	just_typedefed = true;
     }
   while (once);
   // On est peut etre face a un nouveau type...
-  if (p->last_new_type != last_new_type || typed)
+  if (p->last_new_type != last_new_type || (just_typedefed && typed))
     if ((ret = handle_typedef(p, code, i, true)) == -1)
       return (-1);
   FRETURN (cnt >= 1 ? 1 : 0);

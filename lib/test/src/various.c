@@ -24,7 +24,7 @@ int			main(int		argc,
   cnf = bunny_new_configuration();
   p.last_error_id = -1;
   load_norm_configuration(&p, cnf);
-  if (read_translation_unit(&p, "file", s, &i, true, true) != -1)
+  if (read_translation_unit(&p, "file", s, &i, true, true) != 1)
     GOTOERROR();
   
   i = 0;
