@@ -15,6 +15,9 @@ int			main(int		argc,
 {
   TEST_INTRO();
 
+  bunny_configuration_setf(cnf, 1, "NoTrailingWhitespace");
+  bunny_configuration_setf(cnf, 1, "NoEmptyLineInFunction");
+  bunny_configuration_setf(cnf, 1, "SingleInstructionPerLine");
   bunny_configuration_setf(cnf, 1, "DeclarationStatementSeparator");
   load_norm_configuration(&p, cnf);
   i = 0;
@@ -29,6 +32,7 @@ int			main(int		argc,
     "  if (lol) { i = 0; }\n"
     "  while (lol) i = 0;\n"
     "  while (lol) { i = 0; }\n"
+    "\n"
     "  for (lol; lol; lol) i = 0;\n"
     "  for (lol; lol; lol) { i = 0; }\n"
     "  do i = 0; while (lol); i = 0;\n"
@@ -50,7 +54,22 @@ int			main(int		argc,
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
     GOTOERROR();
   assert(p.single_instruction_per_line.counter == 21);
+  assert(p.declaration_statement_separator.counter == 0);
+  assert(p.no_empty_line_in_function.counter == 1);
+  assert(p.no_trailing_whitespace.counter == 0);
 
+  i = 0;
+  s = "void func(void)\n"
+    "{\n"
+    "  int i;\n"
+    "  i = 0; \n"
+    "}\n"
+    ;
+  if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
+    GOTOERROR();
+  assert(p.declaration_statement_separator.counter == 1);
+  assert(p.no_trailing_whitespace.counter == 1);
+  
   bunny_delete_configuration(cnf);
   TEST_OUTRO();
 }

@@ -2,7 +2,7 @@
 AnsiC = true
 
 [Header
-  Value = [Text(END)
+  Value = [Text($, END)
 /*
 ** %FirstName %FamilyName "%NickName"
 ** %Login - <%Mail>
@@ -231,3 +231,4 @@ IndentationToken = 8
   Value = true
   Points = 2
 ]
+

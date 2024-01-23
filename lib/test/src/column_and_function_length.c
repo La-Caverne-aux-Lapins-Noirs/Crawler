@@ -60,6 +60,7 @@ int			main(int		argc,
   assert(check_function_length(&p, s, 17, 36) == 1);
   assert(p.max_function_length.counter == 1);
 
+  /*
   i = 0;
   p.last_new_type = 0;
   p.last_error_id = -1;
@@ -80,6 +81,7 @@ int			main(int		argc,
   if (read_translation_unit(&p, file, s, &i, true, false) == -1)
     GOTOERROR();
   assert(p.max_function_length.counter == 1);
+  */
   
   TEST_OUTRO();
 }

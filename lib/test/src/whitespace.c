@@ -20,12 +20,14 @@ int			main(int		argc,
   assert(s[i] == '!');
 
   i = 0;
-  assert(read_whitespace("//    ", &i) == true);
+  s = "//     ";
+  assert(read_whitespace(s, &i) == true);
   assert(s[i] == '\0');
 
   i = 0;
-  assert(read_whitespace("/*    ", &i) == false);
-  assert(s[i] == '/');
+  s = "/*    ";
+  assert(read_whitespace(s, &i) == false);
+  assert(s[i] == '\0');
 
   TEST_OUTRO();
 }

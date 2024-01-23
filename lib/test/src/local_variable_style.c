@@ -21,6 +21,7 @@ int			main(int		argc,
   bunny_configuration_setf(cnf, 8, "LocalVariableNameInfixPts");
   bunny_configuration_setf(cnf, 1, "LocalVariableInlineInitForbidden.Value");
   bunny_configuration_setf(cnf, 15, "LocalVariableInlineInitForbidden.Points");
+  load_norm_configuration(&p, cnf);
   
   i = 0;
   s = " int func(void) { int LOCAL_L; LOCAL_L = 52; return 2; }  ";

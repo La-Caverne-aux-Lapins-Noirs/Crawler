@@ -22,7 +22,8 @@
   FLAGS		?=	-fPIC -std=c11 -Wno-format-security -Wall -Wextra	\
 			-O0 -Og -g -g3 -ggdb -fprofile-arcs -ftest-coverage	\
 			--coverage -rdynamic -fno-omit-frame-pointer		\
-			-fno-align-functions -fno-align-loops -DFTRACE
+			-fno-align-functions -fno-align-loops -DFTRACE 		\
+			-Wno-unused-label
 
   RM		=	rm -rf
   ECHO		=	/bin/echo -e

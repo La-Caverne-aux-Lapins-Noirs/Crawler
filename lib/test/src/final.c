@@ -7,6 +7,7 @@
 ** TechnoCore
 */
 
+#include		<stdio.h>
 #include		"test.h"
 
 int			main(int		argc,
@@ -25,6 +26,7 @@ int			main(int		argc,
   cfile = load_c_file(file, cnf, true);
   if (cfile == NULL)
     GOTOERROR();
+  fprintf(stderr, "%s\n", cfile);
   if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
     GOTOERROR();
 

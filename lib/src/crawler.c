@@ -106,17 +106,21 @@ static int		handle_typedef(t_parsing	*p,
   if (!p->last_declaration.is_typedef)
     return (0);
   // Si on est dans la définition d'attributs ou de constantes
-  if (p->last_declaration.was_defining)
-    return (0);
+  // if (p->last_declaration.was_defining)
+  // return (0);
   ssize_t		j = *i;
-  bool			rd;
+  bool			rd = false;;
 
   FTRACE(code, j);
   if (rdid)
     {
       read_whitespace(code, &j);
       // Rajouté un peu a l'arrache
-      rd = bunny_read_text(code, &j, "(");
+      rd = bunny_read_text(code, &j, "("); /// Il faut, si on a trouvé ca, indiquer
+      // qu'on est plus dans le typedef.
+      // Le probleme actuel c'est qu'on resoud pas le type sur un ptr sur fonction
+      // et que du coup c'est le dernier paramètre du ptr sur fonction qui sert
+      // de nom
       read_pointer(p, code, &j);
       gl_bunny_read_whitespace = NULL;	
       if (read_identifier(p, code, &j, false) == 0)
@@ -165,8 +169,7 @@ static int		handle_typedef(t_parsing	*p,
       add_new_type
 	(p, p->last_declaration.symbol, p->last_declaration.cumulated_attribute_size);
     }
-  else
-    add_new_type(p, p->last_declaration.symbol, p->last_declaration.last_type_size);
+  add_new_type(p, p->last_declaration.symbol, p->last_declaration.last_type_size);
 
   FRETURN (0);
 }
@@ -2292,10 +2295,12 @@ int			read_declaration_specifiers(t_parsing	*p,
 						    const char	*code,
 						    ssize_t	*i)
 {
+  size_t		last_new_type = p->last_new_type;
   int			ret;
   int			cnt = 0;
   bool			once;
   int			prev_ptr;
+  bool			typed = false;
 
   FTRACE(code, *i);
   p->last_declaration.nbr_pointer = prev_ptr = 0;
@@ -2309,6 +2314,8 @@ int			read_declaration_specifiers(t_parsing	*p,
       // On veut un type
       if ((ret = read_type_specifier(p, code, i)) == -1)
 	FRETURN (-1);
+      if (ret == 1)
+	typed = true;
       once = (once || (ret == 1));
       // On veut un const ou autre du style
       if ((ret = read_type_qualifier(p, code, i)) == -1)
@@ -2327,10 +2334,9 @@ int			read_declaration_specifiers(t_parsing	*p,
     }
   while (once);
   // On est peut etre face a un nouveau type...
-  /*
-  if ((ret = handle_typedef(p, code, i, true)) == -1)
-    return (-1);
-  */
+  if (p->last_new_type != last_new_type || typed)
+    if ((ret = handle_typedef(p, code, i, true)) == -1)
+      return (-1);
   FRETURN (cnt >= 1 ? 1 : 0);
 }
 
@@ -2967,8 +2973,8 @@ int			read_declaration(t_parsing		*p,
     FRETURN (-1);
 
   // On conclu le typedef éventuel
-  if (handle_typedef(p, code, i, false) == -1)
-    FRETURN (-1);
+  //  if (handle_typedef(p, code, i, false) == -1)
+  // FRETURN (-1);
   
   if (read_gcc_attribute(p, code, i) == -1)
     FRETURN (-1);  

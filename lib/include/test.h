@@ -27,14 +27,13 @@
 static int		last_line;
 
 # define		TEST_VAR()		\
-  t_parsing		p;			\
-  t_bunny_configuration	*cnf;			\
-  char			*s;			\
-  ssize_t		i;			\
-  char			*file;			\
-  char			*cfile;			\
-  bool			sig;			\
-  bool			got
+  t_parsing		p; (void)p;		\
+  t_bunny_configuration	*cnf; (void)cnf;	\
+  char			*s; (void)s;		\
+  ssize_t		i; (void)i;		\
+  char			*file; (void)file;	\
+  char			*cfile; (void)cfile;	\
+  bool			sig; (void)sig
 
 # define		TEST_INTRO()		\
   TEST_VAR();					\
@@ -42,15 +41,10 @@ static int		last_line;
     if (chdir("./test") != 0)			\
       {}					\
   if (argc == 1)				\
-    {						\
-      sig = true;				\
-      got = true;				\
-    }						\
+    sig = true;					\
   for (int ac = 1; ac < argc; ++ac)		\
     if (strcmp(argv[ac], "nosignal") == 0)	\
       sig = false;				\
-    else if (strcmp(argv[ac], "nogoto") == 0)	\
-      got = false;				\
 						\
   if (sig)					\
     {						\
@@ -61,10 +55,7 @@ static int		last_line;
   memset(&p, 0, sizeof(p));			\
   assert(cnf = bunny_new_configuration());	\
   load_norm_configuration(&p, cnf);		\
-  gl_bunny_read_whitespace = read_whitespace;	\
-  if (got)					\
-    {}
-// goto NOW
+  gl_bunny_read_whitespace = read_whitespace;
 
 # define		TEST_OUTRO()		\
   return (EXIT_SUCCESS);			\

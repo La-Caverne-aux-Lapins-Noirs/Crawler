@@ -14,26 +14,19 @@ int			main(int		argc,
 {
   TEST_INTRO();
 
+  // Car le typedef prenait le nom du paramètre du pointeur sur fonction
   i = 0;
   s =
-    "typedef long u_int64_t;\n"
-    "typedef int register_t __attribute__ ((__mode__ (__word__)));\n"
+    "typedef struct s_test {\n"
+    "  void (*funcptrname)(int funcptrparameter);\n"
+    "} t_test;\n"
     ;
   cnf = bunny_new_configuration();
+  p.last_error_id = -1;
   load_norm_configuration(&p, cnf);
-  if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
+  if (read_translation_unit(&p, "file", s, &i, true, true) != -1)
     GOTOERROR();
-
-  i = 0;
-  s =
-    "typedef unsigned int size_t;\n"
-    "extern size_t __ctype_get_mb_cur_max (void) __attribute__ ((__nothrow__ , __leaf__)) ;"
-    ;
-  cnf = bunny_new_configuration();
-  load_norm_configuration(&p, cnf);
-  if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
-
+  
   i = 0;
   s =
     "typedef int (*func)(int a);\n"
@@ -45,6 +38,30 @@ int			main(int		argc,
   load_norm_configuration(&p, cnf);
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
     GOTOERROR();
+
+  i = 0;
+  s =
+    "typedef long u_int64_t;\n"
+    "typedef int register_t __attribute__ ((__mode__ (__word__)));\n"
+    ;
+  cnf = bunny_new_configuration();
+  load_norm_configuration(&p, cnf);
+  if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
+    GOTOERROR();
+  assert(strcmp(p.new_type[0].name, "u_int64_t") == 0);
+  assert(p.new_type[0].size == sizeof(long));
+
+  i = 0;
+  s =
+    "typedef unsigned int size_t;\n"
+    "extern size_t __ctype_get_mb_cur_max (void) __attribute__ ((__nothrow__ , __leaf__)) ;"
+    ;
+  cnf = bunny_new_configuration();
+  load_norm_configuration(&p, cnf);
+  if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
+    GOTOERROR();
+  assert(strcmp(p.new_type[0].name, "size_t") == 0);
+  assert(p.new_type[0].size == sizeof(unsigned int));
   
   // Les prototypes ont été considérés comme des globales
   // a un moment du développement, je debug et ce test
@@ -94,14 +111,25 @@ int			main(int		argc,
   if (read_translation_unit(&p, "file", s, &i, true, true) != 1)
     GOTOERROR();
 
+  // Non ANSI C, cela devrait aller.
   i = 0;
   file = "./res/gergios.c";
-  assert(cnf = bunny_open_configuration("../../bin/cln.dab", NULL));
-  load_norm_configuration(&p, cnf);
   assert(s = load_c_file(file, cnf, false));
+  assert(cnf = bunny_open_configuration("../../bin/cln.dab", NULL));
+  bunny_configuration_setf(cnf, false, "AnsiC");
+  load_norm_configuration(&p, cnf);
   p.last_error_id = -1;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
     GOTOERROR();
+
+  // ANSI C, ca ne marchera pas: enchainement déclaration, instruction, déclaration
+  i = 0;
+  file = "./res/gergios.c";
+  assert(s = load_c_file(file, cnf, false));
+  assert(cnf = bunny_open_configuration("../../bin/cln.dab", NULL));
+  load_norm_configuration(&p, cnf);
+  p.last_error_id = -1;
+  assert(read_translation_unit(&p, "file", s, &i, true, false) != 1);
   
   TEST_OUTRO();
 }
