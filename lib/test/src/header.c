@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   cnf = bunny_new_configuration();
   bunny_configuration_setf
@@ -47,7 +47,7 @@ int			main(int		argc,
   assert(p.header.counter == 0);
   p.last_line_marker = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.header.counter == 0);
 
   i = 0;
@@ -68,8 +68,8 @@ int			main(int		argc,
     "}\n"
     ;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.header.counter == 1);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   // Car le typedef prenait le nom du paramètre du pointeur sur fonction
   i = 0;
@@ -25,7 +25,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   load_norm_configuration(&p, cnf);
   if (read_translation_unit(&p, "file", s, &i, true, true) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   
   i = 0;
   s =
@@ -37,7 +37,7 @@ int			main(int		argc,
   cnf = bunny_new_configuration();
   load_norm_configuration(&p, cnf);
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
 
   i = 0;
   s =
@@ -47,7 +47,7 @@ int			main(int		argc,
   cnf = bunny_new_configuration();
   load_norm_configuration(&p, cnf);
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(strcmp(p.new_type[0].name, "u_int64_t") == 0);
   assert(p.new_type[0].size == sizeof(long));
 
@@ -59,7 +59,7 @@ int			main(int		argc,
   cnf = bunny_new_configuration();
   load_norm_configuration(&p, cnf);
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(strcmp(p.new_type[0].name, "size_t") == 0);
   assert(p.new_type[0].size == sizeof(unsigned int));
   
@@ -77,7 +77,7 @@ int			main(int		argc,
   load_norm_configuration(&p, cnf);
   assert(p.all_globals_are_const.counter == 0);
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.all_globals_are_const.counter == 0);
 
   file = "./res/abs3.c";
@@ -88,7 +88,7 @@ int			main(int		argc,
   p.base_indent.counter = 0;
   p.single_instruction_per_line.active = true;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter == 0);
   assert(p.single_instruction_per_line.counter == 0);
 
@@ -100,7 +100,7 @@ int			main(int		argc,
   p.indent_style.active = false;
   p.single_instruction_per_line.active = false;
   if (read_translation_unit(&p, "file", s, &i, true, true) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
 
   file = "./res/gergios.c";
   assert(s = load_c_file(file, cnf, true));
@@ -109,7 +109,7 @@ int			main(int		argc,
   p.last_new_type = 0;
   p.ansi_c = false;
   if (read_translation_unit(&p, "file", s, &i, true, true) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
 
   // Non ANSI C, cela devrait aller.
   i = 0;
@@ -120,7 +120,7 @@ int			main(int		argc,
   load_norm_configuration(&p, cnf);
   p.last_error_id = -1;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
 
   // ANSI C, ca ne marchera pas: enchainement déclaration, instruction, déclaration
   i = 0;
@@ -131,5 +131,5 @@ int			main(int		argc,
   p.last_error_id = -1;
   assert(read_translation_unit(&p, "file", s, &i, true, false) != 1);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

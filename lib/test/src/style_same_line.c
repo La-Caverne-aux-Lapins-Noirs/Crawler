@@ -13,7 +13,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   p.indent_style.value = KNR_STYLE;
   p.base_indent.counter = 0;
@@ -29,5 +29,5 @@ int			main(int		argc,
   assert(p.base_indent.counter == 1);
   p.indent_style.value = 0;
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

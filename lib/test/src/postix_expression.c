@@ -13,10 +13,10 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   i = 0;
   assert(read_postfix_expression(&p, "Identifier.SubIdentifier->FarIdentifier++--", &i) == 1);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

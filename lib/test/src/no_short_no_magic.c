@@ -12,8 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
-
+  TEST_INTRO(); // LCOV_EXCL_LINE
   
   i = 0;
   s =
@@ -30,7 +29,7 @@ int			main(int		argc,
   p.no_short_name.value = 4;
   p.no_magic_value.active = false;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.no_short_name.counter == 0);
   assert(p.no_magic_value.counter == 0);
 
@@ -49,9 +48,9 @@ int			main(int		argc,
   p.no_short_name.value = 4;
   p.no_magic_value.active = true;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.no_short_name.counter == 4);
   assert(p.no_magic_value.counter == 2);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

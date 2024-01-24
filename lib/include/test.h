@@ -58,6 +58,7 @@ static int		last_line;
   gl_bunny_read_whitespace = read_whitespace;
 
 # define		TEST_OUTRO()		\
+  bunny_delete_configuration(cnf);		\
   return (EXIT_SUCCESS);			\
  Error:						\
   printf("Aborted from line %d.\n", last_line);		\
@@ -75,6 +76,7 @@ static int		last_line;
        }							\
      printf("\n");						\
    }								\
+ bunny_delete_configuration(cnf);				\
  return (EXIT_FAILURE)
 
 static void		alert(int		alrt)

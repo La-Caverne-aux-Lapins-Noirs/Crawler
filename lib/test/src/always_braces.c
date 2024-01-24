@@ -29,12 +29,12 @@ int			main(int		argc,
   p.always_braces.value = 0;
   p.always_braces.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.always_braces.counter == 0);
   p.always_braces.value = 1;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.always_braces.counter == 0);
 
   i = 0;
@@ -50,13 +50,13 @@ int			main(int		argc,
   p.always_braces.value = 0;
   p.always_braces.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.always_braces.counter == 0);
   p.always_braces.value = 1;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.always_braces.counter == 1);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

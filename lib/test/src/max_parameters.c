@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   i = 0;
   s =
@@ -26,29 +26,29 @@ int			main(int		argc,
   p.max_parameter.value = 0;
   p.max_parameter.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.max_parameter.counter == 0);
   p.max_parameter.active = true;
   p.max_parameter.value = 4;
   p.max_parameter.counter = 0;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.max_parameter.counter == 0);
   p.max_parameter.active = true;
   p.max_parameter.value = 2;
   p.max_parameter.counter = 0;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.max_parameter.counter == 1);
   p.max_parameter.active = true;
   p.max_parameter.value = 3;
   p.max_parameter.counter = 0;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.max_parameter.counter == 0);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

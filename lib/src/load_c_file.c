@@ -56,7 +56,7 @@ char		*load_c_file(const char			*file,
   size_t	len;
   size_t	wt;
   ssize_t	rd;
-  size_t	i;
+  ssize_t	i;
 
   if ((fd = open(file, O_RDONLY)) == -1)
     return (NULL);
@@ -72,24 +72,6 @@ char		*load_c_file(const char			*file,
   while (rd > 0);
   close(fd);
   bunny_big_buffer[len] = '\0';
-  bool		in_preproc;
-
-  in_preproc = false;
-  for (size_t i = 0; i < len; ++i)
-    if (bunny_big_buffer[i] == '#')
-      in_preproc = true;
-    else if (bunny_big_buffer[i] == '\n')
-      in_preproc = false;
-    else if (in_preproc == false)
-      {
-	// On effectue des transformations permettant de conserver l'indentation
-	// lors du passage du preprocesseur afin de pouvoir verifier le style
-	// apres son passage.
-	if (bunny_big_buffer[i] == ' ')
-	  bunny_big_buffer[i] = '\036';
-	else if (bunny_big_buffer[i] == '\t')
-	  bunny_big_buffer[i] = '\037';
-      }
 
   if (preprocessed)
     {
@@ -102,7 +84,7 @@ char		*load_c_file(const char			*file,
       // Faire tourner le preprocesseur au lieu de ne pas le faire
       // permet d'enrichir crawler des types déterminés par ces includes.
       i = strlen(&bunny_big_buffer[0]);
-      while (i > 0 && !(match = match_include(&bunny_big_buffer[i])))
+      while (i >= 0 && !(match = match_include(&bunny_big_buffer[i])))
 	i = i - 1;
       if (match)
 	{
@@ -112,6 +94,35 @@ char		*load_c_file(const char			*file,
 	  match[1] = '\035';
 	}
     }
+
+  bool		in_preproc;
+
+  in_preproc = false;
+  for (size_t i = 0; i < len; ++i)
+    if (bunny_big_buffer[i] == '#')
+      {
+	if (i > 0 && bunny_big_buffer[i - 1] == '\034')
+	  bunny_big_buffer[i - 1] = '\n';
+	in_preproc = true;
+      }
+    else if (in_preproc && bunny_big_buffer[i] == '\n')
+      in_preproc = false;
+    else if (in_preproc == false)
+      {
+	// On effectue des transformations permettant de conserver l'indentation
+	// lors du passage du preprocesseur afin de pouvoir verifier le style
+	// apres son passage.
+	if (bunny_big_buffer[i] == ' ')
+	  bunny_big_buffer[i] = '\036';
+	else if (bunny_big_buffer[i] == '\t')
+	  bunny_big_buffer[i] = '\037';
+	else if (i > 0 &&
+		 bunny_big_buffer[i] == '\n' && bunny_big_buffer[i - 1] == '\n')
+	  bunny_big_buffer[i] = '\034';
+	else if (bunny_big_buffer[i] == '\r')
+	  bunny_big_buffer[i] = '\033';
+      }
+
 
   len = strlen(&bunny_big_buffer[0]);
   snprintf(&filename[0], sizeof(filename), "%s!", file);
@@ -161,6 +172,10 @@ char		*load_c_file(const char			*file,
 	bunny_big_buffer[i] = ' ';
       else if (bunny_big_buffer[i] == '\037')
 	bunny_big_buffer[i] = '\t';
+      else if (bunny_big_buffer[i] == '\034')
+	bunny_big_buffer[i] = '\n';
+      else if (bunny_big_buffer[i] == '\033')
+	bunny_big_buffer[i] = '\r';
     }
 
   // On laisse le marqueur de fin d'inclusion pour que crawler

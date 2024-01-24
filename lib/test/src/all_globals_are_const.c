@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   i = 0;
   s = "int i = 0;";
@@ -21,7 +21,7 @@ int			main(int		argc,
   p.all_globals_are_const.active = false;
   p.all_globals_are_const.value = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.all_globals_are_const.counter == 0);
 
   i = 0;
@@ -31,7 +31,7 @@ int			main(int		argc,
   p.all_globals_are_const.active = true;
   p.all_globals_are_const.value = 1;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.all_globals_are_const.counter == 1);
 
   i = 0;
@@ -42,8 +42,8 @@ int			main(int		argc,
   p.all_globals_are_const.value = 1;
   p.all_globals_are_const.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.all_globals_are_const.counter == 0);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   // Correlation nom de fonction - chemin jusqu'au fichier
   p.last_error_id = -1;
@@ -52,5 +52,5 @@ int			main(int		argc,
 	 (&p, "src_complain", "void src_complain() { }", 5) == 1);
   assert(p.function_matching_path.counter == 4);
     
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

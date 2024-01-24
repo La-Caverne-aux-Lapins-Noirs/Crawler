@@ -13,7 +13,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   i = 0;
   p.last_error_id = -1;
@@ -21,7 +21,7 @@ int			main(int		argc,
   load_norm_configuration(&p, cnf);
   s = "const int * function_symbol(int * const *, int [42 + 4], int* (*)(void)) {}";
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

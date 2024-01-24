@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   bunny_configuration_setf(cnf, SNAKE_CASE, "GlobalStyle.Value");
   bunny_configuration_setf(cnf, 10, "GlobalStyle.Points");
@@ -78,7 +78,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.struct_style.counter == 0);
   assert(p.enum_style.counter == 0);
   assert(p.enum_constant_style.counter == 0);
@@ -100,7 +100,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.struct_style.counter == 2);
   assert(p.enum_style.counter == 2);
   assert(p.enum_constant_style.counter == 4);
@@ -119,9 +119,8 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.typedef_matching.counter == 3);
 
-  
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

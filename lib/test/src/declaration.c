@@ -13,7 +13,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   i = 0;
   s =
@@ -22,16 +22,16 @@ int			main(int		argc,
     "+ o - p * q / r % (int)s;"
     ;
   if (read_declaration(&p, s, &i) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   i = 0;
   s = "int var[42] = {0, 1, 2, 3, 4};";
   if (read_declaration(&p, s, &i) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   i = 0;
   assert(read_declaration(&p, "int i", &i) == -1);
 
   i = 0;
   assert(read_declaration(&p, "int i = ", &i) == -1);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

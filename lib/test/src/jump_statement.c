@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   i = 0; assert(read_jump_statement(&p, "return (5);", &i) == 1);
   i = 0; assert(read_jump_statement(&p, "return ;", &i) == 1);
@@ -27,6 +27,5 @@ int			main(int		argc,
   i = 0; assert(read_jump_statement(&p, "break ;", &i) == 1);
   i = 0; assert(read_jump_statement(&p, "break ", &i) == -1);
 
-  
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

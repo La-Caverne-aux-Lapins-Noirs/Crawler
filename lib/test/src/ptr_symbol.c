@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   i = 0;
   s =
@@ -24,7 +24,7 @@ int			main(int		argc,
   p.ptr_symbol_on_name.counter = 0;
   p.ptr_symbol_on_type.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.ptr_symbol_on_name.counter == 1);
   assert(p.ptr_symbol_on_type.counter == 0);
 
@@ -38,7 +38,7 @@ int			main(int		argc,
   p.ptr_symbol_on_name.counter = 0;
   p.ptr_symbol_on_type.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.ptr_symbol_on_name.counter == 0);
   assert(p.ptr_symbol_on_type.counter == 0);
 
@@ -52,7 +52,7 @@ int			main(int		argc,
   p.ptr_symbol_on_name.counter = 0;
   p.ptr_symbol_on_type.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.ptr_symbol_on_name.counter == 0);
   assert(p.ptr_symbol_on_type.counter == 1);
 
@@ -66,7 +66,7 @@ int			main(int		argc,
   p.ptr_symbol_on_name.counter = 0;
   p.ptr_symbol_on_type.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.ptr_symbol_on_name.counter == 0);
   assert(p.ptr_symbol_on_type.counter == 0);
 
@@ -82,7 +82,7 @@ int			main(int		argc,
   p.ptr_symbol_on_name.counter = 0;
   p.ptr_symbol_on_type.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.inbetween_ptr_symbol_space.counter == 0);
   assert(p.ptr_symbol_on_name.counter == 0);
   assert(p.ptr_symbol_on_type.counter == 0);
@@ -99,7 +99,7 @@ int			main(int		argc,
   p.ptr_symbol_on_name.counter = 0;
   p.ptr_symbol_on_type.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.inbetween_ptr_symbol_space.counter == 1);
   assert(p.ptr_symbol_on_name.counter == 0);
   assert(p.ptr_symbol_on_type.counter == 0);
@@ -116,10 +116,10 @@ int			main(int		argc,
   p.ptr_symbol_on_name.counter = 0;
   p.ptr_symbol_on_type.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.inbetween_ptr_symbol_space.counter == 2);
   assert(p.ptr_symbol_on_name.counter == 0);
   assert(p.ptr_symbol_on_type.counter == 0);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

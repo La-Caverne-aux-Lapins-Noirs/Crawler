@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   s =
     "void func(void)\n"
@@ -27,7 +27,7 @@ int			main(int		argc,
   p.maximum_variable.active = false;
   p.maximum_variable.value = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.maximum_variable.counter == 0);
 
   i = 0;
@@ -36,7 +36,7 @@ int			main(int		argc,
   p.maximum_variable.active = true;
   p.maximum_variable.value = 3;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.maximum_variable.counter == 0);
 
   i = 0;
@@ -45,7 +45,7 @@ int			main(int		argc,
   p.maximum_variable.active = true;
   p.maximum_variable.value = 1;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.maximum_variable.counter == 1);
 
   i = 0;
@@ -54,10 +54,8 @@ int			main(int		argc,
   p.maximum_variable.active = true;
   p.maximum_variable.value = 1;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.maximum_variable.counter == 2);
 
-  bunny_delete_configuration(cnf);
-  
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

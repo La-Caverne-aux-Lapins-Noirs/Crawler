@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   // Espaces
   i = 0;
@@ -55,7 +55,7 @@ int			main(int		argc,
   p.max_column_width.value = 20;
   p.max_column_width.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   check_all_lines_width(&p, s);
   assert(p.space_after_statement.counter == 0);
   assert(p.space_around_binary_operator.counter == 0);
@@ -100,10 +100,10 @@ int			main(int		argc,
   p.space_after_comma.active = true;
   p.space_after_comma.value = 1;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.space_after_statement.counter == 5);
   assert(p.space_around_binary_operator.counter == 11);
   assert(p.space_after_comma.counter == 5);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

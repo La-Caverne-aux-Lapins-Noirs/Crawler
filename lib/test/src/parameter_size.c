@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   //// Test du passage de paramètre par copie ou par reference
   // On commence par verifier que le compteur de taille de structure est fonctionnel
@@ -22,14 +22,14 @@ int			main(int		argc,
   s = "typedef int Integer;\n";
   load_norm_configuration(&p, cnf);
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(strcmp(p.new_type[0].name, "Integer") == 0);
   assert(p.new_type[0].size == 4);
 
   i = 0;
   s = "typedef int * IntPointer;\n";
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(strcmp(p.new_type[1].name, "IntPointer") == 0);
   assert(p.new_type[1].size == 8);
 
@@ -47,7 +47,7 @@ int			main(int		argc,
     "} t_24;\n"
     ;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(strcmp(p.new_type[2].name, "s_8") == 0);
   assert(p.new_type[2].size == 8);
   assert(strcmp(p.new_type[3].name, "t_8") == 0);
@@ -67,7 +67,7 @@ int			main(int		argc,
   // Les prototypes ne sont pas censés être vérifiés
   s = "void func(t_24 copy);";
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.only_by_reference.counter == 0);
 
   i = 0;
@@ -79,7 +79,7 @@ int			main(int		argc,
   // On est dans les clous, car t_24 est plus petit que 32
   s = "void func(t_24 copy) { return ; }";
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.only_by_reference.counter == 0);
 
   i = 0;
@@ -91,7 +91,7 @@ int			main(int		argc,
   // On est dans l'illegalité car 16 est maintenant le max
   s = "void func(t_24 copy) { return ; }";
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.only_by_reference.counter == 1);
 
   i = 0;
@@ -103,8 +103,8 @@ int			main(int		argc,
   // On est de nouveau dans la légalité car maintenant on passe par reference
   s = "void func(t_24 *copy) { return ; }";
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.only_by_reference.counter == 0);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

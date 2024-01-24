@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   i = 0;
   bunny_configuration_setf(cnf, MIXED_CASE, "FunctionNameStyle.Value");
@@ -27,7 +27,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_style.active);
   assert(p.function_style.value == 0);
   assert(p.function_style.pts == 10);
@@ -43,7 +43,7 @@ int			main(int		argc,
   p.last_new_type = 0;
   p.function_infix.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_infix.counter == 1);
 
   i = 0;
@@ -53,7 +53,7 @@ int			main(int		argc,
   p.function_infix.counter = 0;
   p.function_style.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_infix.counter == 0);
   assert(p.function_style.counter == 1);
 
@@ -64,7 +64,7 @@ int			main(int		argc,
   p.function_infix.counter = 0;
   p.function_style.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   // Les prototypes ne comptent pas dans le décompte des fonctions mal écrites
   // car on peut prototyper des fonctions externes
   assert(p.function_infix.counter == 0);
@@ -77,7 +77,7 @@ int			main(int		argc,
   p.function_infix.counter = 0;
   p.function_style.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_infix.counter == 0);
   assert(p.function_style.counter == 1);
 
@@ -88,7 +88,7 @@ int			main(int		argc,
   p.function_infix.counter = 0;
   p.function_style.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   // Comme au dessus, ca ne compte pas quand c'est juste un prototype
   assert(p.function_infix.counter == 0);
   assert(p.function_style.counter == 0);
@@ -102,7 +102,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_infix.counter == 0);
   assert(p.function_style.counter == 0);
 
@@ -111,7 +111,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_infix.counter == 1);
   assert(p.function_style.counter == 0);
 
@@ -120,7 +120,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_infix.counter == 2);
   assert(p.function_style.counter == 1);
 
@@ -129,7 +129,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_infix.counter == 3);
   assert(p.function_style.counter == 2);
 
@@ -138,7 +138,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_infix.counter == 4);
   assert(p.function_style.counter == 3);
 
@@ -152,7 +152,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_style.counter == 0);
 
   i = 0;
@@ -160,7 +160,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_style.counter == 1);
 
   i = 0;
@@ -168,7 +168,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_style.counter == 2);
 
   i = 0;
@@ -176,7 +176,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_style.counter == 3);
 
   bunny_delete_configuration(cnf);
@@ -189,7 +189,7 @@ int			main(int		argc,
   p.last_new_type = 0;
   load_norm_configuration(&p, cnf);
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_style.counter == 0);
 
   i = 0;
@@ -197,7 +197,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_style.counter == 1);
 
   i = 0;
@@ -205,7 +205,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_style.counter == 2);
 
   i = 0;
@@ -213,8 +213,8 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.function_style.counter == 3);
 
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

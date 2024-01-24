@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   cnf = bunny_new_configuration();
   load_norm_configuration(&p, cnf);
@@ -29,12 +29,12 @@ int			main(int		argc,
   p.while_forbidden.value = 0;
   p.while_forbidden.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.while_forbidden.counter == 0);
   p.while_forbidden.value = 1;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.while_forbidden.counter == 1);
 
   i = 0;
@@ -49,12 +49,12 @@ int			main(int		argc,
   p.do_while_forbidden.value = 0;
   p.do_while_forbidden.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.do_while_forbidden.counter == 0);
   p.do_while_forbidden.value = 1;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.do_while_forbidden.counter == 1);
 
   i = 0;
@@ -69,12 +69,12 @@ int			main(int		argc,
   p.for_forbidden.value = 0;
   p.for_forbidden.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.for_forbidden.counter == 0);
   p.for_forbidden.value = 1;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.for_forbidden.counter == 1);
 
   i = 0;
@@ -89,12 +89,12 @@ int			main(int		argc,
   p.else_forbidden.value = 0;
   p.else_forbidden.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.else_forbidden.counter == 0);
   p.else_forbidden.value = 1;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.else_forbidden.counter == 1);
 
   i = 0;
@@ -115,12 +115,12 @@ int			main(int		argc,
   p.switch_forbidden.value = 0;
   p.switch_forbidden.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.switch_forbidden.counter == 0);
   p.switch_forbidden.value = 1;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.switch_forbidden.counter == 1);
 
   i = 0;
@@ -129,12 +129,12 @@ int			main(int		argc,
   p.break_forbidden.value = 0;
   p.break_forbidden.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.break_forbidden.counter == 0);
   p.break_forbidden.value = 1;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.break_forbidden.counter == 2);
 
   i = 0;
@@ -153,12 +153,12 @@ int			main(int		argc,
   p.continue_forbidden.value = 0;
   p.continue_forbidden.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.continue_forbidden.counter == 0);
   p.continue_forbidden.value = 1;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.continue_forbidden.counter == 1);
 
   i = 0;
@@ -178,12 +178,12 @@ int			main(int		argc,
   p.goto_forbidden.value = 0;
   p.goto_forbidden.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.goto_forbidden.counter == 0);
   p.goto_forbidden.value = 1;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.goto_forbidden.counter == 1);
 
   i = 0;
@@ -202,12 +202,12 @@ int			main(int		argc,
   p.return_forbidden.value = 0;
   p.return_forbidden.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.return_forbidden.counter == 0);
   p.return_forbidden.value = 1;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.return_forbidden.counter == 1);
 
   i = 0;
@@ -222,12 +222,12 @@ int			main(int		argc,
   p.ternary_forbidden.value = 0;
   p.ternary_forbidden.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.ternary_forbidden.counter == 0);
   p.ternary_forbidden.value = 1;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.ternary_forbidden.counter == 1);
 
   i = 0;
@@ -245,13 +245,13 @@ int			main(int		argc,
   p.inline_mod_forbidden.value = 0;
   p.inline_mod_forbidden.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.inline_mod_forbidden.counter == 0);
   p.inline_mod_forbidden.value = 1;
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.inline_mod_forbidden.counter == 4);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

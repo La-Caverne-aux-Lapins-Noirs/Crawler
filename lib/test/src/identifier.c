@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   i = 0; assert(read_identifier(&p, "lel42_", &i, false) == 1);
   i = 0; assert(read_identifier(&p, "42lel_", &i, false) == 0);
@@ -22,5 +22,5 @@ int			main(int		argc,
   i = 0; assert(read_identifier_list(&p, "lel, 42, lol", &i) == -1);
   i = 0; assert(read_identifier_list(&p, "", &i) == 0);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

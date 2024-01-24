@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   // Le stockage d'un symbole décoré dans un buffer
   p.last_error_id = -1;
@@ -59,30 +59,7 @@ int			main(int		argc,
   p.max_function_length.value = 1;
   assert(check_function_length(&p, s, 17, 36) == 1);
   assert(p.max_function_length.counter == 1);
-
-  /*
-  i = 0;
-  p.last_new_type = 0;
-  p.last_error_id = -1;
-  p.max_function_length.counter = 0;
-  p.max_function_length.value = 5;
-  p.max_function_length.active = true;
-  if (read_translation_unit(&p, file, s, &i, true, false) == -1)
-    GOTOERROR();
-  assert(p.max_function_length.counter == 0);
-
-  i = 0;
-  p.last_line_marker = 0;
-  p.last_new_type = 0;
-  p.last_error_id = -1;
-  p.max_function_length.counter = 0;
-  p.max_function_length.value = 1;
-  p.max_function_length.active = true;
-  if (read_translation_unit(&p, file, s, &i, true, false) == -1)
-    GOTOERROR();
-  assert(p.max_function_length.counter == 1);
-  */
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }
 

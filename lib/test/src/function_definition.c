@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   i = 0;
   s = "const * int * function_symbol(int a[], double b, ...) {\n"
@@ -25,10 +25,10 @@ int			main(int		argc,
     "return (57 + 1);\n"
     "}\n";
   if (read_function_definition(&p, s, &i) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   i = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
 
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

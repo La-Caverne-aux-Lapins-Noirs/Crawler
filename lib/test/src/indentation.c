@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   cnf = bunny_new_configuration();
   i = 0;
@@ -34,7 +34,7 @@ int			main(int		argc,
   p.tab_or_space.value = 8;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter == 0);
 
   i = 0;
@@ -58,7 +58,7 @@ int			main(int		argc,
   p.base_indent.value = 2;
   p.tab_or_space.value = 8;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter == 0);
 
   // Des espaces avant tabulation...
@@ -83,7 +83,7 @@ int			main(int		argc,
   p.base_indent.value = 2;
   p.tab_or_space.value = 8;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter == 1);
 
   i = 0;
@@ -102,7 +102,7 @@ int			main(int		argc,
     ;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter == 8);
 
   // Maintenant on interdit tabulation
@@ -128,7 +128,7 @@ int			main(int		argc,
   p.tab_or_space.value = 0;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter == 1);
 
   i = 0;
@@ -153,7 +153,7 @@ int			main(int		argc,
   p.base_indent.counter = 0;
   p.tab_or_space.value = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter == 0);
 
   //////////////////////////////////////
@@ -172,7 +172,7 @@ int			main(int		argc,
   p.indent_style.value = GNU_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter == 0);
 
   file = "./res/gnu.c";
@@ -182,7 +182,7 @@ int			main(int		argc,
   p.indent_style.value = GNU_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter == 0);
 
   i = 0;
@@ -190,7 +190,7 @@ int			main(int		argc,
   p.indent_style.value = ALLMAN_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter != 0);
 
   i = 0;
@@ -198,7 +198,7 @@ int			main(int		argc,
   p.indent_style.value = KNR_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter != 0);
 
   //////////// STYLE BSD
@@ -214,7 +214,7 @@ int			main(int		argc,
   p.indent_style.value = ALLMAN_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, file, s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter == 0);
 
   i = 0;
@@ -222,7 +222,7 @@ int			main(int		argc,
   p.indent_style.value = GNU_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, file, s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter != 0);
 
   i = 0;
@@ -230,7 +230,7 @@ int			main(int		argc,
   p.indent_style.value = KNR_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, file, s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter != 0);
 
   //////////// STYLE K&R
@@ -246,7 +246,7 @@ int			main(int		argc,
   p.indent_style.value = GNU_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter != 0);
 
   i = 0;
@@ -254,7 +254,7 @@ int			main(int		argc,
   p.indent_style.value = ALLMAN_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter != 0);
 
   i = 0;
@@ -262,7 +262,7 @@ int			main(int		argc,
   p.indent_style.value = KNR_STYLE;
   p.base_indent.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter == 0);
 
   ////////////////////////////////////////////
@@ -294,7 +294,7 @@ int			main(int		argc,
   p.file_symbol_alignment.counter = 0;
   p.file_parameter_name_alignment.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.symbol_alignment.counter != 0);
   assert(p.symbol_alignment.counter != 0);
   assert(p.parameter_name_alignment.counter != 0);
@@ -314,7 +314,7 @@ int			main(int		argc,
   p.file_parameter_name_alignment.counter = 0;
 
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.symbol_alignment.counter == 0);
   assert(p.parameter_type_alignment.counter == 0);
   assert(p.parameter_name_alignment.counter == 0);
@@ -332,12 +332,12 @@ int			main(int		argc,
   p.file_symbol_alignment.counter = 0;
   p.file_parameter_name_alignment.counter = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.symbol_alignment.counter == 0);
   assert(p.parameter_type_alignment.counter == 0);
   assert(p.parameter_name_alignment.counter == 0);
   assert(p.file_symbol_alignment.counter == 0);
   assert(p.file_parameter_name_alignment.counter == 0);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

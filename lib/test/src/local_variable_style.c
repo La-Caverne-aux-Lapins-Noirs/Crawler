@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   bunny_configuration_setf(cnf, MIXED_CASE, "LocalVariableNameStyle.Value");
   bunny_configuration_setf(cnf, 10, "LocalVariableNameStyle.Points");
@@ -28,7 +28,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.local_variable_infix.active);
   assert(p.local_variable_infix.counter == 0);
   assert(p.local_variable_style.counter == 0);
@@ -38,7 +38,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.local_variable_infix.active);
   assert(p.local_variable_infix.counter == 0);
   assert(p.local_variable_style.counter == 0);
@@ -49,9 +49,9 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
-    GOTOERROR();
+    GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.local_variable_infix.counter == 1);
   assert(p.local_variable_style.counter == 1);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

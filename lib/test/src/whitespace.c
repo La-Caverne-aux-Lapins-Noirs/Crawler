@@ -12,7 +12,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   i = 0;
   s = "      \n\r\t      /* lel \n   */\n    // lol      \n  \035   !";
@@ -29,5 +29,5 @@ int			main(int		argc,
   assert(read_whitespace(s, &i) == false);
   assert(s[i] == '\0');
 
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

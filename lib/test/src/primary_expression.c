@@ -13,7 +13,7 @@
 int			main(int		argc,
 			     char		**argv)
 {
-  TEST_INTRO();
+  TEST_INTRO(); // LCOV_EXCL_LINE
 
   i = 0; assert(read_primary_expression(&p, "Identifier", &i) == 1);
   i = 0; assert(read_primary_expression(&p, "\"This is it...\n\"", &i) == 1);
@@ -21,5 +21,5 @@ int			main(int		argc,
   i = 0; assert(read_primary_expression(&p, "4.2", &i) == 1);
   i = 0; assert(read_primary_expression(&p, "   ", &i) == 0);
   
-  TEST_OUTRO();
+  TEST_OUTRO(); // LCOV_EXCL_LINE
 }

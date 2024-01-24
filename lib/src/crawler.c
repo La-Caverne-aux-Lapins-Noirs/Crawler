@@ -13,6 +13,7 @@
 ** https://www.lysator.liu.se/c/ANSI-C-grammar-y.html
 */
 
+#include		<limits.h>
 #include		<fcntl.h>
 #include		<ctype.h>
 #include		"crawler.h"
@@ -1273,7 +1274,10 @@ int			read_primary_expression(t_parsing	*p,
   if (bunny_read_double(code, i, &val2))
     {
       if (p->no_magic_value.active && p->last_declaration.last_char < *i)
-	if (val2 > 1.0 || val2 < -1.0)
+	if ((val2 > 1.0 || val2 < -1.0) &&
+	    fabs(val2 - M_PI) > 0.01 &&
+	    fabs(val2 - M_PI / 2) > 0.01
+	    )
 	  if (strncmp("test_", p->last_declaration.function, 5) != 0)
 	    if (!add_warning
 		(p, IZ(p, i), code, *i, &p->no_magic_value.counter,
@@ -1286,17 +1290,30 @@ int			read_primary_expression(t_parsing	*p,
   if (bunny_read_integer(code, i, &val))
     {
       if (p->no_magic_value.active && p->last_declaration.last_char < *i)
-	if (val != 0 && val != 1 && val != -1 && val != 2
-	    && val != 8 && val != 16 && val != 24 && val != 32 && val != 48
-	    && val != 64 && val != 128 && val != 256 && val != 512 && val != 1024
-	    && val != 2048 && val != 4096 && val != 10 && val != 100
-	    )
-	  if (strncmp("test_", p->last_declaration.function, 5) != 0)
-	    if (!add_warning
-		(p, IZ(p, i), code, *i, &p->no_magic_value.counter,
-		 "Magic values are forbidden. %d found.",
-		 val))
-	      RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+	{
+	  int		accepted[] = {
+	    0, 1 << 0, 1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1 << 7, 1 << 8,
+	    1 << 9, 1 << 10, 1 << 11, 1 << 12, 1 << 13, 1 << 14, 1 << 15, 1 << 16,
+	    1 << 17, 1 << 18, 1 << 19, 1 << 20, 1 << 21, 1 << 22, 1 << 23, 1 << 24,
+	    1 << 25, 1 << 26, 1 << 27, 1 << 28, 1 << 29, 1 << 30, 1 << 31,
+	    10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000,
+	    SCHAR_MIN, SCHAR_MAX, UCHAR_MAX, SHRT_MIN, SHRT_MAX, USHRT_MAX, 65536,
+	    INT_MIN, INT_MAX, UINT_MAX	
+	  };
+	  size_t	acci;
+	  
+	  val = abs(val);
+	  for (acci = 0; acci < NBRCELL(accepted); ++acci)
+	    if (accepted[acci] == val)
+	      break ;
+	  if (acci == NBRCELL(accepted))
+	    if (strncmp("test_", p->last_declaration.function, 5) != 0)
+	      if (!add_warning
+		  (p, IZ(p, i), code, *i, &p->no_magic_value.counter,
+		   "Magic values are forbidden. %d found.",
+		   val))
+		RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+	}
       p->last_declaration.last_char = *i;
       FRETURN (1);
     }
