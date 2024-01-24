@@ -22,6 +22,57 @@ int			main(int		argc,
   assert(cfile = load_c_file(file, cnf, true));
   if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
     GOTOERROR(); // LCOV_EXCL_LINE
+  
+  assert(cnf = bunny_open_configuration("../../bin/cln.dab", NULL));
+  load_norm_configuration(&p, cnf);
 
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  file = "./res/putchar.c";
+  assert(cfile = load_c_file(file, cnf, true));
+  if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
+    GOTOERROR(); // LCOV_EXCL_LINE
+  
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  file = "./res/test_print_base2.c";
+  assert(cfile = load_c_file(file, cnf, true));
+  if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
+    GOTOERROR(); // LCOV_EXCL_LINE
+    
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  file = "./res/print_base2.c";
+  assert(cfile = load_c_file(file, cnf, true));
+  if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
+    GOTOERROR(); // LCOV_EXCL_LINE
+  
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  file = "./res/test_strlcpy.c";
+  assert(cfile = load_c_file(file, cnf, true));
+  if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
+    GOTOERROR(); // LCOV_EXCL_LINE
+  
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  file = "./res/strlcpy.c";
+  assert(cfile = load_c_file(file, cnf, true));
+  if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
+    GOTOERROR(); // LCOV_EXCL_LINE
+
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  file = "./res/strrchr.c";
+  assert(cfile = load_c_file(file, cnf, true));
+  if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
+    GOTOERROR(); // LCOV_EXCL_LINE
+  
   TEST_OUTRO(); // LCOV_EXCL_LINE
 }

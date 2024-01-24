@@ -1273,6 +1273,12 @@ int			read_primary_expression(t_parsing	*p,
     FRETURN (1);
   if (bunny_read_double(code, i, &val2))
     {
+      /// SUFFIXE
+      while (bunny_read_text(code, i, "f") ||
+	     bunny_read_text(code, i, "F") ||
+	     bunny_read_text(code, i, "l") ||
+	     bunny_read_text(code, i, "L"));
+
       if (p->no_magic_value.active && p->last_declaration.last_char < *i)
 	if ((val2 > 1.0 || val2 < -1.0) &&
 	    fabs(val2 - M_PI) > 0.01 &&
@@ -1289,6 +1295,12 @@ int			read_primary_expression(t_parsing	*p,
     }
   if (bunny_read_integer(code, i, &val))
     {
+      /// SUFFIXE
+      while (bunny_read_text(code, i, "u") ||
+	     bunny_read_text(code, i, "U") ||
+	     bunny_read_text(code, i, "l") ||
+	     bunny_read_text(code, i, "L"));
+      
       if (p->no_magic_value.active && p->last_declaration.last_char < *i)
 	{
 	  int		accepted[] = {
@@ -2024,6 +2036,7 @@ int			read_struct_declaration(t_parsing	*p,
   // d'attributs exploitant le type précédent.
   if ((b = read_struct_declarator_list(p, code, i)) == -1)
     RETURN ("Problem encountered with attribute name after type definition in struct."); // LCOV_EXCL_LINE
+  read_gcc_attribute(p, code, i);
   if ((a = (a || b)) && bunny_read_text(code, i, ";") == false)
     RETURN ("Missing ';' after attribute definition in struct."); // LCOV_EXCL_LINE
   if (a && check_white_then_newline(p, code, *i, false) == false)
@@ -2881,16 +2894,23 @@ int			read_gcc_attribute_list_node(t_parsing	*p,
 						     const char	*code,
 						     ssize_t	*i)
 {
+  int			ret;
+  bool			once = false;
+
   FTRACE(code, *i);
-  if (read_identifier(p, code, i, true) != 1)
-    FRETURN (0);
+  
+  while (read_identifier(p, code, i, true) == 1)
+    once = true;
+  if (once == false)
+    if (bunny_read_integer(code, i, &ret) == false)
+      FRETURN (0);
+  
   if (bunny_read_text(code, i, "("))
     {
       if (!check_parenthesis_space
 	  (p, code, *i - 1, '(',
 	   &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
-      int		unused;
       int		cnt = 0;
 
       do
@@ -2898,9 +2918,8 @@ int			read_gcc_attribute_list_node(t_parsing	*p,
 	  if (cnt > 0)
 	    if (check_no_space_before_space_after(p, code, *i) == -1)
 	      RETURN("Memory exhausted."); // LCOV_EXCL_LINE
-	  if (read_identifier(p, code, i, true) != 1)
-	    if (bunny_read_integer(code, i, &unused) == false)
-	      FRETURN (-1);
+	  if ((ret = read_gcc_attribute_list_node(p, code, i)) == -1)
+	    FRETURN (ret);
 	  cnt += 1;
 	}
       while (bunny_read_text(code, i, ","));
