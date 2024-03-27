@@ -1,3 +1,3 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
-(cd lib/ && make) && (cd bin/ && make)
+make -C lib && make -C bin
