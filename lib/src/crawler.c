@@ -2371,7 +2371,8 @@ int			read_declaration_specifiers(t_parsing	*p,
   if (p->last_new_type != last_new_type || (just_typedefed && typed))
     if ((ret = handle_typedef(p, code, i, true)) == -1)
       return (-1);
-  FRETURN (cnt >= 1 ? 1 : 0);
+  FRETURN (typed ? 1 : 0);
+  // FRETURN (cnt >= 1 ? 1 : 0);
 }
 
 int			read_direct_abstract_declarator(t_parsing *p,
@@ -3012,10 +3013,6 @@ int			read_declaration(t_parsing		*p,
   if (read_init_declarator_list(p, code, i) == -1)
     FRETURN (-1);
 
-  // On conclu le typedef éventuel
-  //  if (handle_typedef(p, code, i, false) == -1)
-  // FRETURN (-1);
-  
   if (read_gcc_attribute(p, code, i) == -1)
     FRETURN (-1);  
   if (read_assembler(p, code, i) == -1)

@@ -14,6 +14,16 @@ int			main(int		argc,
 {
   TEST_INTRO(); // LCOV_EXCL_LINE
 
+  // VERIF DE PARSING SIMPLE
+  file = "./res/memset.c";
+  assert(s = load_c_file(file, cnf, true));
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.active = false;
+  p.single_instruction_per_line.active = false;
+  if (read_translation_unit(&p, "file", s, &i, true, true) != 1)
+    GOTOERROR(); // LCOV_EXCL_LINE
+  
   // Car le typedef prenait le nom du paramètre du pointeur sur fonction
   i = 0;
   s =
@@ -91,16 +101,6 @@ int			main(int		argc,
     GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.base_indent.counter == 0);
   assert(p.single_instruction_per_line.counter == 0);
-
-  // VERIF DE PARSING SIMPLE
-  file = "./res/memset.c";
-  assert(s = load_c_file(file, cnf, true));
-  i = 0;
-  p.last_error_id = -1;
-  p.indent_style.active = false;
-  p.single_instruction_per_line.active = false;
-  if (read_translation_unit(&p, "file", s, &i, true, true) != 1)
-    GOTOERROR(); // LCOV_EXCL_LINE
 
   file = "./res/gergios.c";
   assert(s = load_c_file(file, cnf, true));
