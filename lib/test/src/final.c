@@ -15,6 +15,7 @@ int			main(int		argc,
 {
   TEST_INTRO(); // LCOV_EXCL_LINE
 
+  /// Test de traversé
   i = 0;
   p.last_error_id = -1;
   p.last_new_type = 0;
@@ -26,6 +27,23 @@ int			main(int		argc,
   assert(cnf = bunny_open_configuration("../../bin/cln.dab", NULL));
   load_norm_configuration(&p, cnf);
 
+  /// Test de vérification de norme sur crawler.h (Normalement 100% valide)
+  i = 0;
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
+    GOTOERROR(); // LCOV_EXCL_LINE
+  if (p.last_error_id != -1)
+    {
+      fprintf(stderr, "Coding style failure of crawler.h: %d error founds:\n", p.last_error_id);
+      for (size_t i = 0; i < p.last_error_id; ++i)
+	printf("- %s\n", p.last_error_msg[i]);
+    }
+  assert(p.last_error_id == -1);
+
+  ////////////////////////////
+  // D'autres tests plus faible
+  
   i = 0;
   p.last_error_id = -1;
   p.last_new_type = 0;

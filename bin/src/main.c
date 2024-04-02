@@ -12,17 +12,17 @@
 #include		<stdio.h>
 #include		"crawler.h"
 
-bool			test_ext(const char	*a,
+static bool		test_ext(const char	*filepath,
 				 const char	*ext)
 {
   char			*x;
 
-  if ((x = strstr(a, ext)) == NULL)
+  if ((x = strstr(filepath, ext)) == NULL)
     return (false);
   return (strcmp(x, ext) == 0);
 }
 
-int			usage(const char	*s)
+static int		usage(const char	*prog_name)
 {
   fprintf(stderr, "%s: Usage is:\n\n"
 	  "\t%s -c [configuration]+ [files]+ [--color]? [-v]?\n"
@@ -35,7 +35,7 @@ int			usage(const char	*s)
   	  "\t%s -f [files]+\n"
 	  "\t\tTo extract function calls (Not implemented yet)\n"
 	  "\n"
-	  , s, s, s, s, s);
+	  , prog_name, prog_name, prog_name, prog_name, prog_name);
   return (EXIT_FAILURE);
 }
 
@@ -112,7 +112,7 @@ int			main(int		argc,
 	  if (verbose)
 	    puts(s);
 	  j = 0;
-	  if (read_translation_unit(&parsingtmp, argv[i], s, &j, true) == -1)
+	  if (read_translation_unit(&parsingtmp, argv[i], s, &j, true, true) == -1)
 	    continue ;
 
 	  int		k;

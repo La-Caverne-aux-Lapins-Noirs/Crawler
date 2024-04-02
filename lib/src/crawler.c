@@ -1825,6 +1825,8 @@ int			read_assignment_expression(t_parsing	*p,
 	  || bunny_read_text(code, &j, "&=")
 	  )
 	{
+	  if (!add_warning(p, IZ(p, i), code, *i, &p->no_assignment.counter, "Assignment are forbidden."))
+	    RETURN ("Memory exhausted.");
 	  if (check_one_space_around(p, code, k, j - k,
 				     p->space_around_binary_operator.value,
 				     &p->space_around_binary_operator.counter) == -1)
@@ -3527,6 +3529,7 @@ void			load_norm_configuration(t_parsing	*p,
   fetch_criteria(e, &p->else_forbidden, "ElseForbidden");
   fetch_criteria(e, &p->inline_mod_forbidden, "InlineModForbidden");
   fetch_criteria(e, &p->ternary_forbidden, "TernaryForbidden");
+  fetch_criteria(e, &p->no_assignment, "NoAssignment");
 
   bunny_configuration_getf(e, &p->ansi_c, "AnsiC");
 }

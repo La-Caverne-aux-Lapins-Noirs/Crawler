@@ -18,6 +18,10 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   // Un type pointeur sur fonction qui renvoi un pointeur sur fonction
+  
+  // Le probleme est que le systeme pense etre dans la liste de paramètre
+  // Une fois entré dans *__compar_fnt alors qu'il est en fait dans un autre
+  // niveau de pointeur sur fonction
   s = "typedef int (*)(*__compar_fn_t) (const void *aa, const void *bb)(int a);";
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
     GOTOERROR(); // LCOV_EXCL_LINE

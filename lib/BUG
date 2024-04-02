@@ -1,0 +1,17 @@
+- Le systeme de vérification union/enum/struct + typedef ne marche pas car le nom du type original a disparu.
+- Deux checks d'égalité typedef + type déclaré semble fait car deux erreurs se suivent du meme type
+- L'indentation du typedef est mal vérifiée
+- Le typedef est compris comme étant une déclaration alors que c'est une définition. (A voir si c'est le cas avec une définition sans typedef)
+- La vérification de l'indentation des attributs déconne au bout d'un moment pour une raison inconnue.
+- Le test de verification d'alignement global poppe sans raison actuellement connue: aucune indication ne figure dans le message d'erreur.
+- Un typedef déclaré avant peut polluer un typedef déclaré après:
+Typedef name 't_read' does not match the typedefed type name 's_parsing'. (./../include/crawler.h, line 229)
+typedef int             t_read(t_parsing                        *parsing,
+
+
+
+
+Ce programme est un de mes cauchemars. A chaque fois que je pense avoir fini, malgré la couverture de test, je trouve encore des trucs pourris.
+Je pense que ne pas avoir totalement anticipé l'aspect recursif de certaines déclaration a été une grosse erreur, et il est possible
+que la construction mise en place pour la gérer soit insuffisante et mal appellée - c'est a dire parfois, non appelée et parfois trop appelée.
+

@@ -210,7 +210,7 @@ typedef struct		s_parsing
   t_criteria		space_after_statement;
   t_criteria		space_around_binary_operator;
   t_criteria		space_after_comma;
-  t_criteria		newline_before_logic; // A FAIRE ========== (42)
+  t_criteria		newline_before_logic; // A FAIRE ========== (42) dans les if
 
   // Autre trucs...
   t_string_criteria	header;
@@ -239,18 +239,19 @@ typedef struct		s_parsing
   t_criteria		switch_forbidden;
   t_criteria		ternary_forbidden;
   t_criteria		inline_mod_forbidden;
+  t_criteria		no_assignment;
   t_criteria		end[0];
 }			t_parsing;
 
 bool			read_whitespace(const char		*code,
 					ssize_t			*i);
 
-int			read_expression(t_parsing		*p,
+int			read_expression(t_parsing		*parsing,
 					const char		*code,
 					ssize_t			*i,
 					bool			start);
 
-typedef int		t_read(t_parsing			*p,
+typedef int		t_read(t_parsing			*parsing,
 			       const char			*code,
 			       ssize_t				*i);
 t_read
@@ -309,12 +310,12 @@ t_read
   read_gcc_attribute_list_node
   ;
 
-int			read_identifier(t_parsing			*p,
+int			read_identifier(t_parsing			*parsing,
 					const char			*code,
 					ssize_t				*i,
-					bool				kw);
+					bool				keyword);
 
-bool			check_style(t_parsing				*p,
+bool			check_style(t_parsing				*parsing,
 				    const char				*context,
 				    const char				*symbol,
 				    t_criteria				*style,
@@ -322,15 +323,15 @@ bool			check_style(t_parsing				*p,
 				    const char				*code,
 				    ssize_t				pos);
 
-int			read_translation_unit(t_parsing			*p,
+int			read_translation_unit(t_parsing			*parsing,
 					      const char		*file,
 					      const char		*code,
 					      ssize_t			*i,
 					      bool			verbose,
 					      bool			was_preprocessed);
 void			reset_last_declaration(t_parsing		*f);
-void			load_norm_configuration(t_parsing		*p,
-						t_bunny_configuration	*e);
+void			load_norm_configuration(t_parsing		*parsing,
+						t_bunny_configuration	*configuration);
 char			*load_c_file(const char				*file,
 				     t_bunny_configuration		*exe,
 				     bool				preprocessed);
@@ -342,7 +343,7 @@ int			tcpopen(const char				*module_name,
 				char					*message,
 				size_t					msg_size);
 
-bool			add_warning(t_parsing				*p,
+bool			add_warning(t_parsing				*parsing,
 				    bool				real,
 				    const char				*code,
 				    int					pos,
@@ -350,41 +351,41 @@ bool			add_warning(t_parsing				*p,
 				    const char				*fmt,
 				    ...);
 
-int			store_real_typename(t_parsing			*p,
+int			store_real_typename(t_parsing			*parsing,
 					    char			*target,
 					    const char			*symbol,
 					    int				len,
 					    int				typ);
-int			compare_file_and_function_name(t_parsing	*p,
+int			compare_file_and_function_name(t_parsing	*parsing,
 						       const char	*func,
 						       const char	*code,
 						       int		pos);
 
-int			check_base_indentation(t_parsing		*p,
+int			check_base_indentation(t_parsing		*parsing,
 					       const char		*code,
 					       int			pos);
-int			check_is_alone(t_parsing			*p,
+int			check_is_alone(t_parsing			*parsing,
 				       const char			*tok,
 				       const char			*code,
 				       int				pos);
-int			check_trailing_whitespace(t_parsing		*p,
+int			check_trailing_whitespace(t_parsing		*parsing,
 						  const char		*code);
-int			check_no_empty_line(t_parsing			*p,
+int			check_no_empty_line(t_parsing			*parsing,
 					    const char			*code,
 					    int				pos,
 					    int				separator,
 					    int				begin,
 					    int				end);
-int			check_line_width(t_parsing			*p,
+int			check_line_width(t_parsing			*parsing,
 					 const char			*code,
 					 int				begin,
 					 int				end);
 
-int			check_function_length(t_parsing			*p,
+int			check_function_length(t_parsing			*parsing,
 					      const char		*code,
 					      int			begin,
 					      int			end);
-bool			check_white_then_newline(t_parsing		*p,
+bool			check_white_then_newline(t_parsing		*parsing,
 						 const char		*code,
 						 ssize_t		pos,
 						 bool			statement);
@@ -393,66 +394,66 @@ int			write_line_and_position(const char		*code,
 						char			*buf,
 						size_t			len,
 						bool			position);
-void			print_line_and_position(t_parsing		*p,
+void			print_line_and_position(t_parsing		*parsing,
 						const char		*code,
 						int			pos,
 						bool			position);
-void			write_indent(t_parsing				*p);
+void			write_indent(t_parsing				*parsing);
 bool			read_whitespace(const char			*code,
 					ssize_t				*i);
-int			check_single_space(t_parsing			*p,
+int			check_single_space(t_parsing			*parsing,
 					   const char			*code,
 					   int				pos);
-int			check_no_space_before_space_after(t_parsing	*p,
+int			check_no_space_before_space_after(t_parsing	*parsing,
 							  const char	*code,
 							  int		pos);
-int			check_one_space_around(t_parsing		*p,
+int			check_one_space_around(t_parsing		*parsing,
 					       const char		*code,
 					       ssize_t			pos,
 					       int			toklen,
 					       int			val,
 					       int			*cnt);
 
-void			full_write_with_arrow(t_parsing			*p,
+void			full_write_with_arrow(t_parsing			*parsing,
 					      const char		*code,
 					      int			pos);
-bool			check_pointer_star_position(t_parsing		*p,
+bool			check_pointer_star_position(t_parsing		*parsing,
 						    const char		*code,
 						    int			pos);
-bool			check_parenthesis_space(t_parsing		*p,
+bool			check_parenthesis_space(t_parsing		*parsing,
 						const char		*code,
 						int			pos,
 						char			direction,
 						int			*cnt);
-bool			check_last_parameter_is_reference(t_parsing	*p,
+bool			check_last_parameter_is_reference(t_parsing	*parsing,
 							  const char	*code,
 							  int		pos);
 
-bool			add_new_type(t_parsing				*p,
+bool			add_new_type(t_parsing				*parsing,
 				     const char				*sym,
 				     int				size);
 
-bool			check_header(t_parsing				*p,
+bool			check_header(t_parsing				*parsing,
 				     const char				*code);
 
-int			count_to_new_line(t_parsing			*p,
+int			count_to_new_line(t_parsing			*parsing,
 					  const char			*code,
 					  int				pos);
 
-bool			check_on_same_line(t_parsing			*p,
+bool			check_on_same_line(t_parsing			*parsing,
 					   const char			*code,
 					   int				i,
 					   const char			*tok,
 					   bool				right);
 
 // A appeler pour verifier le code non préprocéssé
-int			check_header_file(t_parsing			*p,
+int			check_header_file(t_parsing			*parsing,
 					  const char			*code);
-int			check_all_lines_width(t_parsing			*p,
+int			check_all_lines_width(t_parsing			*parsing,
 					      const char		*code);
 
 int			crawler_stop(void);
 
-void			reset_norm_status(t_parsing			*p);
+void			reset_norm_status(t_parsing			*parsing);
 
 #endif	/*		__CRAWLER_H__					*/

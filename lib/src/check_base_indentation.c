@@ -86,9 +86,10 @@ int			check_base_indentation(t_parsing		*p,
       if (!add_warning
 	  (p, true, code, pos, &p->base_indent.counter,
 	   "Bad indentation. "
-	   "Indentation width is %d where %d was expected.",
+	   "Indentation width is %d where %d was expected (Single indent size expected is %d).",
 	   ilen,
-	   (p->last_declaration.indent_depth + p->last_declaration.depth_bonus) * p->base_indent.value
+	   (p->last_declaration.indent_depth + p->last_declaration.depth_bonus) * p->base_indent.value,
+	   p->base_indent.value
 	   ))
 	return (-1);
       //p->last_declaration.depth_bonus = 0;
