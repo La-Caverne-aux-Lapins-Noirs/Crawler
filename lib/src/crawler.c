@@ -45,7 +45,7 @@ static struct
 static const char	*keywords[] =
   {
     "if", "for", "double", "while", "switch", "break", "goto", "continue", "return",
-    "const", "volatile", "default", "case", "typedef", "extern", "static", "auto", "register", "do", "restrict", "__restrict", "__attribute__"
+    "const", "volatile", "default", "case", "typedef", "extern", "static", "auto", "register", "do", "restrict", "__restrict", "__attribute__", "__asm__"
   };
 
 char			*strcasestr(const char			*haystack,
@@ -163,6 +163,10 @@ static int		handle_typedef(t_parsing	*p,
   int anonym = p->last_declaration.was_named ? -1 : 0;
   
   gl_bunny_read_whitespace = read_whitespace;
+
+  // EST-CE QUE C'EST NORMAL QU'IL Y EST DEUX FOIS ADD_NEW_TYPE()
+  //
+  //
   if (p->last_declaration.was_defining)
     {
       p->new_type[p->last_new_type + anonym].size =
@@ -911,7 +915,7 @@ int			read_statement(t_parsing		*p,
 	     "'{' is mandatory after if, while, do, for or switch statement."))
 	  RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 
-      // On indente pareil dans tous les style, tant que c'est pas une ouverture de fonction;
+      // On indente pareil dans tous les styles, tant que c'est pas une ouverture de fonction;
       if (p->last_declaration.after_statement)
 	{
 	  p->last_declaration.depth_bonus += 1;
@@ -1124,7 +1128,7 @@ int			read_function_definition(t_parsing	*p,
   memcpy(&savefunc, &p->last_declaration, sizeof(savefunc));
   reset_last_declaration(p);
   // Le type de retour
-  if (read_declaration_specifiers(p, code, i) == -1)
+  if (read_declaration_specifiers(p, code, i, true) == -1)
     {
       free(save);
       FRETURN (-1);
@@ -1247,7 +1251,7 @@ int			read_function_definition(t_parsing	*p,
 
   // On revient en arrière, ca n'était pas une declaration de fonction.
   *i = k;
-  // On fait revenir en arrière egalement le compte d'erreur du coup, ca on va les recompter
+  // On fait revenir en arrière egalement le compte d'erreur du coup, car on va les recompter
   memcpy(&p->start[0], save, len);
   // memcpy(&p->last_declaration, &savefunc, sizeof(savefunc)); // XXXXXXXXXXXXXXXXXXXXXX
   // De même, les types eventuellements déclarés ne le sont pas...
@@ -1268,7 +1272,12 @@ int			read_primary_expression(t_parsing	*p,
   if (read_identifier(p, code, i, false))
     FRETURN (1);
   if (bunny_read_cstring(code, i, &buffer[0], sizeof(buffer)))
-    FRETURN (1);
+    {
+      read_whitespace(code, i);
+      while (bunny_read_cstring(code, i, &buffer[0], sizeof(buffer)))
+	read_whitespace(code, i);
+      FRETURN (1);
+    }
   if (bunny_read_cchar(code, i, &buffer[0]))
     FRETURN (1);
   if (bunny_read_double(code, i, &val2))
@@ -1438,20 +1447,20 @@ int			read_specifier_qualifier_list(t_parsing	*p,
 						      ssize_t	*i)
 {
   int			cnt = 0;
-  int			a;
-  int			b;
+  int			type_specifier = 0;
+  int			type_qualifier = 0;
 
   FTRACE(code, *i);
   do
     {
-      if ((a = read_type_specifier(p, code, i)) == -1)
+      if ((type_specifier = read_type_specifier(p, code, i, type_specifier)) == -1)
 	FRETURN (-1);
-      cnt += a;
-      if ((b = read_type_qualifier(p, code, i)) == -1)
+      cnt += type_specifier;
+      if ((type_qualifier = read_type_qualifier(p, code, i)) == -1)
 	FRETURN (-1);
-      cnt += b;
+      cnt += type_qualifier;
     }
-  while (a || b);
+  while (type_specifier || type_qualifier);
   FRETURN (cnt >= 1 ? 1 : 0);
 }
 
@@ -2153,25 +2162,10 @@ int			check_type_is_authorized(t_parsing	*p,
 // Lit le type
 int			read_type_specifier(t_parsing		*p,
 					    const char		*code,
-					    ssize_t		*i)
+					    ssize_t		*i,
+					    bool		second_check)
 {
   FTRACE(code, *i);
-  // Standard types
-  for (size_t j = 0; j < NBRCELL(standard_types); ++j)
-    if (read_keyword(p, code, i, standard_types[j].name, gl_second_char))
-      {
-	check_type_is_authorized(p, code, *i, standard_types[j].name);
-	p->last_declaration.last_type_size = standard_types[j].siz;
-	FRETURN (1);
-      }
-  // Custom types
-  for (size_t j = 0; j < p->last_new_type; ++j)
-    if (read_keyword(p, code, i, &p->new_type[j].name[0], gl_second_char))
-      {
-	check_type_is_authorized(p, code, *i, &p->new_type[j].name[0]);
-	p->last_declaration.last_type_size = p->new_type[j].size;
-	FRETURN (1);
-      }
 
   if (bunny_read_text(code, i, "enum"))
     {
@@ -2298,7 +2292,49 @@ int			read_type_specifier(t_parsing		*p,
       p->last_declaration.inside_struct = pstruct;
       FRETURN (1);
     }
-  FRETURN (0);
+
+    // Standard types
+  for (size_t j = 0; j < NBRCELL(standard_types); ++j)
+    if (read_keyword(p, code, i, standard_types[j].name, gl_second_char))
+      {
+	check_type_is_authorized(p, code, *i, standard_types[j].name);
+	p->last_declaration.last_type_size = standard_types[j].siz;
+	FRETURN (1);
+      }
+  // Custom types
+  for (size_t j = 0; j < p->last_new_type; ++j)
+    if (read_keyword(p, code, i, &p->new_type[j].name[0], gl_second_char))
+      {
+	check_type_is_authorized(p, code, *i, &p->new_type[j].name[0]);
+	p->last_declaration.last_type_size = p->new_type[j].size;
+	FRETURN (1);
+      }
+
+  int x;
+  ssize_t      j = *i;
+  // On cherche si c'est un mot clef...
+  for (x = 0; x < NBRCELL(keywords) && bunny_read_text(code, &j, keywords[x]) == false; ++x);
+  if (x != NBRCELL(keywords) && (code[j] == '\0' || strchr(gl_second_char, code[j]) == NULL)) // Au cas ou ce soit... "ifa" par exemple.
+    FRETURN (0);
+  
+  if (p->last_declaration.is_typedef || second_check)
+    FRETURN(0);
+
+  char		unknown_type[256];
+
+  j = *i;
+  if (bunny_read_field(code, &j))
+    {
+      strncpy(unknown_type, &code[*i], j - *i);
+      unknown_type[j - *i] = '\0';
+      if (!add_warning
+	  (p, IZ(p, i), code, *i, NULL,
+	   "Unknown type : > %s <", unknown_type))
+	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      FRETURN (-1);
+    }
+  // 0 pour contrer les erreurs de type qui n'en sont pas venant de test si c'est une fonction
+  FRETURN(0); 
 }
 
 int			read_storage_class_specifier(t_parsing	*p,
@@ -2325,7 +2361,8 @@ int			read_storage_class_specifier(t_parsing	*p,
 
 int			read_declaration_specifiers(t_parsing	*p,
 						    const char	*code,
-						    ssize_t	*i)
+						    ssize_t	*i,
+						    bool	in_read_function_definition)
 {
   size_t		last_new_type = p->last_new_type;
   bool			just_typedefed = false;
@@ -2346,7 +2383,8 @@ int			read_declaration_specifiers(t_parsing	*p,
 	FRETURN (-1);
       once = (once || (ret == 1));
       // On veut un type
-      if ((ret = read_type_specifier(p, code, i)) == -1)
+      // pas sûr pour le ! devant in_read_function_definition
+      if ((ret = read_type_specifier(p, code, i, (typed || !in_read_function_definition))) == -1)
 	FRETURN (-1);
       if (ret == 1)
 	typed = true;
@@ -2458,7 +2496,7 @@ int			read_parameter_declaration(t_parsing	*p,
   int			ret;
 
   FTRACE(code, *i);
-  if ((ret = read_declaration_specifiers(p, code, i)) != 1)
+  if ((ret = read_declaration_specifiers(p, code, i, false)) != 1)
     FRETURN (ret);
   if ((ret = read_declarator(p, code, i)) == -1)
     FRETURN (ret);
@@ -3006,7 +3044,7 @@ int			read_declaration(t_parsing		*p,
 
   FTRACE(code, *i);
   p->last_declaration.was_defining = false;
-  if ((ret = read_declaration_specifiers(p, code, i)) != 1)
+  if ((ret = read_declaration_specifiers(p, code, i, false)) != 1)
     FRETURN (ret);
   if (check_base_indentation(p, code, *i) == -1)
     RETURN("Memory exhausted."); // LCOV_EXCL_LINE
@@ -3100,6 +3138,7 @@ int			read_translation_unit(t_parsing		*p,
     ret = 1;
   while (ret == 1 && code[*i])
     {
+      read_whitespace(code, i);
       if ((ret = read_external_declaration(p, code, i)) == -1)
 	{ // LCOV_EXCL_START
 	  if (verbose)
