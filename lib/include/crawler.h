@@ -251,6 +251,16 @@ int			read_expression(t_parsing		*parsing,
 					ssize_t			*i,
 					bool			start);
 
+int			read_type_specifier(t_parsing		*parsing,
+					    const char		*code,
+					    ssize_t		*i,
+					    bool		second_check);
+
+int			read_declaration_specifiers(t_parsing	*parsing,
+						    const char	*code,
+						    ssize_t	*i,
+						    bool	in_read_function_definition);
+
 typedef int		t_read(t_parsing			*parsing,
 			       const char			*code,
 			       ssize_t				*i);
@@ -274,9 +284,7 @@ t_read
   read_conditional_expression,
   read_constant_expression,
   read_type_qualifier,
-  read_type_specifier,
   read_storage_class_specifier,
-  read_declaration_specifiers,
   read_direct_abstract_declarator,
   read_abstract_declarator,
   read_parameter_declaration,
