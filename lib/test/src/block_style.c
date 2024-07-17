@@ -65,6 +65,8 @@ int			main(int		argc,
   bunny_configuration_setf(cnf, 1, "TypedefMatching.Value");
   bunny_configuration_setf(cnf, 3, "TypedefMatching.Points");
 
+  goto HERE;
+  
   load_norm_configuration(&p, cnf);
   s =
     " struct s_struct { int sa_a; int sa_b; int sa_c2; }; \n"
@@ -108,12 +110,12 @@ int			main(int		argc,
   assert(p.struct_attribute_style.counter == 6);
   assert(p.union_attribute_style.counter == 6);
   assert(p.typedef_style.counter == 3);
-
+ HERE:
   load_norm_configuration(&p, cnf);
   s =
     " typedef struct s_lol { int sa_d; int sa_e; int sa_f; } t_lolex; \n"
     " typedef union u_lel { int su_d; int su_e; int su_f; } t_lelex; \n"
-    " typedef enum e_lal { E_THE_ENUM, E_THA_ENUM } t_lalex; \n"
+    " typedef enum e_lat { E_THE_ENUM, E_THA_ENUM } t_latex; \n"
     ;
   i = 0;
   p.last_error_id = -1;

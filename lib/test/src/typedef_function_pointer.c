@@ -22,7 +22,7 @@ int			main(int		argc,
   // Le probleme est que le systeme pense etre dans la liste de paramètre
   // Une fois entré dans *__compar_fnt alors qu'il est en fait dans un autre
   // niveau de pointeur sur fonction
-  s = "typedef int (*)(*__compar_fn_t) (const void *aa, const void *bb)(int a);";
+  s = "typedef void (*(*sigf)(int spng))(int song);";
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
     GOTOERROR(); // LCOV_EXCL_LINE
   
@@ -30,7 +30,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   // Un pointeur sur fonction simple
-  s = "typedef int (*func)(int a);";
+  s = "typedef void (*signalf)(int song);";
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
     GOTOERROR(); // LCOV_EXCL_LINE
 
@@ -38,7 +38,7 @@ int			main(int		argc,
   p.last_error_id = -1;
   p.last_new_type = 0;
   // Un type pointeur sur fonction plus riche
-  s = "typedef int (*__compar_fn_t) (const void *aa, const void *bb);";
+  s = "typedef void (*signalf)(int song, float sang, char sing);";
   if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
     GOTOERROR(); // LCOV_EXCL_LINE
   
