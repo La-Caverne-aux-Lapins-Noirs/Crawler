@@ -1031,7 +1031,7 @@ int			read_compound_statement(t_parsing	*p,
       fnd += ok;
 
       // Il y a eu des déclarations et on veut qu'il y ai une ligne de séparation
-      if (p->declaration_statement_separator.active && ret != *i)
+      if (ok > 0 && p->declaration_statement_separator.active && ret != *i)
 	{
 	  int	j = *i;
 	  int	nl = 0;
@@ -1890,8 +1890,9 @@ int			read_assignment_expression(t_parsing	*p,
 	  || bunny_read_text(code, &j, "&=")
 	  )
 	{
-	  if (!add_warning(p, IZ(p, i), code, *i, &p->no_assignment.counter, "Assignment are forbidden."))
-	    RETURN ("Memory exhausted.");
+       	  if (p->no_assignment.active)
+	    if (!add_warning(p, IZ(p, i), code, *i, &p->no_assignment.counter, "Assignment are forbidden."))
+	      RETURN ("Memory exhausted.");
 	  if (check_one_space_around(p, code, k, j - k,
 				     p->space_around_binary_operator.value,
 				     &p->space_around_binary_operator.counter) == -1)
@@ -2825,12 +2826,11 @@ int			read_direct_declarator(t_parsing	*p,
   bool			brackets = false;
 
   // Pour accéder aux paramètres dans un cas : typedef void (*signalf)(int song) ou void (*f)(int tre)
-  if (p->last_declaration.is_func_ptr)
+  if (p->last_declaration.is_func_ptr && p->last_declaration.is_typedef)
     {
       bunny_read_text(code, i, ")");
       p->last_declaration.is_func_ptr = false; // Risque de bloquer d'autres check de condition
     }
-
   (void)brackets;
   // A partir de la, c'est un nombre indeterminé de match
   do

@@ -23,7 +23,7 @@ int			main(int		argc,
   p.single_instruction_per_line.active = false;
   if (read_translation_unit(&p, "file", s, &i, true, true) != 1)
     GOTOERROR(); // LCOV_EXCL_LINE
-  
+
   // Car le typedef prenait le nom du paramètre du pointeur sur fonction
   i = 0;
   s =
@@ -123,6 +123,8 @@ int			main(int		argc,
     GOTOERROR(); // LCOV_EXCL_LINE
 
   // ANSI C, ca ne marchera pas: enchainement déclaration, instruction, déclaration
+  // Ohhhh, j'avais pas vu.
+  // Crawler ne supporte les déclarations que dans un seul bloc en haut d'un compound
   i = 0;
   file = "./res/gergios.c";
   assert(s = load_c_file(file, cnf, false));
@@ -130,6 +132,16 @@ int			main(int		argc,
   load_norm_configuration(&p, cnf);
   p.last_error_id = -1;
   assert(read_translation_unit(&p, "file", s, &i, true, false) != 1);
+
+
+  file = "./res/test_stdlib.c";
+  assert(s = load_c_file(file, cnf, true));
+  i = 0;
+  p.last_error_id = -1;
+  p.indent_style.active = false;
+  p.single_instruction_per_line.active = false;
+  if (read_translation_unit(&p, "file", s, &i, true, true) != 1)
+    GOTOERROR(); // LCOV_EXCL_LINE
   
   TEST_OUTRO(); // LCOV_EXCL_LINE
 }
