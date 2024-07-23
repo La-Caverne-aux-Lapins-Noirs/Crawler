@@ -27,12 +27,12 @@
   LIB_DIR	?=	/usr/local/lib/
   INC_DIR	?=	/usr/local/include/
   ETC_DIR	?=	/etc/technocore/
-  LIB_TESTDIR	?=	$(HOME)/.froot/lib/
+  LIB_TESTDIR	?=	
 
-  LIB		=	-L$(HOME)/.froot/lib/ -llapin -ldl -lm -lstdc++		\
+  LIB		=	-llapin -ldl -lm -lstdc++		\
 			-lavcall -lgcov -rdynamic
   CONFIG	?=	$(FLAG) -fPIC -std=c11 -Wno-format-security		\
-			-Wall -Wextra # -DFTRACE
+			-Wall -Wextra #-DFTRACE
 
   DEBUG		=	-O0 -Og -g -g3 -ggdb -fprofile-arcs -ftest-coverage	\
 			--coverage -fno-omit-frame-pointer -fno-align-functions	\
@@ -54,7 +54,7 @@
   LOGFILE	=	errors~
   ERRLOG	=	2>> $(LOGFILE)
 
-  HEADER	=	-I./include/ $(HOME)/.froot/include/
+  HEADER	=	-I./include/
 
   DEFLT		=	"\033[00m"
   PINK		=	"\033[1;35m"

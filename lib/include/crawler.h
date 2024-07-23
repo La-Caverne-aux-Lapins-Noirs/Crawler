@@ -61,6 +61,15 @@ typedef struct		s_last_function
   bool			is_const;
   bool			is_restrict;
   bool			is_volatile;
+
+  // /!\ Ne pas modifier l'ordre des variables ci-dessus sinon casse dans read_storage_class_specifier
+  
+  // Permet de passer la ) dans read declarator dans un cas : typedef void (*signalf > ) < (int song)
+  bool			is_union_last_typedef;
+  bool			is_struct_last_typedef;
+  bool			is_enum_last_typedef;
+  bool			is_func_ptr;
+  bool			inside_cast;
   bool			inside_function;
   bool			inside_function_name;
   bool			inside_variable;
@@ -123,6 +132,12 @@ typedef struct		s_parsing
   // Pourquoi 128? Hum...
   char			typedef_stack[128][SYMBOL_SIZE + 1];
   int			typedef_stack_top;
+
+  // About function pointer
+
+  // reverse_i est un index partant de la fin de la ligne
+  // Doit valoir 0 à chaque premier appel de check_type_is_function par ligne
+  int			func_ptr_counter;
 
   t_last_function	last_declaration;
 
@@ -260,6 +275,15 @@ int			read_declaration_specifiers(t_parsing	*parsing,
 						    const char	*code,
 						    ssize_t	*i,
 						    bool	in_read_function_definition);
+
+int			travel_expression(t_parsing		*parsing,
+					  const char		*code,
+					  ssize_t		*i,
+					  int			target_counter);
+
+int			check_type_is_function(t_parsing	*parsing,
+					       const char	*code,
+					       ssize_t		*i);
 
 typedef int		t_read(t_parsing			*parsing,
 			       const char			*code,

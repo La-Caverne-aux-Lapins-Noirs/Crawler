@@ -30,7 +30,7 @@ int main(void)
   }
    tc_putchar('\n');
    return(0);
-     }
+      }
 
 
 

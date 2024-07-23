@@ -105,7 +105,7 @@ static int		handle_typedef(t_parsing	*p,
 {
   // Si on est pas dans un typedef...
   if (!p->last_declaration.is_typedef)
-    return (0);
+    FRETURN(0);
   // Si on est dans la définition d'attributs ou de constantes
   // if (p->last_declaration.was_defining)
   // return (0);
@@ -116,14 +116,16 @@ static int		handle_typedef(t_parsing	*p,
   if (rdid)
     {
       read_whitespace(code, &j);
-      // Rajouté un peu a l'arrache
-      rd = bunny_read_text(code, &j, "("); /// Il faut, si on a trouvé ca, indiquer
+      if (p->last_declaration.is_func_ptr)
+	{
+	  rd = bunny_read_text(code, &j, "("); /// Il faut, si on a trouvé ca, indiquer
       // qu'on est plus dans le typedef.
       // Le probleme actuel c'est qu'on resoud pas le type sur un ptr sur fonction
       // et que du coup c'est le dernier paramètre du ptr sur fonction qui sert
       // de nom
-      read_pointer(p, code, &j);
-      gl_bunny_read_whitespace = NULL;	
+	  read_pointer(p, code, &j);
+	}
+	  gl_bunny_read_whitespace = NULL;
       if (read_identifier(p, code, &j, false) == 0)
 	{
 	  // Si il n'y a pas de symbole...
@@ -138,14 +140,24 @@ static int		handle_typedef(t_parsing	*p,
 	RETURN("A matching ')' was expected to close opening '(*' for function pointer."); // LCOV_EXCL_LINE
       // j = *i; /////////////////////////////////
     }
-  p->last_declaration.is_typedef = false;
+
+  // p->last_declaration.is_typedef = false;
+  // Pourquoi mettre à faux ? ^
+
+  
   if (check_style(p, "typedef", &p->last_declaration.symbol[0],
 		  &p->typedef_style, &p->typedef_infix,
 		  code, j) == false)
     RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 
-  if (p->typedef_matching.active)
+  if (p->typedef_matching.active &&
+      (p->last_declaration.is_struct_last_typedef ||
+       p->last_declaration.is_union_last_typedef ||
+       p->last_declaration.is_enum_last_typedef))
     {
+      p->last_declaration.is_struct_last_typedef = false;
+      p->last_declaration.is_union_last_typedef = false;
+      p->last_declaration.is_enum_last_typedef = false;
       char buffer[SYMBOL_SIZE + 1];
       
       store_real_typename(p, buffer, &p->last_declaration.symbol[0], sizeof(buffer), 2);
@@ -926,8 +938,6 @@ int			read_statement(t_parsing		*p,
   p->last_declaration.scope_length = 0;
   if ((ret = read_compound_statement(p, code, i)) != 0)
     goto FRETURN;
-  if ((ret = read_expression_statement(p, code, i)) != 0)
-    goto FRETURN;
   if ((ret = read_assembler(p, code, i)) != 0)
     {
       if (ret > 0)
@@ -940,6 +950,8 @@ int			read_statement(t_parsing		*p,
   if ((ret = read_iteration_statement(p, code, i)) != 0)
     goto FRETURN;
   if ((ret = read_jump_statement(p, code, i)) != 0)
+    goto FRETURN;
+  if ((ret = read_expression_statement(p, code, i)) != 0)
     goto FRETURN;
   ret = 0;
  FRETURN:
@@ -1019,7 +1031,7 @@ int			read_compound_statement(t_parsing	*p,
       fnd += ok;
 
       // Il y a eu des déclarations et on veut qu'il y ai une ligne de séparation
-      if (p->declaration_statement_separator.active && ret != *i)
+      if (ok > 0 && p->declaration_statement_separator.active && ret != *i)
 	{
 	  int	j = *i;
 	  int	nl = 0;
@@ -1100,6 +1112,7 @@ int			read_declaration_list(t_parsing		*p,
   int			ret;
 
   FTRACE(code, *i);
+
   p->last_declaration.inside_variable = true;
   while ((ret = read_declaration(p, code, i)) == 1)
     cnt += 1;
@@ -1127,6 +1140,8 @@ int			read_function_definition(t_parsing	*p,
   memcpy(save, &p->start[0], len);
   memcpy(&savefunc, &p->last_declaration, sizeof(savefunc));
   reset_last_declaration(p);
+  p->func_ptr_counter = 0;
+  
   // Le type de retour
   if (read_declaration_specifiers(p, code, i, true) == -1)
     {
@@ -1139,6 +1154,18 @@ int			read_function_definition(t_parsing	*p,
   // L'indentation du nom de fonction
   read_whitespace(code, i);
   p->local_symbol_alignment = count_to_new_line(p, code, *i);
+
+
+  // On règle des cas gênants généré par typedef
+  if (p->last_declaration.is_func_ptr)
+    {
+      if (!bunny_read_text(code, i, "(") || !bunny_read_text(code, i, "*"))
+	{
+	  if (!add_warning(p, IZ(p, i), code, *i, NULL, "Syntax Error, missing > ( < or > * < "))
+	    RETURN ("Memory exhausted.");
+	  FRETURN(-1); // Erreur de syntaxe
+	}
+    }
 
   //////////////////////
   // Le nom de fonction
@@ -1160,6 +1187,31 @@ int			read_function_definition(t_parsing	*p,
   // Pour savoir si les variables sont globales ou locales, par exemple...
   p->last_declaration.inside_function = true;
 
+  if (p->func_ptr_counter > 0)
+    {
+      int		depth = 0;
+
+      // On passe les potentiels func pointer
+      while (code[*i] && (p->func_ptr_counter > 0 || depth > 0))
+	{
+	  if (code[*i] == '(')
+	    {
+	      if (depth == 0)
+		p->func_ptr_counter -= 1;
+	      depth += 1;
+	    }
+	  else if (depth > 0 && code[*i] == ')')
+	    depth -= 1;
+	  *i += 1;
+	}
+      if (code[*i] == '\0')
+	{
+	  if (!add_warning(p, IZ(p, i), code, *i, NULL, "Syntax Error, missing > ( < "))
+	    RETURN ("Memory exhausted.");
+	  FRETURN(-1); // Erreur de syntaxe // LCOV_EXCL_LINE
+	}
+    }
+ 
   // Le corps de fonction
   if ((ret = read_compound_statement(p, code, i)) != 0)
     {
@@ -1176,7 +1228,7 @@ int			read_function_definition(t_parsing	*p,
 				   "%d was the maximum.",
 				   p->ldec_function_per_file,
 				   p->function_per_file.value))
-		    RETURN ("Memory exhausted.");
+		    RETURN ("Memory exhausted.");// LCOV_EXCL_LINE
 		}
 	    }
 	  
@@ -1194,7 +1246,7 @@ int			read_function_definition(t_parsing	*p,
 				       "Too many non static functions found in file. "
 				       "%d was the maximum.",
 				       p->non_static_function_per_file.value))
-			RETURN ("Memory exhausted.");
+			RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 		    }
 		}
 
@@ -1244,10 +1296,11 @@ int			read_function_definition(t_parsing	*p,
       p->last_declaration.inside_function = false;
       FRETURN (ret);
     }
-  p->last_declaration.inside_function = false;
+  reset_last_declaration(p);
   
   // On verifie les paramètres seulement des fonctions implémentées et non des prototypes!
-  p->last_declaration.nbr_copied_parameters = 0;
+  // Supprimé dans reset au dessus
+  //p->last_declaration.nbr_copied_parameters = 0;
 
   // On revient en arrière, ca n'était pas une declaration de fonction.
   *i = k;
@@ -1557,11 +1610,13 @@ int			read_cast_expression(t_parsing		*p,
   FTRACE(code, *i);
   if (bunny_read_text(code, &j, "("))
     {
+      p->last_declaration.inside_cast = true;
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
 	  (p, code, j - 1, '(', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (read_type_name(p, code, &j) == 1)
 	{
+	  p->last_declaration.inside_cast = false;
 	  *i = j;
 	  if (!bunny_read_text(code, i, ")"))
 	    RETURN ("Missing ')' after '(typename'."); // LCOV_EXCL_LINE
@@ -1570,6 +1625,7 @@ int			read_cast_expression(t_parsing		*p,
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	  FRETURN (read_cast_expression(p, code, i));
 	}
+      p->last_declaration.inside_cast = false;
     }
   FRETURN (read_unary_expression(p, code, i));
 }
@@ -1834,8 +1890,9 @@ int			read_assignment_expression(t_parsing	*p,
 	  || bunny_read_text(code, &j, "&=")
 	  )
 	{
-	  if (!add_warning(p, IZ(p, i), code, *i, &p->no_assignment.counter, "Assignment are forbidden."))
-	    RETURN ("Memory exhausted.");
+       	  if (p->no_assignment.active)
+	    if (!add_warning(p, IZ(p, i), code, *i, &p->no_assignment.counter, "Assignment are forbidden."))
+	      RETURN ("Memory exhausted.");
 	  if (check_one_space_around(p, code, k, j - k,
 				     p->space_around_binary_operator.value,
 				     &p->space_around_binary_operator.counter) == -1)
@@ -2218,6 +2275,7 @@ int			read_type_specifier(t_parsing		*p,
 	  p->last_declaration.scope_depth -= 1;
 	  p->last_declaration.last_type_size = sizeof(enum { __ABCDEFGH__ });
 	}
+      p->last_declaration.is_enum_last_typedef = true;
       FRETURN (1);
     }
   bool punion = p->last_declaration.inside_union;
@@ -2288,12 +2346,14 @@ int			read_type_specifier(t_parsing		*p,
 	    if (strcmp(p->last_declaration.last_type, p->new_type[j].name) == 0)
 	      p->last_declaration.last_type_size = p->new_type[j].size;
 	}
+      p->last_declaration.is_union_last_typedef = p->last_declaration.inside_union;
+      p->last_declaration.is_struct_last_typedef = p->last_declaration.inside_struct;
       p->last_declaration.inside_union = punion;
       p->last_declaration.inside_struct = pstruct;
       FRETURN (1);
     }
 
-    // Standard types
+  // Standard types
   for (size_t j = 0; j < NBRCELL(standard_types); ++j)
     if (read_keyword(p, code, i, standard_types[j].name, gl_second_char))
       {
@@ -2317,7 +2377,7 @@ int			read_type_specifier(t_parsing		*p,
   if (x != NBRCELL(keywords) && (code[j] == '\0' || strchr(gl_second_char, code[j]) == NULL)) // Au cas ou ce soit... "ifa" par exemple.
     FRETURN (0);
   
-  if (p->last_declaration.is_typedef || second_check)
+  if (p->last_declaration.is_typedef || second_check || p->last_declaration.inside_cast)
     FRETURN(0);
 
   char		unknown_type[256];
@@ -2350,13 +2410,114 @@ int			read_storage_class_specifier(t_parsing	*p,
   // ...
   bunny_read_text(code, i, "__extension__");
 
-  for (size_t j = 0; j < NBRCELL(str); ++j)
-    if (bunny_read_text(code, i, str[j]))
+  ssize_t		j = *i;
+
+  for (size_t n = 0; n < NBRCELL(str); ++n)
+    if (bunny_read_text(code, &j, str[n]))
       {
-	(&p->last_declaration.is_typedef)[j] = true;
-	FRETURN (1);
+	// Au cas ou ce soit... "ifa" par exemple.
+	if (!strchr(gl_second_char, code[j]))
+	  {
+	    (&p->last_declaration.is_typedef)[n] = true;
+	    *i = j;
+	    FRETURN (1);
+	  }
       }
   FRETURN (0);
+}
+
+
+// Avance à travers code, jusqu'à arriver à une ( de même niveau que target_counter
+// Evitez de mettrer target_counter à des valeurs négatives
+int			travel_expression(t_parsing		*p,
+					  const char		*code,
+					  ssize_t		*i,
+					  int			target_counter)
+{
+  FTRACE(code, *i);
+
+  while (code[*i] && (target_counter != p->func_ptr_counter || code[*i] != ')'))
+    {
+      if (code[*i] == '(')
+	p->func_ptr_counter += 1;
+      else if (code[*i] == ')')
+	p->func_ptr_counter -= 1;
+      *i += 1;
+    }
+  if (code[*i] != '\0' && code[*i] == ')')
+    *i += 1; // On passe la ) car la comparaison s'est arrêté dessus
+
+  if (bunny_read_text(code, i, "["))
+      FRETURN(2);
+  
+  // Doit être le début des paramètres de la func ptr
+  if (!bunny_read_text(code, i, "("))
+    FRETURN(-1);
+  FRETURN(0);
+}
+
+static bool		check_is_func_ptr(const char		*code,
+					  ssize_t		*i)
+{
+  ssize_t		j = *i;
+
+  if (bunny_read_text(code, &j, "("))
+    return (false); // Ce n'est pas un pointeur sur fonction
+  for (; code[j] && code[j] != '(' && code[j] != ')'; ++j);
+  if (code[j] == ')')
+    return (true); // exemple : void (*f) (int tre)
+  return (false);  // exemple : void (*signal(int sig)) (int song)
+}
+
+int			check_type_is_function(t_parsing	*p,
+					       const char	*code,
+					       ssize_t		*i)
+{
+  FTRACE(code, *i);
+  ssize_t		j = *i;
+  ssize_t		save_skip;
+
+  // Check si on est dans un format : previous_type (*
+  // On utilise j, car si on a la ( mais pas * on revient en arrière
+  if (!bunny_read_text(code, &j, "(") || !bunny_read_text(code, &j, "*"))
+    FRETURN(0);
+
+  // On élimine le cas: typedef void (*signalf) (int)
+  // On reste avec j car ce n'est qu'un test on ne veut pas avancer
+  if ((p->last_declaration.is_func_ptr = check_is_func_ptr(code, &j)))
+    FRETURN(0);
+
+  save_skip = j; // on se prépare à manger (*
+  
+  p->func_ptr_counter += 1;
+  int			ret;
+
+  if ((ret = travel_expression(p, code, &j, p->func_ptr_counter)) == -1)
+    {
+      if (!add_warning(p, IZ(p, i), code, *i, NULL, "Syntax Error, missing > ( <"))
+	RETURN ("Memory exhausted.");
+      FRETURN(-1); // Erreur de syntaxe
+    }
+
+  // Si le type n'est pas un pointeur sur fonction mais un tableau
+  // exemple : int (*bunny_get_key_button(void))[45 + 2];
+  if (ret == 2)
+    {
+      p->func_ptr_counter -= 1;
+      FRETURN(0);
+    }
+  else
+    *i = save_skip; // C'est bien un pointeur fonction, on avance
+  
+  // On lit le paramètre du pointer sur fonction retourné
+  if ((ret = read_parameter_list(p, code, &j)) == -1)
+      FRETURN(-1);
+
+  // Sauf erreur, on met à jour la taille du type -> pointer
+  if (ret == 1)
+    p->last_declaration.last_type_size = sizeof(void *);
+
+  FRETURN(ret);
 }
 
 int			read_declaration_specifiers(t_parsing	*p,
@@ -2377,13 +2538,15 @@ int			read_declaration_specifiers(t_parsing	*p,
   p->last_declaration.nbr_pointer = prev_ptr = 0;
   do
     {
+      // Reste faux si rien trouvé
       once = false;
+      
       // On peut préciser un type de stockage - ou typedef
       if ((ret = read_storage_class_specifier(p, code, i)) == -1)
 	FRETURN (-1);
       once = (once || (ret == 1));
       // On veut un type
-      // pas sûr pour le ! devant in_read_function_definition
+      // pas sûr pour le ! devant in_read_function_definition mais ça marche
       if ((ret = read_type_specifier(p, code, i, (typed || !in_read_function_definition))) == -1)
 	FRETURN (-1);
       if (ret == 1)
@@ -2397,12 +2560,24 @@ int			read_declaration_specifiers(t_parsing	*p,
       // Un pointeur?
       if ((ret = read_pointer(p, code, i)) == -1)
 	FRETURN (-1);
+
+      // Si nouveau pointeur, on check la position de l'étoile
       if (p->last_declaration.nbr_pointer != prev_ptr)
 	if (!check_pointer_star_position(p, code, *i))
 	  RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+
+      // Mis à jour des variables
       prev_ptr = p->last_declaration.nbr_pointer;
       once = (once || (ret == 1));
+
+      // Ne sert à rien car commentaire sur le FRETURN concerné
       cnt += once ? 1 : 0;
+
+      if ((ret = check_type_is_function(p, code, i)) == -1)
+	FRETURN (-1);
+
+      once = (once || (ret == 1));
+      
       if (p->last_declaration.is_typedef && init_typedef == false)
 	just_typedefed = true;
     }
@@ -2439,6 +2614,7 @@ int			read_direct_abstract_declarator(t_parsing *p,
 	    RETURN ("Problem encountered with parameter declaration after '('."); // LCOV_EXCL_LINE
 	  else if (ret == 0 && read_parameter_type_list(p, code, i) == -1)
 	    RETURN ("Problem encountered with parameter declaration after '('."); // LCOV_EXCL_LINE
+	  once = (ret == 1);
 	  p->last_declaration.inside_parameter = false;
 	  if (!bunny_read_text(code, i, ")"))
 	    RETURN ("Missing ')' after '(' parameter list"); // LCOV_EXCL_LINE
@@ -2633,11 +2809,15 @@ int			read_direct_declarator(t_parsing	*p,
       if (read_declarator(p, code, i) == -1)
 	FRETURN (-1);
 
-      if (!bunny_read_text(code, i, ")"))
-	RETURN ("Missing ')' after '(declaration'."); // LCOV_EXCL_LINE
-      if (!check_parenthesis_space(p, code, *i - 1, ')',
-				   &p->no_space_inside_parenthesis.counter))
-	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      //      if (!bunny_read_text(code, i, ")"))
+      //RETURN ("Missing ')' after '(declaration'."); // LCOV_EXCL_LINE
+      // On test sans condition bloquante
+      if (bunny_read_text(code, i, ")"))
+	{
+	  if (!check_parenthesis_space(p, code, *i - 1, ')',
+				       &p->no_space_inside_parenthesis.counter))
+	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+	}
     }
   // IDENTIFIER
   else if ((tmp = read_identifier(p, code, i, false)) != 1)
@@ -2645,6 +2825,12 @@ int			read_direct_declarator(t_parsing	*p,
   bool			parameters = false;
   bool			brackets = false;
 
+  // Pour accéder aux paramètres dans un cas : typedef void (*signalf)(int song) ou void (*f)(int tre)
+  if (p->last_declaration.is_func_ptr && p->last_declaration.is_typedef)
+    {
+      bunny_read_text(code, i, ")");
+      p->last_declaration.is_func_ptr = false; // Risque de bloquer d'autres check de condition
+    }
   (void)brackets;
   // A partir de la, c'est un nombre indeterminé de match
   do
@@ -3043,6 +3229,11 @@ int			read_declaration(t_parsing		*p,
   int			ret;
 
   FTRACE(code, *i);
+
+  // Si ce n'est pas une déclaration
+  if (bunny_check_text(code, i, "("))
+    FRETURN(0);
+  
   p->last_declaration.was_defining = false;
   if ((ret = read_declaration_specifiers(p, code, i, false)) != 1)
     FRETURN (ret);
@@ -3074,6 +3265,7 @@ int			read_external_declaration(t_parsing	*p,
   ssize_t		j = *i;
 
   FTRACE(code, *i);
+  
   // Regardons si on declare une fonction.
   if ((ret = read_function_definition(p, code, &j)) != 0)
     {
@@ -3109,6 +3301,8 @@ int			read_translation_unit(t_parsing		*p,
   p->global_parameter_name_alignment = -1;
   p->global_symbol_alignment = -1;
 
+  p->func_ptr_counter = 0;
+
   // Recherche du dernier marqueur du preprocessor, en fonction de la situation
   char terminator = was_preprocessed ? '\035' : '#';
 
@@ -3139,6 +3333,7 @@ int			read_translation_unit(t_parsing		*p,
   while (ret == 1 && code[*i])
     {
       read_whitespace(code, i);
+      
       if ((ret = read_external_declaration(p, code, i)) == -1)
 	{ // LCOV_EXCL_START
 	  if (verbose)
