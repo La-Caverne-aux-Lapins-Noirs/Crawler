@@ -463,7 +463,7 @@ int			read_identifier(t_parsing		*p,
 	  "win", "nbr", "val", "res", "x", "y", "z", "fd", "pip",
 	  "w", "h", "d", "wx", "wy", "wz", "hz", "hz", "ms",
 	  "us", "ns", "obj", "len", "str", "mem", "ptr",
-	  "cnf", "min", "max", "top", "key", "kg", "km", "ts", "str"
+	  "cnf", "min", "max", "top", "key", "kg", "km", "ts", "src"
 	};
       for (z = 0; z < (int)NBRCELL(valid); ++z)
 	if (strcmp(&p->last_declaration.symbol[0], valid[z]) == 0)
