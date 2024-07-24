@@ -98,6 +98,20 @@ void			reset_last_declaration(t_parsing	*p)
   memset(&p->last_declaration, 0, sizeof(p->last_declaration));
 }
 
+static bool		check_read_text(const char	*code,
+					ssize_t		*i,
+					const char	*target)
+
+{
+  ssize_t		j;
+
+  j = *i;
+  if (!(bunny_read_text(code, &j, target) && !strchr(gl_second_char, code[j])))
+    return(false);
+  *i = j;
+  return(true);
+}
+
 static int		handle_typedef(t_parsing	*p,
 				       const char	*code,
 				       ssize_t		*i,
@@ -449,7 +463,7 @@ int			read_identifier(t_parsing		*p,
 	  "win", "nbr", "val", "res", "x", "y", "z", "fd", "pip",
 	  "w", "h", "d", "wx", "wy", "wz", "hz", "hz", "ms",
 	  "us", "ns", "obj", "len", "str", "mem", "ptr",
-	  "cnf", "min", "max", "top", "key", "kg", "km", "ts"
+	  "cnf", "min", "max", "top", "key", "kg", "km", "ts", "str"
 	};
       for (z = 0; z < (int)NBRCELL(valid); ++z)
 	if (strcmp(&p->last_declaration.symbol[0], valid[z]) == 0)
@@ -656,7 +670,7 @@ int			read_iteration_statement(t_parsing	*p,
 						 ssize_t	*i)
 {
   FTRACE(code, *i);
-  if (bunny_read_text(code, i, "while"))
+  if (check_read_text(code, i, "while"))
     {
       if (p->while_forbidden.value)
 	if (!add_warning
@@ -694,7 +708,7 @@ int			read_iteration_statement(t_parsing	*p,
 	}
       FRETURN (1);
     }
-  if (bunny_read_text(code, i, "do"))
+  if (check_read_text(code, i, "do"))
     {
       if (p->do_while_forbidden.value)
 	if (!add_warning
@@ -732,7 +746,7 @@ int			read_iteration_statement(t_parsing	*p,
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       FRETURN (1);
     }
-  if (bunny_read_text(code, i, "for"))
+  if (check_read_text(code, i, "for"))
     {
       if (p->for_forbidden.value)
 	if (!add_warning
@@ -784,7 +798,7 @@ int			read_jump_statement(t_parsing		*p,
 					    ssize_t		*i)
 {
   FTRACE(code, *i);
-  if (bunny_read_text(code, i, "goto"))
+  if (check_read_text(code, i, "goto"))
     {
       if (p->goto_forbidden.value)
 	if (!add_warning
@@ -803,7 +817,7 @@ int			read_jump_statement(t_parsing		*p,
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       FRETURN (1);
     }
-  if (bunny_read_text(code, i, "continue"))
+  if (check_read_text(code, i, "continue"))
     {
       if (p->continue_forbidden.value)
 	if (!add_warning
@@ -820,7 +834,7 @@ int			read_jump_statement(t_parsing		*p,
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       FRETURN (1);
     }
-  if (bunny_read_text(code, i, "break"))
+  if (check_read_text(code, i, "break"))
     {
       if (p->break_forbidden.value)
 	if (!add_warning
@@ -837,7 +851,7 @@ int			read_jump_statement(t_parsing		*p,
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       FRETURN (1);
     }
-  if (bunny_read_text(code, i, "return"))
+  if (check_read_text(code, i, "return"))
     {
       bool		flag = false;
 
@@ -1551,7 +1565,7 @@ int			read_unary_expression(t_parsing		*p,
 					      ssize_t		*i)
 {
   FTRACE(code, *i);
-  if (bunny_read_text(code, i, "sizeof"))
+  if (check_read_text(code, i, "sizeof"))
     {
       if (p->sizeof_parenthesis.active && bunny_check_text(code, i, "(") == false)
 	if (!add_warning
@@ -1982,22 +1996,22 @@ int			read_type_qualifier(t_parsing		*p,
 {
   (void)p;
   FTRACE(code, *i);
-  if (bunny_read_text(code, i, "const"))
+  if (check_read_text(code, i, "const"))
     {
       p->last_declaration.is_const = true;
       FRETURN (1);
     }
-  if (bunny_read_text(code, i, "volatile"))
+  if (check_read_text(code, i, "volatile"))
     {
       p->last_declaration.is_volatile = true;
       FRETURN (1);
     }
-  if (bunny_read_text(code, i, "restrict"))
+  if (check_read_text(code, i, "restrict"))
     {
       p->last_declaration.is_restrict = true;
       FRETURN (1);
     }
-  if (bunny_read_text(code, i, "__restrict"))
+  if (check_read_text(code, i, "__restrict"))
     {
       p->last_declaration.is_restrict = true;
       FRETURN (1);
@@ -2224,7 +2238,7 @@ int			read_type_specifier(t_parsing		*p,
 {
   FTRACE(code, *i);
 
-  if (bunny_read_text(code, i, "enum"))
+  if (check_read_text(code, i, "enum"))
     {
       int		j = *i;
 
@@ -2281,8 +2295,8 @@ int			read_type_specifier(t_parsing		*p,
   bool punion = p->last_declaration.inside_union;
   bool pstruct = p->last_declaration.inside_struct;
 
-  if ((bunny_read_text(code, i, "union") && (p->last_declaration.inside_union = true))
-      || (bunny_read_text(code, i, "struct") && (p->last_declaration.inside_struct = true)))
+  if ((check_read_text(code, i, "union") && (p->last_declaration.inside_union = true))
+      || (check_read_text(code, i, "struct") && (p->last_declaration.inside_struct = true)))
     {
       read_whitespace(code, i);
       bool		ret = true;
@@ -2413,16 +2427,14 @@ int			read_storage_class_specifier(t_parsing	*p,
   ssize_t		j = *i;
 
   for (size_t n = 0; n < NBRCELL(str); ++n)
-    if (bunny_read_text(code, &j, str[n]))
-      {
-	// Au cas ou ce soit... "ifa" par exemple.
-	if (!strchr(gl_second_char, code[j]))
-	  {
-	    (&p->last_declaration.is_typedef)[n] = true;
-	    *i = j;
-	    FRETURN (1);
-	  }
-      }
+    {
+      if (check_read_text(code, &j, str[n]))
+	{
+	  (&p->last_declaration.is_typedef)[n] = true;
+	  *i = j;
+	  FRETURN (1);
+	}
+    }
   FRETURN (0);
 }
 
@@ -3167,7 +3179,7 @@ int			read_gcc_attribute(t_parsing		*p,
   int			cnt = 0;
 
   FTRACE(code, *i);
-  while (bunny_read_text(code, i, "__attribute__"))
+  while (check_read_text(code, i, "__attribute__"))
     {
       if (bunny_read_text(code, i, "((") == false)
 	RETURN("\"((\" was expected after __attribute__."); // LCOV_EXCL_LINE
@@ -3208,7 +3220,7 @@ int			read_assembler(t_parsing		*p,
 				       ssize_t			*i)
 {
   FTRACE(code, *i);
-  if (bunny_read_text(code, i, "__asm__") == false && bunny_read_text(code, i, "asm") == false)
+  if (check_read_text(code, i, "__asm__") == false && check_read_text(code, i, "asm") == false)
     FRETURN (0);
   if (bunny_read_text(code, i, "(") == false)
     RETURN ("'(' was expected after asm.");
