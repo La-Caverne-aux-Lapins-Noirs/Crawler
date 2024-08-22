@@ -75,7 +75,7 @@ char		*load_c_file(const char			*file,
 
   if (preprocessed)
     {
-      char	*match;
+      char	*match = NULL;
 
       // On cherche le dernier include afin de marquer un symbole
       // permettant de ne pas coller des fautes de norme

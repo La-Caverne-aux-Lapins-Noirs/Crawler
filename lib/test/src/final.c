@@ -14,6 +14,7 @@ int			main(int		argc,
 			     char		**argv)
 {
   TEST_INTRO(); // LCOV_EXCL_LINE
+  s = "";
 
   /// Test de traversé
   i = 0;
@@ -36,7 +37,7 @@ int			main(int		argc,
   if (p.last_error_id != -1)
     {
       fprintf(stderr, "Coding style failure of crawler.h: %d error founds:\n", p.last_error_id);
-      for (size_t i = 0; i < p.last_error_id; ++i)
+      for (int i = 0; i < p.last_error_id; ++i)
 	printf("- %s\n", p.last_error_msg[i]);
     }
   assert(p.last_error_id == -1);
