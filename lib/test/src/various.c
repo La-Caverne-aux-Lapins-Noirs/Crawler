@@ -131,7 +131,9 @@ int			main(int		argc,
   assert(cnf = bunny_open_configuration("../../bin/cln.dab", NULL));
   load_norm_configuration(&p, cnf);
   p.last_error_id = -1;
-  assert(read_translation_unit(&p, "file", s, &i, true, false) != 1);
+  if (read_translation_unit(&p, "file", s, &i, true, false) != 1)
+    GOTOERROR(); // LCOV_EXCL_LINE
+  //assert(read_translation_unit(&p, "file", s, &i, true, false) != 1);
 
 
   file = "./res/test_stdlib.c";

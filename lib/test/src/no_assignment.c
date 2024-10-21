@@ -8,6 +8,7 @@
 */
 
 #include		"test.h"
+#include		<stdio.h>
 
 
 int			main(int		argc,
@@ -15,8 +16,6 @@ int			main(int		argc,
 {
   TEST_INTRO(); // LCOV_EXCL_LINE
 
-  p.no_assignment.value = 1;
-  p.no_assignment.counter = 0;
   // On verifie que les assignations a l'initialisation ne soient pas
   // concerné par l'interdiction d'assigner.
   i = 0;
@@ -26,6 +25,7 @@ int			main(int		argc,
   cnf = bunny_new_configuration();
   p.last_error_id = -1;
   load_norm_configuration(&p, cnf);
+  p.no_assignment.active = true;
   if (read_translation_unit(&p, "file", s, &i, true, true) != 1)
     GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.no_assignment.counter == 0);
@@ -39,8 +39,10 @@ int			main(int		argc,
   cnf = bunny_new_configuration();
   p.last_error_id = -1;
   load_norm_configuration(&p, cnf);
+  p.no_assignment.active = true;
   if (read_translation_unit(&p, "file", s, &i, true, true) != 1)
-    GOTOERROR(); // LCOV_EXCL_LINEz
+    GOTOERROR(); // LCOV_EXCL_LINE
+  printf("No assignment Counter : %d\n", p.no_assignment.counter);
   assert(p.no_assignment.counter == 2);
 
   TEST_OUTRO(); // LCOV_EXCL_LINE

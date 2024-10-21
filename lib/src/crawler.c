@@ -1075,8 +1075,13 @@ int			read_compound_statement(t_parsing	*p,
       if ((ok = read_statement_list(p, code, i)) == -1)
 	FRETURN (-1);
       fnd += ok;
+      if (p->ansi_c && fnd)
+	if (!add_warning
+	    (p, IZ(p, i), code, *i, NULL,
+	     "Variable declaration must be on the top of statement."))
+	  RETURN("Memory exhausted.");
     }
-  while (!p->ansi_c && fnd); // Si on est pas ANSI et qu'on a trouvé un truc...
+  while (fnd); // Si on a trouvé un truc... Ansi ou pas
   end = *i;
 
   // On diminue l'indentation
