@@ -1,0 +1,770 @@
+read_translation_unit - 0 #define __STDC__ 1
+ read_external_declaration - 13534 static int divide(int	a,
+  read_function_definition - 13534 static int divide(int	a,
+   read_declaration_specifiers - 13534 static int divide(int	a,
+    read_storage_class_specifier - 13534 static int divide(int	a,
+    read_type_specifier - 13540  int divide(int	a,
+     read_keyword - 13541 int divide(int	a,
+     read_keyword - 13541 int divide(int	a,
+     read_keyword - 13541 int divide(int	a,
+     read_keyword - 13541 int divide(int	a,
+     check_type_is_authorized - 13544  divide(int	a,
+    read_type_qualifier - 13544  divide(int	a,
+    read_pointer - 13545 divide(int	a,
+    check_type_is_function - 13545 divide(int	a,
+    read_storage_class_specifier - 13545 divide(int	a,
+    read_type_specifier - 13545 divide(int	a,
+     read_keyword - 13545 divide(int	a,
+     read_keyword - 13545 divide(int	a,
+     read_keyword - 13545 divide(int	a,
+     read_keyword - 13545 divide(int	a,
+     read_keyword - 13545 divide(int	a,
+     read_keyword - 13545 divide(int	a,
+     read_keyword - 13545 divide(int	a,
+     read_keyword - 13545 divide(int	a,
+     read_keyword - 13545 divide(int	a,
+     read_keyword - 13545 divide(int	a,
+     read_keyword - 13545 divide(int	a,
+     read_keyword - 13545 divide(int	a,
+    read_type_qualifier - 13545 divide(int	a,
+    read_pointer - 13545 divide(int	a,
+    check_type_is_function - 13545 divide(int	a,
+   read_gcc_attribute - 13545 divide(int	a,
+   read_declarator - 13545 divide(int	a,
+    read_pointer - 13545 divide(int	a,
+    read_direct_declarator - 13545 divide(int	a,
+     read_identifier - 13545 divide(int	a,
+     read_parameter_type_list - 13552 int	a,
+      read_parameter_list - 13552 int	a,
+       read_parameter_declaration - 13552 int	a,
+        read_declaration_specifiers - 13552 int	a,
+         read_storage_class_specifier - 13552 int	a,
+         read_type_specifier - 13552 int	a,
+          read_keyword - 13552 int	a,
+          read_keyword - 13552 int	a,
+          read_keyword - 13552 int	a,
+          read_keyword - 13552 int	a,
+          check_type_is_authorized - 13555 	a,
+         read_type_qualifier - 13555 	a,
+         read_pointer - 13556 a,
+         check_type_is_function - 13556 a,
+         read_storage_class_specifier - 13556 a,
+         read_type_specifier - 13556 a,
+          read_keyword - 13556 a,
+          read_keyword - 13556 a,
+          read_keyword - 13556 a,
+          read_keyword - 13556 a,
+          read_keyword - 13556 a,
+          read_keyword - 13556 a,
+          read_keyword - 13556 a,
+          read_keyword - 13556 a,
+          read_keyword - 13556 a,
+          read_keyword - 13556 a,
+          read_keyword - 13556 a,
+          read_keyword - 13556 a,
+         read_type_qualifier - 13556 a,
+         read_pointer - 13556 a,
+         check_type_is_function - 13556 a,
+        read_declarator - 13556 a,
+         read_pointer - 13556 a,
+         read_direct_declarator - 13556 a,
+          read_identifier - 13556 a,
+       read_abstract_declarator - 13557 ,
+        read_pointer - 13557 ,
+        read_direct_abstract_declarator - 13557 ,
+       read_parameter_declaration - 13563 int	b)
+        read_declaration_specifiers - 13563 int	b)
+         read_storage_class_specifier - 13563 int	b)
+         read_type_specifier - 13563 int	b)
+          read_keyword - 13563 int	b)
+          read_keyword - 13563 int	b)
+          read_keyword - 13563 int	b)
+          read_keyword - 13563 int	b)
+          check_type_is_authorized - 13566 	b)
+         read_type_qualifier - 13566 	b)
+         read_pointer - 13567 b)
+         check_type_is_function - 13567 b)
+         read_storage_class_specifier - 13567 b)
+         read_type_specifier - 13567 b)
+          read_keyword - 13567 b)
+          read_keyword - 13567 b)
+          read_keyword - 13567 b)
+          read_keyword - 13567 b)
+          read_keyword - 13567 b)
+          read_keyword - 13567 b)
+          read_keyword - 13567 b)
+          read_keyword - 13567 b)
+          read_keyword - 13567 b)
+          read_keyword - 13567 b)
+          read_keyword - 13567 b)
+          read_keyword - 13567 b)
+         read_type_qualifier - 13567 b)
+         read_pointer - 13567 b)
+         check_type_is_function - 13567 b)
+        read_declarator - 13567 b)
+         read_pointer - 13567 b)
+         read_direct_declarator - 13567 b)
+          read_identifier - 13567 b)
+       read_abstract_declarator - 13568 )
+        read_pointer - 13568 )
+        read_direct_abstract_declarator - 13568 )
+   read_declaration_list - 13570 {
+    read_declaration - 13570 {
+     read_declaration_specifiers - 13570 {
+      read_storage_class_specifier - 13570 {
+      read_type_specifier - 13570 {
+       read_keyword - 13570 {
+       read_keyword - 13570 {
+       read_keyword - 13570 {
+       read_keyword - 13570 {
+       read_keyword - 13570 {
+       read_keyword - 13570 {
+       read_keyword - 13570 {
+       read_keyword - 13570 {
+       read_keyword - 13570 {
+       read_keyword - 13570 {
+       read_keyword - 13570 {
+       read_keyword - 13570 {
+      read_type_qualifier - 13570 {
+      read_pointer - 13570 {
+      check_type_is_function - 13570 {
+   read_compound_statement - 13570 {
+    read_declaration_list - 13574 return(a/b);
+     read_declaration - 13574 return(a/b);
+      read_declaration_specifiers - 13574 return(a/b);
+       read_storage_class_specifier - 13574 return(a/b);
+       read_type_specifier - 13574 return(a/b);
+        read_keyword - 13574 return(a/b);
+        read_keyword - 13574 return(a/b);
+        read_keyword - 13574 return(a/b);
+        read_keyword - 13574 return(a/b);
+        read_keyword - 13574 return(a/b);
+        read_keyword - 13574 return(a/b);
+        read_keyword - 13574 return(a/b);
+        read_keyword - 13574 return(a/b);
+        read_keyword - 13574 return(a/b);
+        read_keyword - 13574 return(a/b);
+        read_keyword - 13574 return(a/b);
+        read_keyword - 13574 return(a/b);
+       read_type_qualifier - 13574 return(a/b);
+       read_pointer - 13574 return(a/b);
+       check_type_is_function - 13574 return(a/b);
+    read_statement_list - 13574 return(a/b);
+     read_statement - 13574 return(a/b);
+      read_labeled_statement - 13574 return(a/b);
+       read_identifier - 13574 return(a/b);
+      read_compound_statement - 13574 return(a/b);
+      read_assembler - 13574 return(a/b);
+      read_selection_statement - 13574 return(a/b);
+      read_iteration_statement - 13574 return(a/b);
+      read_jump_statement - 13574 return(a/b);
+       read_expression - 13580 (a/b);
+        read_assignment_expression - 13580 (a/b);
+         read_unary_expression - 13580 (a/b);
+          read_unary_operator - 13580 (a/b);
+         read_postfix_expression - 13580 (a/b);
+          read_primary_expression - 13580 (a/b);
+           read_identifier - 13580 (a/b);
+           read_expression - 13581 a/b);
+            read_assignment_expression - 13581 a/b);
+             read_unary_expression - 13581 a/b);
+              read_unary_operator - 13581 a/b);
+             read_postfix_expression - 13581 a/b);
+              read_primary_expression - 13581 a/b);
+               read_identifier - 13581 a/b);
+            read_conditional_expression - 13581 a/b);
+             read_logical_or_expression - 13581 a/b);
+              read_logical_and_expression - 13581 a/b);
+               read_inclusive_or_expression - 13581 a/b);
+                read_exclusive_or_expression - 13581 a/b);
+                 read_and_expression - 13581 a/b);
+                  read_equality_expression - 13581 a/b);
+                   read_relational_expression - 13581 a/b);
+                    read_shift_expression - 13581 a/b);
+                     read_additive_expression - 13581 a/b);
+                      read_multiplicative_expression - 13581 a/b);
+                       read_cast_expression - 13581 a/b);
+                       read_unary_expression - 13581 a/b);
+                        read_unary_operator - 13581 a/b);
+                       read_postfix_expression - 13581 a/b);
+                        read_primary_expression - 13581 a/b);
+                         read_identifier - 13581 a/b);
+                       read_multiplicative_expression - 13583 b);
+                        read_cast_expression - 13583 b);
+                        read_unary_expression - 13583 b);
+                         read_unary_operator - 13583 b);
+                        read_postfix_expression - 13583 b);
+                         read_primary_expression - 13583 b);
+                          read_identifier - 13583 b);
+        read_conditional_expression - 13580 (a/b);
+         read_logical_or_expression - 13580 (a/b);
+          read_logical_and_expression - 13580 (a/b);
+           read_inclusive_or_expression - 13580 (a/b);
+            read_exclusive_or_expression - 13580 (a/b);
+             read_and_expression - 13580 (a/b);
+              read_equality_expression - 13580 (a/b);
+               read_relational_expression - 13580 (a/b);
+                read_shift_expression - 13580 (a/b);
+                 read_additive_expression - 13580 (a/b);
+                  read_multiplicative_expression - 13580 (a/b);
+                   read_cast_expression - 13580 (a/b);
+                    read_type_name - 13581 a/b);
+                     read_specifier_qualifier_list - 13581 a/b);
+                      read_type_specifier - 13581 a/b);
+                       read_keyword - 13581 a/b);
+                       read_keyword - 13581 a/b);
+                       read_keyword - 13581 a/b);
+                       read_keyword - 13581 a/b);
+                       read_keyword - 13581 a/b);
+                       read_keyword - 13581 a/b);
+                       read_keyword - 13581 a/b);
+                       read_keyword - 13581 a/b);
+                       read_keyword - 13581 a/b);
+                       read_keyword - 13581 a/b);
+                       read_keyword - 13581 a/b);
+                       read_keyword - 13581 a/b);
+                      read_type_qualifier - 13581 a/b);
+                   read_unary_expression - 13580 (a/b);
+                    read_unary_operator - 13580 (a/b);
+                   read_postfix_expression - 13580 (a/b);
+                    read_primary_expression - 13580 (a/b);
+                     read_identifier - 13580 (a/b);
+                     read_expression - 13581 a/b);
+                      read_assignment_expression - 13581 a/b);
+                       read_unary_expression - 13581 a/b);
+                        read_unary_operator - 13581 a/b);
+                       read_postfix_expression - 13581 a/b);
+                        read_primary_expression - 13581 a/b);
+                         read_identifier - 13581 a/b);
+                      read_conditional_expression - 13581 a/b);
+                       read_logical_or_expression - 13581 a/b);
+                        read_logical_and_expression - 13581 a/b);
+                         read_inclusive_or_expression - 13581 a/b);
+                          read_exclusive_or_expression - 13581 a/b);
+                           read_and_expression - 13581 a/b);
+                            read_equality_expression - 13581 a/b);
+                             read_relational_expression - 13581 a/b);
+                              read_shift_expression - 13581 a/b);
+                               read_additive_expression - 13581 a/b);
+                                read_multiplicative_expression - 13581 a/b);
+                                 read_cast_expression - 13581 a/b);
+                                 read_unary_expression - 13581 a/b);
+                                  read_unary_operator - 13581 a/b);
+                                 read_postfix_expression - 13581 a/b);
+                                  read_primary_expression - 13581 a/b);
+                                   read_identifier - 13581 a/b);
+                                 read_multiplicative_expression - 13583 b);
+                                  read_cast_expression - 13583 b);
+                                  read_unary_expression - 13583 b);
+                                   read_unary_operator - 13583 b);
+                                  read_postfix_expression - 13583 b);
+                                   read_primary_expression - 13583 b);
+                                    read_identifier - 13583 b);
+     read_statement - 13586 
+      read_labeled_statement - 13586 
+       read_identifier - 13586 
+      read_compound_statement - 13587 }
+      read_assembler - 13587 }
+      read_selection_statement - 13587 }
+      read_iteration_statement - 13587 }
+      read_jump_statement - 13587 }
+      read_expression_statement - 13587 }
+       read_expression - 13587 }
+        read_assignment_expression - 13587 }
+         read_unary_expression - 13587 }
+          read_unary_operator - 13587 }
+         read_postfix_expression - 13587 }
+          read_primary_expression - 13587 }
+           read_identifier - 13587 }
+        read_conditional_expression - 13587 }
+         read_logical_or_expression - 13587 }
+          read_logical_and_expression - 13587 }
+           read_inclusive_or_expression - 13587 }
+            read_exclusive_or_expression - 13587 }
+             read_and_expression - 13587 }
+              read_equality_expression - 13587 }
+               read_relational_expression - 13587 }
+                read_shift_expression - 13587 }
+                 read_additive_expression - 13587 }
+                  read_multiplicative_expression - 13587 }
+                   read_cast_expression - 13587 }
+                   read_unary_expression - 13587 }
+                    read_unary_operator - 13587 }
+                   read_postfix_expression - 13587 }
+                    read_primary_expression - 13587 }
+                     read_identifier - 13587 }
+ read_external_declaration - 13590 int main(void)
+  read_function_definition - 13590 int main(void)
+   read_declaration_specifiers - 13590 int main(void)
+    read_storage_class_specifier - 13590 int main(void)
+    read_type_specifier - 13590 int main(void)
+     read_keyword - 13590 int main(void)
+     read_keyword - 13590 int main(void)
+     read_keyword - 13590 int main(void)
+     read_keyword - 13590 int main(void)
+     check_type_is_authorized - 13593  main(void)
+    read_type_qualifier - 13593  main(void)
+    read_pointer - 13594 main(void)
+    check_type_is_function - 13594 main(void)
+    read_storage_class_specifier - 13594 main(void)
+    read_type_specifier - 13594 main(void)
+     read_keyword - 13594 main(void)
+     read_keyword - 13594 main(void)
+     read_keyword - 13594 main(void)
+     read_keyword - 13594 main(void)
+     read_keyword - 13594 main(void)
+     read_keyword - 13594 main(void)
+     read_keyword - 13594 main(void)
+     read_keyword - 13594 main(void)
+     read_keyword - 13594 main(void)
+     read_keyword - 13594 main(void)
+     read_keyword - 13594 main(void)
+     read_keyword - 13594 main(void)
+    read_type_qualifier - 13594 main(void)
+    read_pointer - 13594 main(void)
+    check_type_is_function - 13594 main(void)
+   read_gcc_attribute - 13594 main(void)
+   read_declarator - 13594 main(void)
+    read_pointer - 13594 main(void)
+    read_direct_declarator - 13594 main(void)
+     read_identifier - 13594 main(void)
+     read_parameter_type_list - 13599 void)
+      read_parameter_list - 13599 void)
+       read_parameter_declaration - 13599 void)
+        read_declaration_specifiers - 13599 void)
+         read_storage_class_specifier - 13599 void)
+         read_type_specifier - 13599 void)
+          read_keyword - 13599 void)
+          check_type_is_authorized - 13603 )
+         read_type_qualifier - 13603 )
+         read_pointer - 13603 )
+         check_type_is_function - 13603 )
+         read_storage_class_specifier - 13603 )
+         read_type_specifier - 13603 )
+          read_keyword - 13603 )
+          read_keyword - 13603 )
+          read_keyword - 13603 )
+          read_keyword - 13603 )
+          read_keyword - 13603 )
+          read_keyword - 13603 )
+          read_keyword - 13603 )
+          read_keyword - 13603 )
+          read_keyword - 13603 )
+          read_keyword - 13603 )
+          read_keyword - 13603 )
+          read_keyword - 13603 )
+         read_type_qualifier - 13603 )
+         read_pointer - 13603 )
+         check_type_is_function - 13603 )
+        read_declarator - 13603 )
+         read_pointer - 13603 )
+         read_direct_declarator - 13603 )
+          read_identifier - 13603 )
+       read_abstract_declarator - 13603 )
+        read_pointer - 13603 )
+        read_direct_abstract_declarator - 13603 )
+   read_declaration_list - 13605 {
+    read_declaration - 13605 {
+     read_declaration_specifiers - 13605 {
+      read_storage_class_specifier - 13605 {
+      read_type_specifier - 13605 {
+       read_keyword - 13605 {
+       read_keyword - 13605 {
+       read_keyword - 13605 {
+       read_keyword - 13605 {
+       read_keyword - 13605 {
+       read_keyword - 13605 {
+       read_keyword - 13605 {
+       read_keyword - 13605 {
+       read_keyword - 13605 {
+       read_keyword - 13605 {
+       read_keyword - 13605 {
+       read_keyword - 13605 {
+      read_type_qualifier - 13605 {
+      read_pointer - 13605 {
+      check_type_is_function - 13605 {
+   read_compound_statement - 13605 {
+    read_declaration_list - 13609 double res;
+     read_declaration - 13609 double res;
+      read_declaration_specifiers - 13609 double res;
+       read_storage_class_specifier - 13609 double res;
+       read_type_specifier - 13609 double res;
+        read_keyword - 13609 double res;
+        read_keyword - 13609 double res;
+        read_keyword - 13609 double res;
+        read_keyword - 13609 double res;
+        read_keyword - 13609 double res;
+        read_keyword - 13609 double res;
+        read_keyword - 13609 double res;
+        check_type_is_authorized - 13615  res;
+       read_type_qualifier - 13615  res;
+       read_pointer - 13616 res;
+       check_type_is_function - 13616 res;
+       read_storage_class_specifier - 13616 res;
+       read_type_specifier - 13616 res;
+        read_keyword - 13616 res;
+        read_keyword - 13616 res;
+        read_keyword - 13616 res;
+        read_keyword - 13616 res;
+        read_keyword - 13616 res;
+        read_keyword - 13616 res;
+        read_keyword - 13616 res;
+        read_keyword - 13616 res;
+        read_keyword - 13616 res;
+        read_keyword - 13616 res;
+        read_keyword - 13616 res;
+        read_keyword - 13616 res;
+       read_type_qualifier - 13616 res;
+       read_pointer - 13616 res;
+       check_type_is_function - 13616 res;
+      read_gcc_attribute - 13616 res;
+      read_init_declarator_list - 13616 res;
+       read_init_declarator - 13616 res;
+        read_declarator - 13616 res;
+         read_pointer - 13616 res;
+         read_direct_declarator - 13616 res;
+          read_identifier - 13616 res;
+          check_style - 13616 res;
+      read_gcc_attribute - 13619 ;
+      read_assembler - 13619 ;
+      read_gcc_attribute - 13619 ;
+     read_declaration - 13620 
+      read_declaration_specifiers - 13623 res = (double)divide(5, 2);
+       read_storage_class_specifier - 13623 res = (double)divide(5, 2);
+       read_type_specifier - 13623 res = (double)divide(5, 2);
+        read_keyword - 13623 res = (double)divide(5, 2);
+        read_keyword - 13623 res = (double)divide(5, 2);
+        read_keyword - 13623 res = (double)divide(5, 2);
+        read_keyword - 13623 res = (double)divide(5, 2);
+        read_keyword - 13623 res = (double)divide(5, 2);
+        read_keyword - 13623 res = (double)divide(5, 2);
+        read_keyword - 13623 res = (double)divide(5, 2);
+        read_keyword - 13623 res = (double)divide(5, 2);
+        read_keyword - 13623 res = (double)divide(5, 2);
+        read_keyword - 13623 res = (double)divide(5, 2);
+        read_keyword - 13623 res = (double)divide(5, 2);
+        read_keyword - 13623 res = (double)divide(5, 2);
+       read_type_qualifier - 13623 res = (double)divide(5, 2);
+       read_pointer - 13623 res = (double)divide(5, 2);
+       check_type_is_function - 13623 res = (double)divide(5, 2);
+    read_statement_list - 13623 res = (double)divide(5, 2);
+     read_statement - 13623 res = (double)divide(5, 2);
+      read_labeled_statement - 13623 res = (double)divide(5, 2);
+       read_identifier - 13623 res = (double)divide(5, 2);
+      read_compound_statement - 13623 res = (double)divide(5, 2);
+      read_assembler - 13623 res = (double)divide(5, 2);
+      read_selection_statement - 13623 res = (double)divide(5, 2);
+      read_iteration_statement - 13623 res = (double)divide(5, 2);
+      read_jump_statement - 13623 res = (double)divide(5, 2);
+      read_expression_statement - 13623 res = (double)divide(5, 2);
+       read_expression - 13623 res = (double)divide(5, 2);
+        read_assignment_expression - 13623 res = (double)divide(5, 2);
+         read_unary_expression - 13623 res = (double)divide(5, 2);
+          read_unary_operator - 13623 res = (double)divide(5, 2);
+         read_postfix_expression - 13623 res = (double)divide(5, 2);
+          read_primary_expression - 13623 res = (double)divide(5, 2);
+           read_identifier - 13623 res = (double)divide(5, 2);
+         read_assignment_expression - 13628  (double)divide(5, 2);
+          read_unary_expression - 13629 (double)divide(5, 2);
+           read_unary_operator - 13629 (double)divide(5, 2);
+          read_postfix_expression - 13629 (double)divide(5, 2);
+           read_primary_expression - 13629 (double)divide(5, 2);
+            read_identifier - 13629 (double)divide(5, 2);
+            read_expression - 13630 double)divide(5, 2);
+             read_assignment_expression - 13630 double)divide(5, 2);
+              read_unary_expression - 13630 double)divide(5, 2);
+               read_unary_operator - 13630 double)divide(5, 2);
+              read_postfix_expression - 13630 double)divide(5, 2);
+               read_primary_expression - 13630 double)divide(5, 2);
+                read_identifier - 13630 double)divide(5, 2);
+             read_conditional_expression - 13630 double)divide(5, 2);
+              read_logical_or_expression - 13630 double)divide(5, 2);
+               read_logical_and_expression - 13630 double)divide(5, 2);
+                read_inclusive_or_expression - 13630 double)divide(5, 2);
+                 read_exclusive_or_expression - 13630 double)divide(5, 2);
+                  read_and_expression - 13630 double)divide(5, 2);
+                   read_equality_expression - 13630 double)divide(5, 2);
+                    read_relational_expression - 13630 double)divide(5, 2);
+                     read_shift_expression - 13630 double)divide(5, 2);
+                      read_additive_expression - 13630 double)divide(5, 2);
+                       read_multiplicative_expression - 13630 double)divide(5, 2);
+                        read_cast_expression - 13630 double)divide(5, 2);
+                        read_unary_expression - 13630 double)divide(5, 2);
+                         read_unary_operator - 13630 double)divide(5, 2);
+                        read_postfix_expression - 13630 double)divide(5, 2);
+                         read_primary_expression - 13630 double)divide(5, 2);
+                          read_identifier - 13630 double)divide(5, 2);
+         read_conditional_expression - 13629 (double)divide(5, 2);
+          read_logical_or_expression - 13629 (double)divide(5, 2);
+           read_logical_and_expression - 13629 (double)divide(5, 2);
+            read_inclusive_or_expression - 13629 (double)divide(5, 2);
+             read_exclusive_or_expression - 13629 (double)divide(5, 2);
+              read_and_expression - 13629 (double)divide(5, 2);
+               read_equality_expression - 13629 (double)divide(5, 2);
+                read_relational_expression - 13629 (double)divide(5, 2);
+                 read_shift_expression - 13629 (double)divide(5, 2);
+                  read_additive_expression - 13629 (double)divide(5, 2);
+                   read_multiplicative_expression - 13629 (double)divide(5, 2);
+                    read_cast_expression - 13629 (double)divide(5, 2);
+                     read_type_name - 13630 double)divide(5, 2);
+                      read_specifier_qualifier_list - 13630 double)divide(5, 2);
+                       read_type_specifier - 13630 double)divide(5, 2);
+                        read_keyword - 13630 double)divide(5, 2);
+                        read_keyword - 13630 double)divide(5, 2);
+                        read_keyword - 13630 double)divide(5, 2);
+                        read_keyword - 13630 double)divide(5, 2);
+                        read_keyword - 13630 double)divide(5, 2);
+                        read_keyword - 13630 double)divide(5, 2);
+                        read_keyword - 13630 double)divide(5, 2);
+                        check_type_is_authorized - 13636 )divide(5, 2);
+                       read_type_qualifier - 13636 )divide(5, 2);
+                       read_type_specifier - 13636 )divide(5, 2);
+                        read_keyword - 13636 )divide(5, 2);
+                        read_keyword - 13636 )divide(5, 2);
+                        read_keyword - 13636 )divide(5, 2);
+                        read_keyword - 13636 )divide(5, 2);
+                        read_keyword - 13636 )divide(5, 2);
+                        read_keyword - 13636 )divide(5, 2);
+                        read_keyword - 13636 )divide(5, 2);
+                        read_keyword - 13636 )divide(5, 2);
+                        read_keyword - 13636 )divide(5, 2);
+                        read_keyword - 13636 )divide(5, 2);
+                        read_keyword - 13636 )divide(5, 2);
+                        read_keyword - 13636 )divide(5, 2);
+                       read_type_qualifier - 13636 )divide(5, 2);
+                      read_abstract_declarator - 13636 )divide(5, 2);
+                       read_pointer - 13636 )divide(5, 2);
+                       read_direct_abstract_declarator - 13636 )divide(5, 2);
+                    read_cast_expression - 13637 divide(5, 2);
+                    read_unary_expression - 13637 divide(5, 2);
+                     read_unary_operator - 13637 divide(5, 2);
+                    read_postfix_expression - 13637 divide(5, 2);
+                     read_primary_expression - 13637 divide(5, 2);
+                      read_identifier - 13637 divide(5, 2);
+                     read_argument_expression_list - 13644 5, 2);
+                      read_assignment_expression - 13644 5, 2);
+                       read_unary_expression - 13644 5, 2);
+                        read_unary_operator - 13644 5, 2);
+                       read_postfix_expression - 13644 5, 2);
+                        read_primary_expression - 13644 5, 2);
+                         read_identifier - 13644 5, 2);
+                      read_conditional_expression - 13644 5, 2);
+                       read_logical_or_expression - 13644 5, 2);
+                        read_logical_and_expression - 13644 5, 2);
+                         read_inclusive_or_expression - 13644 5, 2);
+                          read_exclusive_or_expression - 13644 5, 2);
+                           read_and_expression - 13644 5, 2);
+                            read_equality_expression - 13644 5, 2);
+                             read_relational_expression - 13644 5, 2);
+                              read_shift_expression - 13644 5, 2);
+                               read_additive_expression - 13644 5, 2);
+                                read_multiplicative_expression - 13644 5, 2);
+                                 read_cast_expression - 13644 5, 2);
+                                 read_unary_expression - 13644 5, 2);
+                                  read_unary_operator - 13644 5, 2);
+                                 read_postfix_expression - 13644 5, 2);
+                                  read_primary_expression - 13644 5, 2);
+                                   read_identifier - 13644 5, 2);
+                      read_assignment_expression - 13646  2);
+                       read_unary_expression - 13647 2);
+                        read_unary_operator - 13647 2);
+                       read_postfix_expression - 13647 2);
+                        read_primary_expression - 13647 2);
+                         read_identifier - 13647 2);
+                      read_conditional_expression - 13647 2);
+                       read_logical_or_expression - 13647 2);
+                        read_logical_and_expression - 13647 2);
+                         read_inclusive_or_expression - 13647 2);
+                          read_exclusive_or_expression - 13647 2);
+                           read_and_expression - 13647 2);
+                            read_equality_expression - 13647 2);
+                             read_relational_expression - 13647 2);
+                              read_shift_expression - 13647 2);
+                               read_additive_expression - 13647 2);
+                                read_multiplicative_expression - 13647 2);
+                                 read_cast_expression - 13647 2);
+                                 read_unary_expression - 13647 2);
+                                  read_unary_operator - 13647 2);
+                                 read_postfix_expression - 13647 2);
+                                  read_primary_expression - 13647 2);
+                                   read_identifier - 13647 2);
+     read_statement - 13650 
+      read_labeled_statement - 13650 
+       read_identifier - 13650 
+      read_compound_statement - 13653 return(res);
+      read_assembler - 13653 return(res);
+      read_selection_statement - 13653 return(res);
+      read_iteration_statement - 13653 return(res);
+      read_jump_statement - 13653 return(res);
+       read_expression - 13659 (res);
+        read_assignment_expression - 13659 (res);
+         read_unary_expression - 13659 (res);
+          read_unary_operator - 13659 (res);
+         read_postfix_expression - 13659 (res);
+          read_primary_expression - 13659 (res);
+           read_identifier - 13659 (res);
+           read_expression - 13660 res);
+            read_assignment_expression - 13660 res);
+             read_unary_expression - 13660 res);
+              read_unary_operator - 13660 res);
+             read_postfix_expression - 13660 res);
+              read_primary_expression - 13660 res);
+               read_identifier - 13660 res);
+            read_conditional_expression - 13660 res);
+             read_logical_or_expression - 13660 res);
+              read_logical_and_expression - 13660 res);
+               read_inclusive_or_expression - 13660 res);
+                read_exclusive_or_expression - 13660 res);
+                 read_and_expression - 13660 res);
+                  read_equality_expression - 13660 res);
+                   read_relational_expression - 13660 res);
+                    read_shift_expression - 13660 res);
+                     read_additive_expression - 13660 res);
+                      read_multiplicative_expression - 13660 res);
+                       read_cast_expression - 13660 res);
+                       read_unary_expression - 13660 res);
+                        read_unary_operator - 13660 res);
+                       read_postfix_expression - 13660 res);
+                        read_primary_expression - 13660 res);
+                         read_identifier - 13660 res);
+        read_conditional_expression - 13659 (res);
+         read_logical_or_expression - 13659 (res);
+          read_logical_and_expression - 13659 (res);
+           read_inclusive_or_expression - 13659 (res);
+            read_exclusive_or_expression - 13659 (res);
+             read_and_expression - 13659 (res);
+              read_equality_expression - 13659 (res);
+               read_relational_expression - 13659 (res);
+                read_shift_expression - 13659 (res);
+                 read_additive_expression - 13659 (res);
+                  read_multiplicative_expression - 13659 (res);
+                   read_cast_expression - 13659 (res);
+                    read_type_name - 13660 res);
+                     read_specifier_qualifier_list - 13660 res);
+                      read_type_specifier - 13660 res);
+                       read_keyword - 13660 res);
+                       read_keyword - 13660 res);
+                       read_keyword - 13660 res);
+                       read_keyword - 13660 res);
+                       read_keyword - 13660 res);
+                       read_keyword - 13660 res);
+                       read_keyword - 13660 res);
+                       read_keyword - 13660 res);
+                       read_keyword - 13660 res);
+                       read_keyword - 13660 res);
+                       read_keyword - 13660 res);
+                       read_keyword - 13660 res);
+                      read_type_qualifier - 13660 res);
+                   read_unary_expression - 13659 (res);
+                    read_unary_operator - 13659 (res);
+                   read_postfix_expression - 13659 (res);
+                    read_primary_expression - 13659 (res);
+                     read_identifier - 13659 (res);
+                     read_expression - 13660 res);
+                      read_assignment_expression - 13660 res);
+                       read_unary_expression - 13660 res);
+                        read_unary_operator - 13660 res);
+                       read_postfix_expression - 13660 res);
+                        read_primary_expression - 13660 res);
+                         read_identifier - 13660 res);
+                      read_conditional_expression - 13660 res);
+                       read_logical_or_expression - 13660 res);
+                        read_logical_and_expression - 13660 res);
+                         read_inclusive_or_expression - 13660 res);
+                          read_exclusive_or_expression - 13660 res);
+                           read_and_expression - 13660 res);
+                            read_equality_expression - 13660 res);
+                             read_relational_expression - 13660 res);
+                              read_shift_expression - 13660 res);
+                               read_additive_expression - 13660 res);
+                                read_multiplicative_expression - 13660 res);
+                                 read_cast_expression - 13660 res);
+                                 read_unary_expression - 13660 res);
+                                  read_unary_operator - 13660 res);
+                                 read_postfix_expression - 13660 res);
+                                  read_primary_expression - 13660 res);
+                                   read_identifier - 13660 res);
+     read_statement - 13665 
+      read_labeled_statement - 13665 
+       read_identifier - 13665 
+      read_compound_statement - 13666 }
+      read_assembler - 13666 }
+      read_selection_statement - 13666 }
+      read_iteration_statement - 13666 }
+      read_jump_statement - 13666 }
+      read_expression_statement - 13666 }
+       read_expression - 13666 }
+        read_assignment_expression - 13666 }
+         read_unary_expression - 13666 }
+          read_unary_operator - 13666 }
+         read_postfix_expression - 13666 }
+          read_primary_expression - 13666 }
+           read_identifier - 13666 }
+        read_conditional_expression - 13666 }
+         read_logical_or_expression - 13666 }
+          read_logical_and_expression - 13666 }
+           read_inclusive_or_expression - 13666 }
+            read_exclusive_or_expression - 13666 }
+             read_and_expression - 13666 }
+              read_equality_expression - 13666 }
+               read_relational_expression - 13666 }
+                read_shift_expression - 13666 }
+                 read_additive_expression - 13666 }
+                  read_multiplicative_expression - 13666 }
+                   read_cast_expression - 13666 }
+                   read_unary_expression - 13666 }
+                    read_unary_operator - 13666 }
+                   read_postfix_expression - 13666 }
+                    read_primary_expression - 13666 }
+                     read_identifier - 13666 }
+   check_style - 13594 main(void)
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+The header is absent or misformed. (test/test.c, line 1)
+static int divide(int	a,
+^
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+The name 'a' is too short. Minimum was 3. (test/test.c, line 366)
+static int divide(int	a,
+                     	 ^
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+The name 'b' is too short. Minimum was 3. (test/test.c, line 367)
+		  int	b)
+		     	 ^
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+A single space was expected after the statement. (test/test.c, line 369)
+  return(a/b);
+        ^
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+A single space was expected around the operator. (test/test.c, line 369)
+  return(a/b);
+          ^
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+A single space was expected around the operator. (test/test.c, line 369)
+  return(a/b);
+          ^
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Function and variable names must be aligned. (test/test.c, line 374)
+  double res;
+         ^
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+An empty line was expected between variable declaration and statement. (test/test.c, line 375)
+  res = (double)divide(5, 2);
+  ^
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Assignment are forbidden. (test/test.c, line 375)
+  res = (double)divide(5, 2);
+  ^
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+A single space was expected after the statement. (test/test.c, line 376)
+  return(res);
+        ^
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Function main does not match its path name test_test. (test/test.c, line 372)
+int main(void)
+    ^
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Function and variable name must be aligned globally in your file. (test/test.c, line 378)
+
+Amount of warning: 12.
+Amount of different kind of mistakes: 8.
+Amount of error points: 12.

@@ -1,0 +1,303 @@
+read_translation_unit - 0 #define __STDC__ 1
+ read_external_declaration - 23695 extern int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+  read_function_definition - 23695 extern int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_declaration_specifiers - 23695 extern int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_storage_class_specifier - 23695 extern int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_type_specifier - 23701  int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23702 int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23702 int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23702 int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23702 int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     check_type_is_authorized - 23705  *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_type_qualifier - 23705  *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_pointer - 23706 *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_type_qualifier - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_pointer - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    check_type_is_function - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_storage_class_specifier - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_type_specifier - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_type_qualifier - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_pointer - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    check_type_is_function - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_gcc_attribute - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_declarator - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_pointer - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_direct_declarator - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_identifier - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_parameter_type_list - 23725 void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+      read_parameter_list - 23725 void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_parameter_declaration - 23725 void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+        read_declaration_specifiers - 23725 void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         read_storage_class_specifier - 23725 void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         read_type_specifier - 23725 void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_keyword - 23725 void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          check_type_is_authorized - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         read_type_qualifier - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         read_pointer - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         check_type_is_function - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         read_storage_class_specifier - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         read_type_specifier - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         read_type_qualifier - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         read_pointer - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         check_type_is_function - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+        read_declarator - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         read_pointer - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         read_direct_declarator - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_identifier - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_abstract_declarator - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+        read_pointer - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+        read_direct_abstract_declarator - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_declaration_list - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_declaration - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_declaration_specifiers - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+      read_storage_class_specifier - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+      read_type_specifier - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_keyword - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_keyword - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_keyword - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_keyword - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_keyword - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_keyword - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_keyword - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_keyword - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_keyword - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_keyword - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_keyword - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_keyword - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+      read_type_qualifier - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+      read_pointer - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+      check_type_is_function - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_compound_statement - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+ read_declaration - 23695 extern int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+  read_declaration_specifiers - 23695 extern int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_storage_class_specifier - 23695 extern int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_type_specifier - 23701  int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23702 int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23702 int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23702 int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23702 int *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    check_type_is_authorized - 23705  *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_type_qualifier - 23705  *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_pointer - 23706 *__errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_type_qualifier - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_pointer - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   check_type_is_function - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_storage_class_specifier - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_type_specifier - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_keyword - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_type_qualifier - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_pointer - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   check_type_is_function - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+  read_gcc_attribute - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+  read_init_declarator_list - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_init_declarator - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_declarator - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_pointer - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+     read_direct_declarator - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+      read_identifier - 23707 __errno_location (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+      read_parameter_type_list - 23725 void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+       read_parameter_list - 23725 void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+        read_parameter_declaration - 23725 void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         read_declaration_specifiers - 23725 void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_storage_class_specifier - 23725 void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_type_specifier - 23725 void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           read_keyword - 23725 void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           check_type_is_authorized - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_type_qualifier - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_pointer - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          check_type_is_function - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_storage_class_specifier - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_type_specifier - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           read_keyword - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_type_qualifier - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_pointer - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          check_type_is_function - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         read_declarator - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_pointer - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+          read_direct_declarator - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+           read_identifier - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+        read_abstract_declarator - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         read_pointer - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+         read_direct_abstract_declarator - 23729 ) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+  read_gcc_attribute - 23731 __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+   read_gcc_attribute_list_node - 23747 __nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_identifier - 23747 __nothrow__ , __leaf__)) __attribute__ ((__const__));
+    read_identifier - 23758  , __leaf__)) __attribute__ ((__const__));
+   read_gcc_attribute_list_node - 23760  __leaf__)) __attribute__ ((__const__));
+    read_identifier - 23760  __leaf__)) __attribute__ ((__const__));
+    read_identifier - 23769 )) __attribute__ ((__const__));
+   read_gcc_attribute_list_node - 23769 )) __attribute__ ((__const__));
+    read_identifier - 23769 )) __attribute__ ((__const__));
+   read_gcc_attribute_list_node - 23788 __const__));
+    read_identifier - 23788 __const__));
+    read_identifier - 23797 ));
+   read_gcc_attribute_list_node - 23797 ));
+    read_identifier - 23797 ));
+  read_assembler - 23799 ;
+  read_gcc_attribute - 23799 ;
+ read_external_declaration - 23842 int main(void)
+  read_function_definition - 23842 int main(void)
+   read_declaration_specifiers - 23842 int main(void)
+    read_storage_class_specifier - 23842 int main(void)
+    read_type_specifier - 23842 int main(void)
+     read_keyword - 23842 int main(void)
+     read_keyword - 23842 int main(void)
+     read_keyword - 23842 int main(void)
+     read_keyword - 23842 int main(void)
+     check_type_is_authorized - 23845  main(void)
+    read_type_qualifier - 23845  main(void)
+    read_pointer - 23846 main(void)
+    check_type_is_function - 23846 main(void)
+    read_storage_class_specifier - 23846 main(void)
+    read_type_specifier - 23846 main(void)
+     read_keyword - 23846 main(void)
+     read_keyword - 23846 main(void)
+     read_keyword - 23846 main(void)
+     read_keyword - 23846 main(void)
+     read_keyword - 23846 main(void)
+     read_keyword - 23846 main(void)
+     read_keyword - 23846 main(void)
+     read_keyword - 23846 main(void)
+     read_keyword - 23846 main(void)
+     read_keyword - 23846 main(void)
+     read_keyword - 23846 main(void)
+     read_keyword - 23846 main(void)
+    read_type_qualifier - 23846 main(void)
+    read_pointer - 23846 main(void)
+    check_type_is_function - 23846 main(void)
+   read_gcc_attribute - 23846 main(void)
+   read_declarator - 23846 main(void)
+    read_pointer - 23846 main(void)
+    read_direct_declarator - 23846 main(void)
+     read_identifier - 23846 main(void)
+     read_parameter_type_list - 23851 void)
+      read_parameter_list - 23851 void)
+       read_parameter_declaration - 23851 void)
+        read_declaration_specifiers - 23851 void)
+         read_storage_class_specifier - 23851 void)
+         read_type_specifier - 23851 void)
+          read_keyword - 23851 void)
+          check_type_is_authorized - 23855 )
+         read_type_qualifier - 23855 )
+         read_pointer - 23855 )
+         check_type_is_function - 23855 )
+         read_storage_class_specifier - 23855 )
+         read_type_specifier - 23855 )
+          read_keyword - 23855 )
+          read_keyword - 23855 )
+          read_keyword - 23855 )
+          read_keyword - 23855 )
+          read_keyword - 23855 )
+          read_keyword - 23855 )
+          read_keyword - 23855 )
+          read_keyword - 23855 )
+          read_keyword - 23855 )
+          read_keyword - 23855 )
+          read_keyword - 23855 )
+          read_keyword - 23855 )
+         read_type_qualifier - 23855 )
+         read_pointer - 23855 )
+         check_type_is_function - 23855 )
+        read_declarator - 23855 )
+         read_pointer - 23855 )
+         read_direct_declarator - 23855 )
+          read_identifier - 23855 )
+       read_abstract_declarator - 23855 )
+        read_pointer - 23855 )
+        read_direct_abstract_declarator - 23855 )
+   read_declaration_list - 23857 {
+    read_declaration - 23857 {
+     read_declaration_specifiers - 23857 {
+      read_storage_class_specifier - 23857 {
+      read_type_specifier - 23857 {
+       read_keyword - 23857 {
+       read_keyword - 23857 {
+       read_keyword - 23857 {
+       read_keyword - 23857 {
+       read_keyword - 23857 {
+       read_keyword - 23857 {
+       read_keyword - 23857 {
+       read_keyword - 23857 {
+       read_keyword - 23857 {
+       read_keyword - 23857 {
+       read_keyword - 23857 {
+       read_keyword - 23857 {
+      read_type_qualifier - 23857 {
+      read_pointer - 23857 {
+      check_type_is_function - 23857 {
+   read_compound_statement - 23857 {
+    read_declaration_list - 23861 (*__errno_location ()) = 22;
+     read_declaration - 23861 (*__errno_location ()) = 22;
+      read_declaration_specifiers - 23861 (*__errno_location ()) = 22;
+       read_storage_class_specifier - 23861 (*__errno_location ()) = 22;
+       read_type_specifier - 23861 (*__errno_location ()) = 22;
+        read_keyword - 23861 (*__errno_location ()) = 22;
+        read_keyword - 23861 (*__errno_location ()) = 22;
+        read_keyword - 23861 (*__errno_location ()) = 22;
+        read_keyword - 23861 (*__errno_location ()) = 22;
+        read_keyword - 23861 (*__errno_location ()) = 22;
+        read_keyword - 23861 (*__errno_location ()) = 22;
+        read_keyword - 23861 (*__errno_location ()) = 22;
+        read_keyword - 23861 (*__errno_location ()) = 22;
+        read_keyword - 23861 (*__errno_location ()) = 22;
+        read_keyword - 23861 (*__errno_location ()) = 22;
+        read_keyword - 23861 (*__errno_location ()) = 22;
+        read_keyword - 23861 (*__errno_location ()) = 22;
+       read_type_qualifier - 23861 (*__errno_location ()) = 22;
+       read_pointer - 23861 (*__errno_location ()) = 22;
+       check_type_is_function - 23861 (*__errno_location ()) = 22;
+        travel_expression - 23863 __errno_location ()) = 22;
+Parsing stopped line 660, column 2.
+int main(void)
+ ^
+Error backtrack:
+ - Syntax Error, missing > ( < (test/test.c, line 3)
+  (*__errno_location ()) = 22;
+  ^
+

@@ -2580,7 +2580,7 @@ int			read_declaration_specifiers(t_parsing	*p,
 
       // Si nouveau pointeur, on check la position de l'étoile
       if (p->last_declaration.nbr_pointer != prev_ptr)
-	if (!check_pointer_star_position(p, code, *i))
+	if (!check_pointer_star_position(p, code, *i, p->last_declaration.nbr_pointer - prev_ptr))
 	  RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 
       // Mis à jour des variables
@@ -2670,12 +2670,14 @@ int			read_abstract_declarator(t_parsing	*p,
 {
   int			a;
   int			b;
+  int			prev_ptr;
 
   FTRACE(code, *i);
+  prev_ptr = p->last_declaration.nbr_pointer;
   if ((a = read_pointer(p, code, i)) == -1)
     FRETURN (-1);
-  if (p->last_declaration.nbr_pointer)
-    if (!check_pointer_star_position(p, code, *i))
+  if (p->last_declaration.nbr_pointer != prev_ptr)
+    if (!check_pointer_star_position(p, code, *i, p->last_declaration.nbr_pointer - prev_ptr))
       RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
   if ((b = read_direct_abstract_declarator(p, code, i)) == -1)
     FRETURN (-1);
@@ -3009,7 +3011,7 @@ int			read_declarator(t_parsing		*p,
     FRETURN (-1);
   if (p->last_declaration.nbr_pointer)
     {
-      if (!check_pointer_star_position(p, code, *i))
+      if (!check_pointer_star_position(p, code, *i, p->last_declaration.nbr_pointer))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
     }
   ret = read_direct_declarator(p, code, i);

@@ -1,0 +1,91 @@
+[0;32m Object file deleted [00m
+[0;32m Program deleted! [00m
+[0;32m Library deleted! [00m
+[1;36m [OK] [0;32m src/add_new_type.c [00m
+[1;36m [OK] [0;32m src/add_warning.c [00m
+[1;36m [OK] [0;32m src/check_base_indentation.c [00m
+[1;36m [OK] [0;32m src/check_function_length.c [00m
+[1;36m [OK] [0;32m src/check_header.c [00m
+[1;36m [OK] [0;32m src/check_is_alone.c [00m
+[1;36m [OK] [0;32m src/check_last_parameter_is_reference.c [00m
+[1;36m [OK] [0;32m src/check_line_width.c [00m
+[1;36m [OK] [0;32m src/check_no_empty_line.c [00m
+[1;36m [OK] [0;32m src/check_no_space_before_space_after.c [00m
+[1;36m [OK] [0;32m src/check_one_space_around.c [00m
+[1;36m [OK] [0;32m src/check_on_same_line.c [00m
+[1;36m [OK] [0;32m src/check_parenthesis_space.c [00m
+[1;36m [OK] [0;32m src/check_pointer_star_position.c [00m
+[1;36m [OK] [0;32m src/check_single_space.c [00m
+[1;36m [OK] [0;32m src/check_trailing_whitespace.c [00m
+[1;36m [OK] [0;32m src/check_white_then_newline.c [00m
+[1;36m [OK] [0;32m src/compare_file_and_function_name.c [00m
+[1;36m [OK] [0;32m src/count_to_new_line.c [00m
+[1;36m [OK] [0;32m src/crawler.c [00m
+[1;36m [OK] [0;32m src/load_c_file.c [00m
+[1;36m [OK] [0;32m src/popen.c [00m
+[1;36m [OK] [0;32m src/read_whitespace.c [00m
+[1;36m [OK] [0;32m src/store_real_typename.c [00m
+[1;36m [OK] [0;32m src/trace.c [00m
+[1;36m [OK] [0;32m src/write_line_and_position.c [00m
+[1;36m [OK] [0;32m libcrawler.a [00m
+Build mode: debug
+[1;36m [OK] [0;32m libcrawler.so [00m
+Build mode: debug
+[1;36m [OK] [0;32mall_globals_are_const [00m
+[1;36m [OK] [0;32malways_braces [00m
+[1;36m [OK] [0;32mblock_style [00m
+[0;31m [KO] c99 [00m
+[1;36m [OK] [0;32mcast [00m
+[1;36m [OK] [0;32mcolumn_and_function_length [00m
+[1;36m [OK] [0;32mcompare_file_and_function_name [00m
+[1;36m [OK] [0;32mcomplex_function_implmentation [00m
+[1;36m [OK] [0;32mcomplex_return_value_prototype [00m
+[1;36m [OK] [0;32mconditional_expression [00m
+[1;36m [OK] [0;32mdeclaration [00m
+[1;36m [OK] [0;32mdeclaration_statement_separator [00m
+[1;36m [OK] [0;32mexpression [00m
+[1;36m [OK] [0;32mextern_variable [00m
+[0;31m [KO] final [00m
+[1;36m [OK] [0;32mforbidden_keywords [00m
+[1;36m [OK] [0;32mfunction_attribute [00m
+[1;36m [OK] [0;32mfunction_definition [00m
+[1;36m [OK] [0;32mfunction_per_file [00m
+[1;36m [OK] [0;32mfunction_pointer [00m
+[1;36m [OK] [0;32mfunction_prototype [00m
+[1;36m [OK] [0;32mfunction_style [00m
+[1;36m [OK] [0;32mglobal_variable_style [00m
+[1;36m [OK] [0;32mheader [00m
+[1;36m [OK] [0;32midentifier [00m
+[1;36m [OK] [0;32mindentation [00m
+[1;36m [OK] [0;32miteration_statement [00m
+[1;36m [OK] [0;32mjump_statement [00m
+[1;36m [OK] [0;32mline_discipline [00m
+[1;36m [OK] [0;32mlocal_variable_style [00m
+[1;36m [OK] [0;32mmain_prototype [00m
+[1;36m [OK] [0;32mmaximum_if_in_function [00m
+[1;36m [OK] [0;32mmax_parameters [00m
+[1;36m [OK] [0;32mmax_variables [00m
+[1;36m [OK] [0;32mno_assignment [00m
+[1;36m [OK] [0;32mno_globals [00m
+[1;36m [OK] [0;32mnon_static_function_per_file [00m
+[1;36m [OK] [0;32mno_short_no_magic [00m
+[1;36m [OK] [0;32mparameter_size [00m
+[1;36m [OK] [0;32mpostix_expression [00m
+[1;36m [OK] [0;32mprimary_expression [00m
+[1;36m [OK] [0;32mptr_symbol [00m
+[1;36m [OK] [0;32mreturn_parenthesis [00m
+[1;36m [OK] [0;32mselection_statement [00m
+[1;36m [OK] [0;32mspaces [00m
+[1;36m [OK] [0;32mstatement [00m
+[1;36m [OK] [0;32mstyle_same_line [00m
+[1;36m [OK] [0;32mswitch_function [00m
+[1;36m [OK] [0;32mtypedef_enum [00m
+[1;36m [OK] [0;32mtypedef_function_pointer [00m
+[1;36m [OK] [0;32mtypedef_struct [00m
+[1;36m [OK] [0;32mtypedef_type [00m
+[1;36m [OK] [0;32mtypedef_union [00m
+[1;36m [OK] [0;32munary_expression [00m
+[1;36m [OK] [0;32munary_operator [00m
+[1;36m [OK] [0;32mvariable_attribute [00m
+[1;36m [OK] [0;32mvarious [00m
+[1;36m [OK] [0;32mwhitespace [00m

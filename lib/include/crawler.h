@@ -451,7 +451,8 @@ void			full_write_with_arrow(t_parsing			*parsing,
 					      int			pos);
 bool			check_pointer_star_position(t_parsing		*parsing,
 						    const char		*code,
-						    int			pos);
+						    int			pos,
+						    int			nb_pointer);
 bool			check_parenthesis_space(t_parsing		*parsing,
 						const char		*code,
 						int			pos,

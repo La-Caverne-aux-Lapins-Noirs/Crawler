@@ -17,10 +17,11 @@
 
 bool			check_pointer_star_position(t_parsing	*p,
 						    const char	*code,
-						    int		pos)
+						    int		pos,
+						    int		nb_pointer)
 {
   int			i = pos;
-  bool			first = true;
+  int			n_pointer;
   bool			statement = false;
 
   // On commence sur le nom de la variable.
@@ -33,7 +34,7 @@ bool			check_pointer_star_position(t_parsing	*p,
   // On se dégage du nom de la variable
   if (i > 0 && code[i - 1] != '\n' && code[i - 1] != '(' && code[i - 1] != ')' && code[i - 1] != ',')
     i -= 1;
-
+  n_pointer = 0;
   // On continue jusqu'au début de la ligne ou la première parenthèse ouvrante (si on est dans
   // les paramètres) ou fermante (protection au cas ou l'on soit dans un pointeur sur fonction...)
   // de meme que virgule pour la fin du paramètre...
@@ -43,7 +44,7 @@ bool			check_pointer_star_position(t_parsing	*p,
 	statement = true;
       if (code[i] == '*')
 	{
-	  if (first == false || statement == true)
+	  if (n_pointer >= nb_pointer || statement == true)
 	    {
 	      if (p->inbetween_ptr_symbol_space.value)
 		if (check_one_space_around
@@ -54,7 +55,6 @@ bool			check_pointer_star_position(t_parsing	*p,
 	    }
 	  else
 	    {
-	      first = false;
 	      if (p->ptr_symbol_on_name.value)
 		if (!check_parenthesis_space(p, code, i, '(', &p->ptr_symbol_on_name.counter))
 		  return (false);
@@ -62,6 +62,7 @@ bool			check_pointer_star_position(t_parsing	*p,
 		if (!check_parenthesis_space(p, code, i, ')', &p->ptr_symbol_on_type.counter))
 		  return (false);
 	    }
+	  n_pointer += 1;
 	}
       i -= 1;
     }

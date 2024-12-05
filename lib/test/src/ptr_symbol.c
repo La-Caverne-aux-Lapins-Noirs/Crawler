@@ -120,6 +120,17 @@ int			main(int		argc,
   assert(p.inbetween_ptr_symbol_space.counter == 2);
   assert(p.ptr_symbol_on_name.counter == 0);
   assert(p.ptr_symbol_on_type.counter == 0);
+
+  // Test pour double tableau **
+  i = 0;
+  file = "./res/double_board.c";
+  load_norm_configuration(&p, cnf);
+  p.last_error_id = -1;
+  p.last_new_type = 0;
+  assert(cfile = load_c_file(file, cnf, true));
+  if (read_translation_unit(&p, file, cfile, &i, true, false) != 1)
+    GOTOERROR();
+  assert(p.last_error_id == -1);
   
   TEST_OUTRO(); // LCOV_EXCL_LINE
 }

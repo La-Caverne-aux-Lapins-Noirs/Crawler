@@ -93,14 +93,6 @@ int			main(int		argc,
   if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
     GOTOERROR(); // LCOV_EXCL_LINE
 
-  // Test pour double tableau **
-  i = 0;
-  file = "./res/double_board.c";
-  p.last_error_id = -1;
-  p.last_new_type = 0;
-  assert(cfile = load_c_file(file, cnf, true));
-  if (read_translation_unit(&p, file, cfile, &i, true, false) != -1)
-    GOTOERROR();
 
   TEST_OUTRO(); // LCOV_EXCL_LINE
 }
