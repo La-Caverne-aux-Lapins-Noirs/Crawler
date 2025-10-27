@@ -2,8 +2,8 @@ lib/libcrawler.a usr/lib/
 lib/include/crawler.h usr/include/
 bin/crawler usr/bin/
 efrits.dab etc/crawler/
-epita.dab etc/crawler/
-epitech2000_2016.dab etc/crawler/
-epitech2017.dab etc/crawler/
-42.dab etc/crawler/
-e89.dab etc/crawler/
+#epita.dab etc/crawler/
+#epitech2000_2016.dab etc/crawler/
+#epitech2017.dab etc/crawler/
+#42.dab etc/crawler/
+#e89.dab etc/crawler/
