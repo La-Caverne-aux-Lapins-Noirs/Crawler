@@ -1,0 +1,7 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+	(cd lib && make)
+	rm -f lib/*.so
+	(cd bin && make)
+

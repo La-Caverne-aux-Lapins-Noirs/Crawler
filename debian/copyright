@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: crawler
+Source: https://github.com/La-Caverne-aux-Lapins-Noirs/Crawler
+
+Files: *
+Copyright: 2025 Jason Brillante "Damdoshi" jason.brillante@gmail.com
+License: GNU GPL3
+

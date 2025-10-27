@@ -1,0 +1,14 @@
+Source: crawler
+Priority: optional
+Maintainer: technocore <technocore@technocore>
+Build-Depends: debhelper-compat (= 13), liblapin-dev
+Standards-Version: 4.6.2
+
+Package: crawler
+Section: libdevel
+Architecture: all
+Depends: ${misc:Depends}
+Description: Configurable C Code Crawler.
+ Code style evaluation - and arbitrary limitation of C functionalities enforcer.
+ 
+ 

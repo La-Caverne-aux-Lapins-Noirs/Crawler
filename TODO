@@ -1,13 +1,13 @@
 - Il faut retirer le nombre de ligne avant le début du fichier aux indicateurs
-  de sorte à ne pas compter les lignes issues du preprocesseur;
+  de sorte à ne pas compter les lignes issues du preprocesseur; (pas sur que ca ne soit pas deja fait)
 
-- Il manque le test d'indentation de switch et des labels.
-- Il manque l'indentation des structures et unions
+- Il manque le test d'indentation de switch et des labels. (pas sur que ca soit vrai)
+- Il manque l'indentation des structures et unions (idem)
 
-- Il faut faire un logo, pourquoi pas le lapin joir qui mange un C majuscule?
+- Il faut faire un logo, pourquoi pas le lapin joir qui mange un C majuscule? (a faire)
 
-- Il faut pouvoir verifier la vérification de certaines fonctions (malloc, open, close, read, write)
+- Il faut pouvoir verifier la vérification de certaines fonctions (malloc, open, close, read, write) (a faire)
 
-- Une option pour extraire l'ensemble des noms de fonctions appelés (pour la triche), post préprocesseur, sous le début du fichier bien sur.
+- Une option pour extraire l'ensemble des noms de fonctions appelés (pour la triche), post préprocesseur, sous le début du fichier bien sur. (nm marche mieux...)
 
 - Remplacer tous les RETURN par des add_error qui indique la ligne dans le code...
