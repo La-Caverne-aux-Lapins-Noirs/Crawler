@@ -246,7 +246,7 @@ static bool		bad_infix(t_parsing			*p,
 
   infix->counter += 1;
   snprintf(&buffer[0], sizeof(buffer),
-	   "Missing %s %s for %s in symbol %s. (%s, line %d)",
+	   "Missing %s %s for %s in symbol %s. (%s, line %d)\n",
 	   infix->position == 0 ? "prefix" : "suffix",
 	   &infix->value[0], context, symbol, p->file,
 	   bunny_which_line(code, pos) - p->last_line_marker_line
