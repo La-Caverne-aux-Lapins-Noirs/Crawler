@@ -19,7 +19,7 @@ int			main(int		argc,
     (cnf,
      "/*\n"
      "** %FirstName %FamilyName %Nickname %Login <%Mail>\n"
-     "** %ProjectName %Year\n"
+     "** %ProjectName %Year %Date %Time\n"
      "*/\n"
      , "Header");
   bunny_configuration_setf(cnf, "Felina", "FirstName");
@@ -29,13 +29,15 @@ int			main(int		argc,
   bunny_configuration_setf(cnf, "felina.rose@cln.school", "Mail");
   bunny_configuration_setf(cnf, "CCCCrawler", "ProjectName");
   bunny_configuration_setf(cnf, "2021", "Year");
+  bunny_configuration_setf(cnf, "24/03/1989", "Date");
+  bunny_configuration_setf(cnf, "12:23:34", "Time");
   load_norm_configuration(&p, cnf);
 
   i = 0;
   s =
     "/*\n"
     "** Felina Rose Felinistra felina.rose <felina.rose@cln.school>\n"
-    "** CCCCrawler 2021\n"
+    "** CCCCrawler 2021 24/03/1989 12:23:34\n"
     "*/\n"
     "\n"
     "int main(void)\n"
@@ -57,7 +59,7 @@ int			main(int		argc,
     "\n"
     "/*\n"
     "** Felina Rose Felinistra    felina.rose <felina.rose@cln.school>\n"
-    "** CCCCrawler 2021\n"
+    "** CCCCrawler 2021 24/03/1989 12:23:34\n"
     "*/\n"
     "\n"
     "#include <stdio.h>\n"

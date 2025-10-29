@@ -14,7 +14,7 @@
 
   NAME		=	libcrawler.a
   TESTLIB	=	libcrawler.so
-  RELEASE	=	1
+  RELEASE	=	0
 
 #################################################################################
 ## Building details                                                            ##

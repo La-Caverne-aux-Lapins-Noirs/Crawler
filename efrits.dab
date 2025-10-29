@@ -33,7 +33,7 @@
 ** ***     ***     ***     ******  *******  *****      **********************
 ** **  ******  ******  *** *****  *******  *********  ***********************
 ** *     ***  ******  *** ***       ****  *****      ************************
-** %Date ******************************************************
+** %Date %Time ******************************************************
 ** %Login <%Mail>
 ** - %ProjectName -
 ** * *** * * ***  ** * ** ** ** ** * * * *** * **  **************************
@@ -74,7 +74,7 @@ TERMINATOR]
   Points = 2
 ]
 
-[MaximumVariable
+[!MaximumVariable
   Value = 2 'Peut tout a fait etre zéro.
   Points = 2
 ]
@@ -423,7 +423,7 @@ PASCAL_CASE = 3 'ThisIsIt
   Points = 5
 ]
 
-[WhileForbidden
+[!WhileForbidden
   Value = false
   Points = 5
 ]
@@ -438,7 +438,7 @@ PASCAL_CASE = 3 'ThisIsIt
   Points = 5
 ]
 
-[ReturnForbidden
+[!ReturnForbidden
   Value = false
   Points = 5
 ]
@@ -453,12 +453,12 @@ PASCAL_CASE = 3 'ThisIsIt
   Points = 5
 ]
 
-[IfForbidden
+[!IfForbidden
   Value = false
   Points = 5
 ]
 
-[ElseForbidden
+[!ElseForbidden
   Value = false
   Points = 5
 ]

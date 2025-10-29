@@ -142,6 +142,6 @@ int			main(int		argc,
   p.single_instruction_per_line.active = false;
   if (read_translation_unit(&p, "file", s, &i, true, true) != 1)
     GOTOERROR(); // LCOV_EXCL_LINE
-  
+
   TEST_OUTRO(); // LCOV_EXCL_LINE
 }

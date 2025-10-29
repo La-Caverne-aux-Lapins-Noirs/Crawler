@@ -21,42 +21,34 @@ bool			check_header(t_parsing		*p,
   if (p->header.active == false)
     return (true);
   const char		*template = &p->header_data[0];
-  char			buffer[sizeof(p->header_data) * 2];
-  ssize_t		src = 0;
-  ssize_t		tar = 0;
+  ssize_t		i;
+  ssize_t		j;
 
-  // On compose le header
+  i = j = 0;
   gl_bunny_read_whitespace = NULL;
-  while (template[src] != '\0' && tar < (int)sizeof(buffer) - 1)
+  while (template[i])
     {
-      if (bunny_read_text(template, &src, "%"))
+      if (template[i] == '%')
 	{
-	  char		tmpbuffer[256];
-	  ssize_t	tmp = src;
-	  const char	*str;
-
-	  if (!bunny_read_field(template, &src))
-	    continue ;
-	  snprintf(tmpbuffer, sizeof(tmpbuffer), "%.*s", (int)(src - tmp), &template[tmp]);
-	  if (bunny_configuration_getf(p->configuration, &str, "%s", tmpbuffer))
-	    tar += snprintf(&buffer[tar], sizeof(buffer) - tar, "%s", str);
+	  i += 1;
+	  bunny_read_field(template, &i);
+	  bunny_read_char(code, &j,
+			  "abcdefghijklmnopqrstuvwxyz"
+			  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			  "0123456789_-:/.@"
+			  );
 	}
-      else
-	buffer[tar++] = template[src++];
-    }
-  buffer[tar] = '\0';
-  gl_bunny_read_whitespace = read_whitespace;
-  // Le header est censé etre tout en haut du fichier
-  ssize_t		cursor = 0; // strlen(code) - tar;
-
-  while (cursor >= 0)
-    {
-      // On verifie qu'il est bien présent au début du fichier
-      if (strncmp(&code[cursor], &buffer[0], tar) == 0)
+      else if (template[i] != code[j])
 	break ;
-      cursor -= 1;
+      else
+	{
+	  i += 1;
+	  j += 1;
+	}
     }
-  if (cursor < 0 && p->header.counter == 0)
+  gl_bunny_read_whitespace = read_whitespace;
+  
+  if (template[i] && p->header.counter == 0)
     {
       // Le header peut tout à fait etre avant le marqueur, car les #include sont apres
       // les en tete.
@@ -70,8 +62,8 @@ bool			check_header(t_parsing		*p,
 	}
       p->last_line_marker = tmp;
     }
-  p->last_declaration.last_header = cursor;
-  p->last_declaration.header_line = bunny_which_line(code, cursor);
+  p->last_declaration.last_header = 0;
+  p->last_declaration.header_line = bunny_which_line(code, 0);
   return (true);
 }
 
