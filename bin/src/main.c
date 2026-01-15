@@ -25,7 +25,7 @@ static bool		test_ext(const char	*filepath,
 static int		usage(const char	*prog_name)
 {
   fprintf(stderr, "%s: Usage is:\n\n"
-	  "\t%s -c [configuration]+ [files]+ [--color]? [-v]?\n"
+	  "\t%s -c [configuration]* [files]+ [--nocolor]? [-v]?\n"
 	  "\t\tTo test conformity. Order of parameter is irrelevant.\n"
 	  "\t\tSupported configuration format are .dab, .json, .ini and .lua.\n\n"
 	  "\t%s -m [files]+\n"
@@ -52,10 +52,11 @@ int			main(int		argc,
   if (strcmp(argv[1], "-c") == 0)
     {
       bool		verbose = false;
-      bool		color = false;
+      bool		color = true;
       int		total_error = 0;
       int		total_file = 0;
       int		working_file = 0;
+      int		cnf_cnt = 0;
 
       if ((cnf = bunny_new_configuration()) == NULL)
 	{
@@ -64,8 +65,8 @@ int			main(int		argc,
 	}
       
       for (i = 1; i < argc; ++i)
-	if (strcmp(argv[i], "--color") == 0)
-	  color = true;
+	if (strcmp(argv[i], "--nocolor") == 0)
+	  color = false;
 	else if (strcmp(argv[i], "-v") == 0)
 	  verbose = true;
 	else
@@ -81,7 +82,14 @@ int			main(int		argc,
 		  fprintf(stderr, "%s: Cannot open %s.\n", argv[0], argv[i]);
 		  return (EXIT_FAILURE);
 		}
+	    cnf_cnt += 1;
 	    cnf = new;
+	  }
+      if (cnf_cnt == 0)
+	if (bunny_open_configuration("/etc/crawler/efrits.dab", cnf) == NULL)
+	  {
+	    fprintf(stderr, "%s: Cannot open %s.\n", argv[0], argv[i]);
+	    return (EXIT_FAILURE);
 	  }
       load_norm_configuration(&parsing, cnf);
 
@@ -126,7 +134,7 @@ int			main(int		argc,
 		  else
 		    printf("\033[1;35m");
 		}
-	      printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n");
+	      system("printf '%*s\n' \"$(tput cols)\" '' | tr ' ' '-'");
 	      printf("%s", parsingtmp.last_error_msg[k]);
 	    }
 	  if (color)
