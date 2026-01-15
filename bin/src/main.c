@@ -25,7 +25,7 @@ static bool		test_ext(const char	*filepath,
 static int		usage(const char	*prog_name)
 {
   fprintf(stderr, "%s: Usage is:\n\n"
-	  "\t%s -c [configuration]* [files]+ [--nocolor]? [-v]?\n"
+	  "\t%s -c [configuration]* [files]+ [--nocolor]? [-v]? [-I header_path]*\n"
 	  "\t\tTo test conformity. Order of parameter is irrelevant.\n"
 	  "\t\tSupported configuration format are .dab, .json, .ini and .lua.\n\n"
 	  "\t%s -m [files]+\n"
