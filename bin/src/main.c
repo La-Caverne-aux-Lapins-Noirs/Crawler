@@ -57,6 +57,7 @@ int			main(int		argc,
       int		total_file = 0;
       int		working_file = 0;
       int		cnf_cnt = 0;
+      int		hdrfile = 0;
 
       if ((cnf = bunny_new_configuration()) == NULL)
 	{
@@ -69,6 +70,19 @@ int			main(int		argc,
 	  color = false;
 	else if (strcmp(argv[i], "-v") == 0)
 	  verbose = true;
+      	else if (strcmp(argv[i], "-I") == 0)
+	  {
+	    if (i + 1 < argc)
+	      {
+		if (!bunny_configuration_setf(cnf, argv[i], "_AdditionalHeaderPath[%d]", hdrfile))
+		  {
+		    fprintf(stderr, "%s: Cannot set additional header in inner configuration.\n", argv[0]);
+		    return (EXIT_FAILURE);
+		  }
+		hdrfile += 1;
+	      }
+	    i += 1;
+	  }
 	else
 	  {
 	    t_bunny_configuration *new = cnf;
