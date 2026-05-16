@@ -83,6 +83,91 @@ static void		fdebug(const char			*func,
 
 #define			MSG(a) p->last_error_msg[++p->last_error_id] = (a " (" STRINGIFY(__LINE__) ")" )
 
+typedef struct		s_function_parse_checkpoint
+{
+  ssize_t		index;
+  size_t		criteria_len;
+  t_criteria		*criteria;
+  t_type		new_type[8192];
+  size_t		last_new_type;
+  char			typedef_stack[128][SYMBOL_SIZE + 1];
+  int			typedef_stack_top;
+  int			func_ptr_counter;
+  int			local_symbol_alignment;
+  int			local_parameter_type_alignment;
+  int			local_parameter_name_alignment;
+  int			global_parameter_name_alignment;
+  int			global_symbol_alignment;
+  int			ldec_function_per_file;
+  int			ldec_non_static_function_per_file;
+  int			last_error_id;
+  int			nbr_error_points;
+  int			nbr_mistakes;
+} 			t_function_parse_checkpoint;
+
+static t_function_parse_checkpoint *create_function_parse_checkpoint(t_parsing	*p,
+							    ssize_t	index)
+{
+  t_function_parse_checkpoint	*checkpoint;
+
+  if ((checkpoint = malloc(sizeof(*checkpoint))) == NULL)
+    return (NULL);
+  checkpoint->criteria_len = (size_t)((char *)&p->end[0] - (char *)&p->start[0]);
+  if ((checkpoint->criteria = malloc(checkpoint->criteria_len)) == NULL)
+    {
+      free(checkpoint);
+      return (NULL);
+    }
+  checkpoint->index = index;
+  memcpy(checkpoint->criteria, &p->start[0], checkpoint->criteria_len);
+  memcpy(&checkpoint->new_type[0], &p->new_type[0], sizeof(p->new_type));
+  checkpoint->last_new_type = p->last_new_type;
+  memcpy(&checkpoint->typedef_stack[0], &p->typedef_stack[0], sizeof(p->typedef_stack));
+  checkpoint->typedef_stack_top = p->typedef_stack_top;
+  checkpoint->func_ptr_counter = p->func_ptr_counter;
+  checkpoint->local_symbol_alignment = p->local_symbol_alignment;
+  checkpoint->local_parameter_type_alignment = p->local_parameter_type_alignment;
+  checkpoint->local_parameter_name_alignment = p->local_parameter_name_alignment;
+  checkpoint->global_parameter_name_alignment = p->global_parameter_name_alignment;
+  checkpoint->global_symbol_alignment = p->global_symbol_alignment;
+  checkpoint->ldec_function_per_file = p->ldec_function_per_file;
+  checkpoint->ldec_non_static_function_per_file = p->ldec_non_static_function_per_file;
+  checkpoint->last_error_id = p->last_error_id;
+  checkpoint->nbr_error_points = p->nbr_error_points;
+  checkpoint->nbr_mistakes = p->nbr_mistakes;
+  return (checkpoint);
+}
+
+static void		restore_function_parse_checkpoint(t_parsing			*p,
+						  const t_function_parse_checkpoint *checkpoint,
+						  ssize_t			*i)
+{
+  *i = checkpoint->index;
+  memcpy(&p->start[0], checkpoint->criteria, checkpoint->criteria_len);
+  memcpy(&p->new_type[0], &checkpoint->new_type[0], sizeof(p->new_type));
+  p->last_new_type = checkpoint->last_new_type;
+  memcpy(&p->typedef_stack[0], &checkpoint->typedef_stack[0], sizeof(p->typedef_stack));
+  p->typedef_stack_top = checkpoint->typedef_stack_top;
+  p->func_ptr_counter = checkpoint->func_ptr_counter;
+  p->local_symbol_alignment = checkpoint->local_symbol_alignment;
+  p->local_parameter_type_alignment = checkpoint->local_parameter_type_alignment;
+  p->local_parameter_name_alignment = checkpoint->local_parameter_name_alignment;
+  p->global_parameter_name_alignment = checkpoint->global_parameter_name_alignment;
+  p->global_symbol_alignment = checkpoint->global_symbol_alignment;
+  p->ldec_function_per_file = checkpoint->ldec_function_per_file;
+  p->ldec_non_static_function_per_file = checkpoint->ldec_non_static_function_per_file;
+  p->last_error_id = checkpoint->last_error_id;
+  p->nbr_error_points = checkpoint->nbr_error_points;
+  p->nbr_mistakes = checkpoint->nbr_mistakes;
+}
+
+static void		delete_function_parse_checkpoint(t_function_parse_checkpoint	*checkpoint)
+{
+  if (checkpoint)
+    free(checkpoint->criteria);
+  free(checkpoint);
+}
+
 
 static const char	*gl_first_char = "azertyuiopqsdfghjklmwxcvbnAZERTYUIOPQSDFGHJKLMWXCVBN_";
 static const char	*gl_second_char = "azertyuiopqsdfghjklmwxcvbnAZERTYUIOPQSDFGHJKLMWXCVBN_0123456789";
@@ -1140,30 +1225,39 @@ int			read_function_definition(t_parsing	*p,
 						 const char	*code,
 						 ssize_t	*i)
 {
-  size_t		len = (size_t)&p->end[0] - (size_t)&p->start[0];
-  t_criteria		*save = malloc(len); // Assez d'espace pour tout.
-  t_last_function	savefunc;
-  ssize_t		k = *i; // Au cas ou cela ne soit pas une declaration de fonction mais de type.
+  t_function_parse_checkpoint	*checkpoint;
   ssize_t		j;
-  int			last_new_type = p->last_new_type;
   int			ret;
 
   FTRACE(code, *i);
-  if (!save)
+  if ((checkpoint = create_function_parse_checkpoint(p, *i)) == NULL)
     RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
-  memcpy(save, &p->start[0], len);
-  memcpy(&savefunc, &p->last_declaration, sizeof(savefunc));
   reset_last_declaration(p);
   p->func_ptr_counter = 0;
   
   // Le type de retour
   if (read_declaration_specifiers(p, code, i, true) == -1)
     {
-      free(save);
+      delete_function_parse_checkpoint(checkpoint);
       FRETURN (-1);
     }
   if (read_gcc_attribute(p, code, i) == -1)
-    FRETURN (-1);
+    {
+      delete_function_parse_checkpoint(checkpoint);
+      FRETURN (-1);
+    }
+
+  // Une définition de struct/union/enum complète au niveau global n'est
+  // pas une définition de fonction. Ne pas continuer la tentative
+  // spéculative, sinon les détails GNU des headers système peuvent
+  // transformer une simple déclaration de type en erreur fatale.
+  if (p->last_declaration.was_defining)
+    {
+      restore_function_parse_checkpoint(p, checkpoint, i);
+      reset_last_declaration(p);
+      delete_function_parse_checkpoint(checkpoint);
+      FRETURN (0);
+    }
 
   // L'indentation du nom de fonction
   read_whitespace(code, i);
@@ -1176,7 +1270,11 @@ int			read_function_definition(t_parsing	*p,
       if (!bunny_read_text(code, i, "(") || !bunny_read_text(code, i, "*"))
 	{
 	  if (!add_warning(p, IZ(p, i), code, *i, NULL, "Syntax Error, missing > ( < or > * < "))
-	    RETURN ("Memory exhausted.");
+	    {
+	      delete_function_parse_checkpoint(checkpoint);
+	      RETURN ("Memory exhausted.");
+	    }
+	  delete_function_parse_checkpoint(checkpoint);
 	  FRETURN(-1); // Erreur de syntaxe
 	}
     }
@@ -1187,15 +1285,35 @@ int			read_function_definition(t_parsing	*p,
   p->last_declaration.inside_function_name = true;
   if (read_declarator(p, code, i) == -1)
     {
-      free(save);
+      delete_function_parse_checkpoint(checkpoint);
       FRETURN (-1);
     }
   p->last_declaration.inside_function_name = false;
 
+  // GCC autorise des attributs après le déclarateur de fonction:
+  // extern int f(void) __attribute__((...));
+  // Pour la tentative "définition de fonction", on les consomme afin de
+  // reconnaître proprement le cas prototype puis revenir en arrière.
+  if ((ret = read_gcc_attribute(p, code, i)) == -1)
+    {
+      restore_function_parse_checkpoint(p, checkpoint, i);
+      reset_last_declaration(p);
+      delete_function_parse_checkpoint(checkpoint);
+      FRETURN (0);
+    }
+  read_whitespace(code, i);
+  if (bunny_check_text(code, i, ";") || bunny_check_text(code, i, ","))
+    {
+      restore_function_parse_checkpoint(p, checkpoint, i);
+      reset_last_declaration(p);
+      delete_function_parse_checkpoint(checkpoint);
+      FRETURN (0);
+    }
+
   // L'assignation eventuelle...
   if (read_declaration_list(p, code, i) == -1)
     {
-      free(save);
+      delete_function_parse_checkpoint(checkpoint);
       FRETURN (-1);
     }
   // Pour savoir si les variables sont globales ou locales, par exemple...
@@ -1221,7 +1339,11 @@ int			read_function_definition(t_parsing	*p,
       if (code[*i] == '\0')
 	{
 	  if (!add_warning(p, IZ(p, i), code, *i, NULL, "Syntax Error, missing > ( < "))
-	    RETURN ("Memory exhausted.");
+	    {
+	      delete_function_parse_checkpoint(checkpoint);
+	      RETURN ("Memory exhausted.");
+	    }
+	  delete_function_parse_checkpoint(checkpoint);
 	  FRETURN(-1); // Erreur de syntaxe // LCOV_EXCL_LINE
 	}
     }
@@ -1268,7 +1390,7 @@ int			read_function_definition(t_parsing	*p,
 	      if (strcmp(&p->last_declaration.symbol[0], "main") &&
 		  check_style(p, "function", &p->last_declaration.function[0], &p->function_style, &p->function_infix, code, j) == false)
 		{
-		  free(save);
+		  delete_function_parse_checkpoint(checkpoint);
 		  RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 		}
 	      if (p->function_matching_path.active
@@ -1281,7 +1403,7 @@ int			read_function_definition(t_parsing	*p,
 		    (p, &target[0], &p->last_declaration.function[0], sizeof(target), 4);
 		  if (compare_file_and_function_name(p, &target[0], code, j) == -1)
 		    {
-		      free(save);
+		      delete_function_parse_checkpoint(checkpoint);
 		      RETURN("Memory exhausted."); // LCOV_EXCL_LINE
 		    }
 		}
@@ -1301,13 +1423,14 @@ int			read_function_definition(t_parsing	*p,
 		     p->last_declaration.copied_parameters[j].size
 		     ))
 		  {
-		    free(save);
+		    delete_function_parse_checkpoint(checkpoint);
 		    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 		  }
 	      }
 	  p->last_declaration.nbr_copied_parameters = 0;
 	}
       p->last_declaration.inside_function = false;
+      delete_function_parse_checkpoint(checkpoint);
       FRETURN (ret);
     }
   reset_last_declaration(p);
@@ -1317,13 +1440,11 @@ int			read_function_definition(t_parsing	*p,
   //p->last_declaration.nbr_copied_parameters = 0;
 
   // On revient en arrière, ca n'était pas une declaration de fonction.
-  *i = k;
-  // On fait revenir en arrière egalement le compte d'erreur du coup, car on va les recompter
-  memcpy(&p->start[0], save, len);
-  // memcpy(&p->last_declaration, &savefunc, sizeof(savefunc)); // XXXXXXXXXXXXXXXXXXXXXX
-  // De même, les types eventuellements déclarés ne le sont pas...
-  p->last_new_type = last_new_type;
-  free(save);
+  // On restaure l'état spéculatif du parseur, mais pas les marqueurs globaux
+  // du fichier préprocessé: ils suivent la lecture réelle du flux source.
+  restore_function_parse_checkpoint(p, checkpoint, i);
+  reset_last_declaration(p);
+  delete_function_parse_checkpoint(checkpoint);
   FRETURN (0);
 }
 
@@ -1516,10 +1637,14 @@ int			read_specifier_qualifier_list(t_parsing	*p,
   int			cnt = 0;
   int			type_specifier = 0;
   int			type_qualifier = 0;
+  bool			extension = false;
 
   FTRACE(code, *i);
   do
     {
+      // GCC peut produire __extension__ dans les champs de structure,
+      // par exemple dans struct cmsghdr: __extension__ unsigned char data[].
+      extension = bunny_read_text(code, i, "__extension__");
       if ((type_specifier = read_type_specifier(p, code, i, type_specifier)) == -1)
 	FRETURN (-1);
       cnt += type_specifier;
@@ -1527,7 +1652,7 @@ int			read_specifier_qualifier_list(t_parsing	*p,
 	FRETURN (-1);
       cnt += type_qualifier;
     }
-  while (type_specifier || type_qualifier);
+  while (extension || type_specifier || type_qualifier);
   FRETURN (cnt >= 1 ? 1 : 0);
 }
 
@@ -3450,14 +3575,16 @@ static void		fetchi(t_bunny_configuration		*e,
     *i = def;
 }
 
-static void		fetch_criteria(t_bunny_configuration	*cnf,
+static bool		fetch_criteria(t_bunny_configuration	*cnf,
 				       t_criteria		*crit,
 				       const char		*field)
 {
-  crit->active = false;
-  crit->value = 0;
-  crit->pts = 1;
-  crit->counter = 0;
+  t_criteria		tmp;
+  bool			found;
+
+  memset(&tmp, 0, sizeof(tmp));
+  tmp.pts = 1;
+  found = false;
   // Trois syntaxes alternatives:
   // [Champ Value = 3 Points = 2 ]
   // Ou:
@@ -3465,24 +3592,34 @@ static void		fetch_criteria(t_bunny_configuration	*cnf,
   // Ou:
   // Champ = 3
   // ChampPts = 2
-  if (bunny_configuration_getf(cnf, &crit->value, "%s.Value", field))
+  if (bunny_configuration_getf(cnf, &tmp.value, "%s.Value", field))
     {
-      crit->active = true;
-      bunny_configuration_getf(cnf, &crit->pts, "%s.Points", field);
+      tmp.active = true;
+      bunny_configuration_getf(cnf, &tmp.pts, "%s.Points", field);
+      found = true;
     }
-  else if (bunny_configuration_getf(cnf, &crit->pts, "%s[1]", field))
+  else if (bunny_configuration_getf(cnf, &tmp.pts, "%s[1]", field))
     {
-      if (bunny_configuration_getf(cnf, &crit->value, "%s[0]", field))
-	crit->active = true;
+      if (bunny_configuration_getf(cnf, &tmp.value, "%s[0]", field))
+	tmp.active = true;
+      found = true;
     }
-  else if (bunny_configuration_getf(cnf, &crit->value, "%s", field))
+  else if (bunny_configuration_getf(cnf, &tmp.value, "%s", field))
     {
-      bunny_configuration_getf(cnf, &crit->pts, "%sPts", field);
-      crit->active = true;
+      bunny_configuration_getf(cnf, &tmp.pts, "%sPts", field);
+      tmp.active = true;
+      found = true;
     }
-  crit->pts = abs(crit->pts);
   if (bunny_configuration_getf(cnf, NULL, "%s.Disabled", field))
-    crit->active = false;
+    {
+      tmp.active = false;
+      found = true;
+    }
+  if (!found)
+    return (false);
+  tmp.pts = abs(tmp.pts);
+  memcpy(crit, &tmp, sizeof(*crit));
+  return (true);
 }
 
 static void		strxcpy(char					*target,
@@ -3506,14 +3643,14 @@ static bool		fetch_string_criteria(t_bunny_configuration	*cnf,
 					      t_string_criteria		*crit,
 					      const char		*field)
 {
+  t_string_criteria	tmp;
   const char		*str;
+  bool			found;
 
   FADD();
-  crit->active = false;
-  crit->value[0] = '\0';
-  crit->position = 0;
-  crit->pts = 1;
-  crit->counter = 0;
+  memset(&tmp, 0, sizeof(tmp));
+  tmp.pts = 1;
+  found = false;
   // Trois syntaxes alternatives:
   // [Champ Value = 1 Position = 2 Points = 3 ]
   // Ou:
@@ -3526,58 +3663,64 @@ static bool		fetch_string_criteria(t_bunny_configuration	*cnf,
   // Position peut etre un entier valant O ou 1, ou "Prefix" ou "Suffix"
   if (bunny_configuration_getf(cnf, &str, "%s.Value", field))
     {
-      crit->active = true;
-      strxcpy(&crit->value[0], str, sizeof(crit->value) - 1, strlen(str));
+      tmp.active = true;
+      strxcpy(&tmp.value[0], str, sizeof(tmp.value) - 1, strlen(str));
       if (bunny_configuration_getf(cnf, &str, "%s.Position", field))
 	{
 	  if (strcmp(str, "Prefix") == 0)
-	    crit->position = 0;
+	    tmp.position = 0;
 	  else if (strcmp(str, "Suffix") == 0)
-	    crit->position = 1;
+	    tmp.position = 1;
 	  else
-	    bunny_configuration_getf(cnf, &crit->position, "%s.Position", field);
+	    bunny_configuration_getf(cnf, &tmp.position, "%s.Position", field);
 	}
-      bunny_configuration_getf(cnf, &crit->pts, "%s.Points", field);
-      crit->pts = abs(crit->pts);
-      FRETURN (true);
+      bunny_configuration_getf(cnf, &tmp.pts, "%s.Points", field);
+      found = true;
     }
-  if (bunny_configuration_getf(cnf, &crit->pts, "%s[2]", field))
+  else if (bunny_configuration_getf(cnf, &tmp.pts, "%s[2]", field))
     {
       if (bunny_configuration_getf(cnf, &str, "%s[1]", field))
 	{
 	  if (strcmp(str, "Prefix") == 0)
-	    crit->position = 0;
+	    tmp.position = 0;
 	  else if (strcmp(str, "Suffix") == 0)
-	    crit->position = 1;
+	    tmp.position = 1;
 	  else
-	    bunny_configuration_getf(cnf, &crit->position, "%s[1]", field);
+	    bunny_configuration_getf(cnf, &tmp.position, "%s[1]", field);
 	}
       if (bunny_configuration_getf(cnf, &str, "%s[0]", field))
 	{
-	  crit->active = true;
-	  strxcpy(&crit->value[0], str, sizeof(crit->value) - 1, strlen(str));
+	  tmp.active = true;
+	  strxcpy(&tmp.value[0], str, sizeof(tmp.value) - 1, strlen(str));
 	}
-      crit->pts = abs(crit->pts);
-      FRETURN (true);
+      found = true;
     }
-  if (bunny_configuration_getf(cnf, &str, "%s", field))
+  else if (bunny_configuration_getf(cnf, &str, "%s", field))
     {
-      strxcpy(&crit->value[0], str, sizeof(crit->value) - 1, strlen(str));
+      strxcpy(&tmp.value[0], str, sizeof(tmp.value) - 1, strlen(str));
       if (bunny_configuration_getf(cnf, &str, "%sPosition", field))
 	{
 	  if (strcmp(str, "Prefix") == 0)
-	    crit->position = 0;
+	    tmp.position = 0;
 	  else if (strcmp(str, "Suffix") == 0)
-	    crit->position = 1;
+	    tmp.position = 1;
 	  else
-	    bunny_configuration_getf(cnf, &crit->position, "%sPosition", field);
+	    bunny_configuration_getf(cnf, &tmp.position, "%sPosition", field);
 	}
-      bunny_configuration_getf(cnf, &crit->pts, "%sPts", field);
-      crit->active = true;
-      crit->pts = abs(crit->pts);
-      FRETURN (true);
+      bunny_configuration_getf(cnf, &tmp.pts, "%sPts", field);
+      tmp.active = true;
+      found = true;
     }
-  FRETURN (false);
+  if (bunny_configuration_getf(cnf, NULL, "%s.Disabled", field))
+    {
+      tmp.active = false;
+      found = true;
+    }
+  if (!found)
+    FRETURN (false);
+  tmp.pts = abs(tmp.pts);
+  memcpy(crit, &tmp, sizeof(*crit));
+  FRETURN (true);
 }
 
 int			check_header_file(t_parsing		*p,
@@ -3639,6 +3782,8 @@ void			load_norm_configuration(t_parsing	*p,
     t_criteria		style;
     t_string_criteria	infix;
 
+    memset(&style, 0, sizeof(style));
+    memset(&infix, 0, sizeof(infix));
     fetch_criteria(e, &style, "GlobalStyle");
     fetch_string_criteria(e, &infix, "GlobalInfix");
     if (style.active)
@@ -3674,26 +3819,47 @@ void			load_norm_configuration(t_parsing	*p,
   fetch_criteria(e, &p->function_style, "FunctionNameStyle");
   fetch_string_criteria(e, &p->function_infix, "FunctionNameInfix");
 
+  fetch_criteria(e, &p->local_variable_style, "LocalVariableStyle");
   fetch_criteria(e, &p->local_variable_style, "LocalVariableNameStyle");
+  fetch_string_criteria(e, &p->local_variable_infix, "LocalVariableInfix");
   fetch_string_criteria(e, &p->local_variable_infix, "LocalVariableNameInfix");
 
+  fetch_criteria(e, &p->global_variable_style, "GlobalVariableStyle");
   fetch_criteria(e, &p->global_variable_style, "GlobalVariableNameStyle");
+  fetch_string_criteria(e, &p->global_variable_infix, "GlocalVariableInfix");
+  fetch_string_criteria(e, &p->global_variable_infix, "GlobalVariableInfix");
   fetch_string_criteria(e, &p->global_variable_infix, "GlobalVariableNameInfix");
 
+  fetch_criteria(e, &p->struct_style, "StructStyle");
   fetch_criteria(e, &p->struct_style, "StructNameStyle");
+  fetch_string_criteria(e, &p->struct_infix, "StructInfix");
   fetch_string_criteria(e, &p->struct_infix, "StructNameInfix");
 
+  fetch_criteria(e, &p->enum_style, "EnumStyle");
   fetch_criteria(e, &p->enum_style, "EnumNameStyle");
+  fetch_string_criteria(e, &p->enum_infix, "EnumInfix");
   fetch_string_criteria(e, &p->enum_infix, "EnumNameInfix");
   fetch_criteria(e, &p->enum_constant_style, "EnumConstantStyle");
   fetch_string_criteria(e, &p->enum_constant_infix, "EnumConstantInfix");
 
+  fetch_criteria(e, &p->union_style, "UnionStyle");
   fetch_criteria(e, &p->union_style, "UnionNameStyle");
+  fetch_string_criteria(e, &p->union_infix, "UnionInfix");
   fetch_string_criteria(e, &p->union_infix, "UnionNameInfix");
 
+  fetch_criteria(e, &p->struct_attribute_style, "AttributetStyle");
+  fetch_criteria(e, &p->struct_attribute_style, "AttributeStyle");
+  fetch_criteria(e, &p->struct_attribute_style, "StructAttributeStyle");
   fetch_criteria(e, &p->struct_attribute_style, "StructAttributeNameStyle");
+  fetch_string_criteria(e, &p->struct_attribute_infix, "AttributeInfix");
+  fetch_string_criteria(e, &p->struct_attribute_infix, "StructAttributeInfix");
   fetch_string_criteria(e, &p->struct_attribute_infix, "StructAttributeNameInfix");
+  fetch_criteria(e, &p->union_attribute_style, "AttributetStyle");
+  fetch_criteria(e, &p->union_attribute_style, "AttributeStyle");
+  fetch_criteria(e, &p->union_attribute_style, "UnionAttributeStyle");
   fetch_criteria(e, &p->union_attribute_style, "UnionAttributeNameStyle");
+  fetch_string_criteria(e, &p->union_attribute_infix, "AttributeInfix");
+  fetch_string_criteria(e, &p->union_attribute_infix, "UnionAttributeInfix");
   fetch_string_criteria(e, &p->union_attribute_infix, "UnionAttributeNameInfix");
 
   fetch_criteria(e, &p->function_pointer_attribute_style, "FunctionPointerAttributeStyle");
@@ -3702,7 +3868,9 @@ void			load_norm_configuration(t_parsing	*p,
   fetch_criteria(e, &p->function_pointer_type_style, "FunctionPointerTypeStyle");
   fetch_string_criteria(e, &p->function_pointer_type_infix, "FunctionPointerTypeInfix");
 
+  fetch_criteria(e, &p->typedef_style, "TypedefStyle");
   fetch_criteria(e, &p->typedef_style, "TypedefNameStyle");
+  fetch_string_criteria(e, &p->typedef_infix, "TypedefInfix");
   fetch_string_criteria(e, &p->typedef_infix, "TypedefNameInfix");
   fetch_criteria(e, &p->typedef_matching, "TypedefMatching");
 
@@ -3715,25 +3883,29 @@ void			load_norm_configuration(t_parsing	*p,
   fetch_criteria(e, &p->tab_or_space, "IndentationToken");
   fetch_criteria(e, &p->declaration_statement_separator, "DeclarationStatementSeparator");
   fetch_criteria(e, &p->no_empty_line_in_function, "NoEmptyLineInFunction");
+  fetch_criteria(e, &p->no_trailing_whitespace, "TrailingWhitespace");
   fetch_criteria(e, &p->no_trailing_whitespace, "NoTrailingWhitespace");
   fetch_criteria(e, &p->single_instruction_per_line, "SingleInstructionPerLine");
   fetch_criteria(e, &p->max_column_width, "MaximumLineWidth");
   fetch_criteria(e, &p->max_function_length, "MaximumFunctionLength");
   fetch_criteria(e, &p->max_parameter, "MaximumFunctionParameter");
+  fetch_criteria(e, &p->maximum_scope_length, "MaximumScopeLength");
   fetch_criteria(e, &p->always_braces, "AlwaysBraces");
   fetch_criteria(e, &p->avoid_braces, "AvoidBracesForSingleLine");
   fetch_criteria(e, &p->space_after_statement, "SpaceAfterStatement");
   fetch_criteria(e, &p->space_around_binary_operator, "SpaceAroundBinaryOperator");
+  fetch_criteria(e, &p->space_after_comma, "SpaceAfterComma");
   fetch_criteria(e, &p->only_by_reference, "OnlyByReference");
   fetch_criteria(e, &p->no_space_inside_parenthesis, "NoSpaceInsideParenthesis");
-  if (fetch_string_criteria(e, &p->header, "Header"))
+  fetch_criteria(e, &p->no_space_inside_brackets, "NoSpaceInsideBrackets");
+  if (fetch_string_criteria(e, &p->header, "Header") && p->header.active)
     {
       const char	*str;
 
       (void)(bunny_configuration_getf(e, &str, "Header.Value")
-	     || bunny_configuration_getf(e, &str, "Header[1]")
+	     || bunny_configuration_getf(e, &str, "Header[0]")
 	     || bunny_configuration_getf(e, &str, "Header"));
-      strxcpy(&p->header_data[0], str, sizeof(p->header_data), strlen(str));
+      strxcpy(&p->header_data[0], str, sizeof(p->header_data) - 1, strlen(str));
     }
 
   fetch_criteria(e, &p->symbol_alignment, "FunctionVariableDefinitionAlignment");
@@ -3757,6 +3929,7 @@ void			load_norm_configuration(t_parsing	*p,
   fetch_criteria(e, &p->for_forbidden, "ForForbidden");
   fetch_criteria(e, &p->while_forbidden, "WhileForbidden");
   fetch_criteria(e, &p->do_while_forbidden, "DoWhileForbidden");
+  fetch_criteria(e, &p->goto_forbidden, "GotoForbidden");
   fetch_criteria(e, &p->goto_forbidden, "GoToForbidden");
   fetch_criteria(e, &p->return_forbidden, "ReturnForbidden");
   fetch_criteria(e, &p->break_forbidden, "BreakForbidden");
@@ -3773,6 +3946,8 @@ void			load_norm_configuration(t_parsing	*p,
       p->maximum_if_in_function.value = 0;
     }
   fetch_criteria(e, &p->else_forbidden, "ElseForbidden");
+  fetch_criteria(e, &p->switch_forbidden, "SwitchForbidden");
+  fetch_criteria(e, &p->inline_mod_forbidden, "InlineModificationForbidden");
   fetch_criteria(e, &p->inline_mod_forbidden, "InlineModForbidden");
   fetch_criteria(e, &p->ternary_forbidden, "TernaryForbidden");
   fetch_criteria(e, &p->no_assignment, "NoAssignment");

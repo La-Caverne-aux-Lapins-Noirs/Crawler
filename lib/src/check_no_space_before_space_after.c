@@ -24,7 +24,9 @@ int			check_no_space_before_space_after(t_parsing	*p,
       return (-1);
   if (code[pos] != '\0')
     {
-      if ((code[pos] != ' ' && code[pos] != '\n')
+      if (code[pos] == '\n')
+	return (1);
+      if (code[pos] != ' '
 	  || (code[pos + 1] != '\0' && isblank(code[pos + 1])))
 	if (!add_warning
 	    (p, true, code, pos, &p->space_after_comma.counter,

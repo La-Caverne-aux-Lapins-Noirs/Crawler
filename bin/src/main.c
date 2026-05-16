@@ -65,51 +65,67 @@ int			main(int		argc,
 	  return (EXIT_FAILURE);
 	}
       
-      for (i = 1; i < argc; ++i)
+      for (i = 2; i < argc; ++i)
 	if (strcmp(argv[i], "--nocolor") == 0)
 	  color = false;
 	else if (strcmp(argv[i], "-v") == 0)
 	  verbose = true;
       	else if (strcmp(argv[i], "-I") == 0)
 	  {
-	    if (i + 1 < argc)
+	    if (i + 1 >= argc)
 	      {
-		if (!bunny_configuration_setf(cnf, argv[i], "_AdditionalHeaderPath[%d]", hdrfile))
-		  {
-		    fprintf(stderr, "%s: Cannot set additional header in inner configuration.\n", argv[0]);
-		    return (EXIT_FAILURE);
-		  }
-		hdrfile += 1;
+		fprintf(stderr, "%s: Missing path after -I.\n", argv[0]);
+		return (EXIT_FAILURE);
 	      }
+	    if (!bunny_configuration_setf(cnf, argv[i + 1], "_AdditionalHeaderPath[%d]", hdrfile))
+	      {
+		fprintf(stderr, "%s: Cannot set additional header in inner configuration.\n", argv[0]);
+		return (EXIT_FAILURE);
+	      }
+	    hdrfile += 1;
 	    i += 1;
 	  }
-	else
+	else if (test_ext(argv[i], ".dab")
+		 || test_ext(argv[i], ".json")
+		 || test_ext(argv[i], ".ini")
+		 || test_ext(argv[i], ".lua"))
 	  {
-	    t_bunny_configuration *new = cnf;
-	    
-	    if (test_ext(argv[i], ".dab")
-		|| test_ext(argv[i], ".json")
-		|| test_ext(argv[i], ".ini")
-		|| test_ext(argv[i], ".lua"))
-	      if ((new = bunny_open_configuration(argv[i], cnf)) == NULL)
-		{
-		  fprintf(stderr, "%s: Cannot open %s.\n", argv[0], argv[i]);
-		  return (EXIT_FAILURE);
-		}
+	    t_bunny_configuration *new;
+
+	    if ((new = bunny_open_configuration(argv[i], cnf)) == NULL)
+	      {
+		fprintf(stderr, "%s: Cannot open %s.\n", argv[0], argv[i]);
+		return (EXIT_FAILURE);
+	      }
 	    cnf_cnt += 1;
 	    cnf = new;
 	  }
       if (cnf_cnt == 0)
-	if (bunny_open_configuration("/etc/crawler/efrits.dab", cnf) == NULL)
-	  {
-	    fprintf(stderr, "%s: Cannot open %s.\n", argv[0], argv[i]);
-	    return (EXIT_FAILURE);
-	  }
+	{
+	  t_bunny_configuration *new;
+
+	  if ((new = bunny_open_configuration("/etc/crawler/efrits.dab", cnf)) == NULL)
+	    {
+	      fprintf(stderr, "%s: Cannot open /etc/crawler/efrits.dab.\n", argv[0]);
+	      return (EXIT_FAILURE);
+	    }
+	  cnf = new;
+	}
       load_norm_configuration(&parsing, cnf);
 
-      for (i = 3; i < argc; ++i)
+      for (i = 2; i < argc; ++i)
 	{
+	  if (strcmp(argv[i], "-I") == 0)
+	    {
+	      i += 1;
+	      continue ;
+	    }
 	  if (argv[i][0] == '-')
+	    continue ;
+	  if (test_ext(argv[i], ".dab")
+	      || test_ext(argv[i], ".json")
+	      || test_ext(argv[i], ".ini")
+	      || test_ext(argv[i], ".lua"))
 	    continue ;
 	  if (test_ext(argv[i], ".c") == false && test_ext(argv[i], ".h") == false)
 	    continue ;

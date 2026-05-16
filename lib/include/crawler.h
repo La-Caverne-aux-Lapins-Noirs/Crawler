@@ -63,7 +63,7 @@ typedef struct		s_last_function
   bool			is_volatile;
 
   // /!\ Ne pas modifier l'ordre des variables ci-dessus sinon casse dans read_storage_class_specifier
-  
+
   // Permet de passer la ) dans read declarator dans un cas : typedef void (*signalf > ) < (int song)
   bool			is_union_last_typedef;
   bool			is_struct_last_typedef;
