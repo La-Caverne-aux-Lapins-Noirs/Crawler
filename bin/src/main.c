@@ -12,6 +12,10 @@
 #include		<stdio.h>
 #include		"crawler.h"
 
+#ifndef			CRAWLER_DEFAULT_CONFIGURATION
+# define		CRAWLER_DEFAULT_CONFIGURATION	"/usr/share/crawler/default.dab"
+#endif
+
 static bool		test_ext(const char	*filepath,
 				 const char	*ext)
 {
@@ -104,9 +108,10 @@ int			main(int		argc,
 	{
 	  t_bunny_configuration *new;
 
-	  if ((new = bunny_open_configuration("/etc/crawler/efrits.dab", cnf)) == NULL)
+	  if ((new = bunny_open_configuration(CRAWLER_DEFAULT_CONFIGURATION, cnf)) == NULL)
 	    {
-	      fprintf(stderr, "%s: Cannot open /etc/crawler/efrits.dab.\n", argv[0]);
+	      fprintf(stderr, "%s: Cannot open default configuration %s.\n",
+		      argv[0], CRAWLER_DEFAULT_CONFIGURATION);
 	      return (EXIT_FAILURE);
 	    }
 	  cnf = new;

@@ -1,5 +1,8 @@
 crawler (1.0.0+XXX) unstable; urgency=medium
 
-  * Bring software.
+  * Package Crawler as a Debian package.
+  * Install the EFRITS norm in /usr/share/crawler/efrits.dab.
+  * Provide /usr/share/crawler/default.dab as a symlink to efrits.dab.
+  * Use the packaged default configuration when no configuration is passed.
 
- -- Technocore <Contact@YourAdmin>  Wed, 15 Oct 2025 18:44:46 +0200
+ -- Technocore <technocore@technocore>  Wed, 27 May 2026 15:00:00 +0200

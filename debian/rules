@@ -1,7 +1,16 @@
 #!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
 %:
 	dh $@
-	(cd lib && make)
-	rm -f lib/*.so
-	(cd bin && make)
 
+override_dh_auto_build:
+	$(MAKE) -C lib RELEASE=1
+	rm -f lib/libcrawler.so
+	$(MAKE) -C bin RELEASE=1
+
+override_dh_auto_clean:
+	-$(MAKE) -C bin fclean
+	-$(MAKE) -C lib fclean
+	rm -f bin/errors~ lib/errors~
