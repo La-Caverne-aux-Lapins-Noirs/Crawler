@@ -37,8 +37,9 @@ int			main(int		argc,
   if (p.last_error_id != -1)
     {
       fprintf(stderr, "Coding style failure of crawler.h: %d error founds:\n", p.last_error_id);
-      for (int i = 0; i < p.last_error_id; ++i)
-	printf("- %s\n", p.last_error_msg[i]);
+      for (int i = 0; i <= p.last_error_id; ++i)
+	fprintf(stderr, "- %s\n", p.last_error_msg[i]);
+      fflush(stderr);
     }
   assert(p.last_error_id == -1);
 

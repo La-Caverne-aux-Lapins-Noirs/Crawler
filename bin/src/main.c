@@ -10,6 +10,7 @@
 */
 
 #include		<stdio.h>
+#include		<sys/ioctl.h>
 #include		"crawler.h"
 
 #ifndef			CRAWLER_DEFAULT_CONFIGURATION
@@ -19,11 +20,32 @@
 static bool		test_ext(const char	*filepath,
 				 const char	*ext)
 {
-  char			*x;
+  size_t		flen;
+  size_t		elen;
 
-  if ((x = strstr(filepath, ext)) == NULL)
+  flen = strlen(filepath);
+  elen = strlen(ext);
+  if (flen < elen)
     return (false);
-  return (strcmp(x, ext) == 0);
+  return (strcmp(&filepath[flen - elen], ext) == 0);
+}
+
+static void		print_separator(void)
+{
+  int			width;
+
+  width = 80;
+#ifdef TIOCGWINSZ
+  {
+    struct winsize	ws;
+
+    if (ioctl(1, TIOCGWINSZ, &ws) == 0 && ws.ws_col > 0)
+      width = ws.ws_col;
+  }
+#endif
+  while (width-- > 0)
+    putchar('-');
+  putchar('\n');
 }
 
 static int		usage(const char	*prog_name)
@@ -60,6 +82,7 @@ int			main(int		argc,
       int		total_error = 0;
       int		total_file = 0;
       int		working_file = 0;
+      int		processing_error = 0;
       int		cnf_cnt = 0;
       int		hdrfile = 0;
 
@@ -140,26 +163,34 @@ int			main(int		argc,
 	  total_file += 1;
 	  memcpy(&parsingtmp, &parsing, sizeof(parsingtmp));
 	  parsingtmp.file = argv[i];
+	  bool		file_failed = false;
+
 	  if ((s = load_c_file(argv[i], cnf, false)) == NULL)
 	    {
 	      fprintf(stderr, "%s: Cannot open %s.\n", argv[0], argv[i]);
-	      continue ;
+	      file_failed = true;
+	      goto print_file_report;
 	    }
 	  if (check_header_file(&parsingtmp, s) == false)
-	    continue ;
+	    {
+	      file_failed = true;
+	      goto print_file_report;
+	    }
 	  if ((s = load_c_file(argv[i], cnf, true)) == NULL)
 	    {
 	      fprintf(stderr, "%s: Cannot open and precompile %s.\n", argv[0], argv[i]);
-	      continue ;
+	      file_failed = true;
+	      goto print_file_report;
 	    }
 	  if (verbose)
 	    puts(s);
 	  j = 0;
 	  if (read_translation_unit(&parsingtmp, argv[i], s, &j, true, true) == -1)
-	    continue ;
+	    file_failed = true;
 
 	  int		k;
 
+	print_file_report:
 	  for (k = 0; k <= parsingtmp.last_error_id; ++k)
 	    {
 	      if (color)
@@ -169,7 +200,7 @@ int			main(int		argc,
 		  else
 		    printf("\033[1;35m");
 		}
-	      system("printf '%*s\n' \"$(tput cols)\" '' | tr ' ' '-'");
+	      print_separator();
 	      printf("%s", parsingtmp.last_error_msg[k]);
 	    }
 	  if (color)
@@ -180,12 +211,28 @@ int			main(int		argc,
 	    printf("Amount of different kind of mistakes: %d.\n", parsingtmp.nbr_mistakes);
 	  if (parsingtmp.nbr_error_points)
 	    printf("Amount of error points: %d.\n", parsingtmp.nbr_error_points);
-	  working_file += 1;
+	  if (file_failed)
+	    processing_error += 1;
+	  else
+	    working_file += 1;
 	  total_error += parsingtmp.nbr_error_points;
 	}
-      if (total_error == 0 && working_file == total_file)
-	printf("No errors were detected.\n");
-      return (EXIT_SUCCESS);
+      if (total_file == 0)
+	{
+	  fprintf(stderr, "%s: No C source or header file was provided.\n", argv[0]);
+	  return (EXIT_FAILURE);
+	}
+      if (total_error == 0 && processing_error == 0 && working_file == total_file)
+	{
+	  printf("No errors were detected.\n");
+	  return (EXIT_SUCCESS);
+	}
+      if (processing_error != 0)
+	fprintf(stderr, "%s: %d file(s) could not be checked reliably.\n",
+		argv[0], processing_error);
+      if (parsing.maximum_error_points >= 0 && total_error <= parsing.maximum_error_points)
+	return (processing_error == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
+      return (EXIT_FAILURE);
     }
   if (strcmp(argv[1], "-m") == 0)
     {

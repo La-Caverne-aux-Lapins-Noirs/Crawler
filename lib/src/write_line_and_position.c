@@ -9,6 +9,31 @@
 #include		"crawler.h"
 #define			IGN(a)					{ if (a) {} }
 
+static int		safe_append(char		*buf,
+				    size_t		len,
+				    size_t		*k,
+				    const char		*fmt,
+				    ...)
+{
+  va_list		lst;
+  int			ret;
+
+  if (*k >= len)
+    return (0);
+  va_start(lst, fmt);
+  ret = vsnprintf(&buf[*k], len - *k, fmt, lst);
+  va_end(lst);
+  if (ret < 0)
+    return (-1);
+  if ((size_t)ret >= len - *k)
+    {
+      *k = len - 1;
+      return (ret);
+    }
+  *k += ret;
+  return (ret);
+}
+
 int			write_line_and_position(const char	*code,
 						int		pos,
 						char		*buf,
@@ -17,8 +42,10 @@ int			write_line_and_position(const char	*code,
 {
   int			i = pos;
   int			j;
-  int			k = 0;
+  size_t		k = 0;
 
+  if (len == 0)
+    return (0);
   while (i > 0 && code[i] != '\n')
     i -= 1;
   if (code[i] == '\n')
@@ -31,21 +58,22 @@ int			write_line_and_position(const char	*code,
   if (j - i <= 0)
     {
       buf[0] = '\n';
-      buf[1] = '\0';
-      return (0);
+      if (len > 1)
+	buf[1] = '\0';
+      return (1);
     }
-  k += snprintf(&buf[k], len - k, "%.*s\n", j - i + 1, &code[i]);
+  safe_append(buf, len, &k, "%.*s\n", j - i + 1, &code[i]);
   if (!position)
     return (k);
   while (i < pos)
     {
       if (code[i] == '\t')
-	k += snprintf(&buf[k], len - k, "\t");
+	safe_append(buf, len, &k, "\t");
       else
-	k += snprintf(&buf[k], len - k, " ");
+	safe_append(buf, len, &k, " ");
       i += 1;
     }
-  k += snprintf(&buf[k], len - k, "^\n");
+  safe_append(buf, len, &k, "^\n");
   return (k);
 }
 

@@ -12,6 +12,8 @@ int			check_no_space_before_space_after(t_parsing	*p,
 							  const char	*code,
 							  int		pos)
 {
+  int			end;
+
   if (!IZ(p, &pos))
     return (1);
   // On est pile poil apres la virgule
@@ -24,7 +26,11 @@ int			check_no_space_before_space_after(t_parsing	*p,
       return (-1);
   if (code[pos] != '\0')
     {
-      if (code[pos] == '\n')
+      end = pos;
+      while (isblank(code[end]))
+	end += 1;
+      if (code[end] == '\n' || code[end] == '\0' ||
+	  (code[end] == '/' && (code[end + 1] == '/' || code[end + 1] == '*')))
 	return (1);
       if (code[pos] != ' '
 	  || (code[pos + 1] != '\0' && isblank(code[pos + 1])))

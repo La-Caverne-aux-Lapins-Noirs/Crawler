@@ -10,6 +10,7 @@
 #include		<stdio.h>
 #include		<stdlib.h>
 #include		<stdarg.h>
+#include		<stdbool.h>
 
 int			tcpopen(const char		*module_name,
 				const char		*cmd,
@@ -21,6 +22,9 @@ int			tcpopen(const char		*module_name,
   FILE			*pip;
   ssize_t		rd;
   size_t		i;
+  size_t		limit;
+  bool			truncated;
+  int			status;
 
   if ((pip = popen(cmd, "r")) == NULL)
     { // LCOV_EXCL_START
@@ -32,8 +36,20 @@ int			tcpopen(const char		*module_name,
       return (-1);
     } // LCOV_EXCL_STOP
   i = 0;
-  while ((rd = fread(&out[i], 1, *max - i - 1, pip)) > 0)
+  truncated = false;
+  limit = *max > 0 ? (size_t)*max : 0;
+  while (limit > 1 && i + 1 < limit
+	 && (rd = fread(&out[i], 1, limit - i - 1, pip)) > 0)
     i += rd;
+  if (limit > 0)
+    out[i] = '\0';
+  if (limit > 0 && i + 1 >= limit)
+    {
+      int c = fgetc(pip);
+
+      if (c != EOF)
+	truncated = true;
+    }
   if (ferror(pip) && message)
     { // LCOV_EXCL_START
       snprintf(&message[0], msg_size,
@@ -41,7 +57,15 @@ int			tcpopen(const char		*module_name,
 	       module_name
 	       );
     } // LCOV_EXCL_STOP
-  out[i] = '\0';
   *max = i;
-  return (pclose(pip));
+  status = pclose(pip);
+  if (truncated)
+    {
+      if (message)
+	snprintf(&message[0], msg_size,
+		 "%s: Command output was too large and was truncated.\n",
+		 module_name);
+      return (-1);
+    }
+  return (status);
 }

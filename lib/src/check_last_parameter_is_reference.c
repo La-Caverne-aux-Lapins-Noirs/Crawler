@@ -34,13 +34,24 @@ bool			check_last_parameter_is_reference(t_parsing	*p,
 	if (p->new_type[i].size > p->only_by_reference.value
 	    && p->last_declaration.ptr_acc == 0)
 	  {
-	    strcpy(p->last_declaration.copied_parameters
-		   [p->last_declaration.nbr_copied_parameters].name,
-		   p->last_declaration.last_type);
-	    p->last_declaration.copied_parameters
-	      [p->last_declaration.nbr_copied_parameters].size =
-	      p->new_type[i].size;
-	    p->last_declaration.nbr_copied_parameters += 1;
+	    if (p->last_declaration.nbr_copied_parameters
+		< (int)NBRCELL(p->last_declaration.copied_parameters))
+	      {
+		char	*name;
+		size_t	len;
+
+		name = p->last_declaration.copied_parameters
+		  [p->last_declaration.nbr_copied_parameters].name;
+		len = 0;
+		while (len < SYMBOL_SIZE && p->last_declaration.last_type[len])
+		  len += 1;
+		memcpy(name, p->last_declaration.last_type, len);
+		name[len] = '\0';
+		p->last_declaration.copied_parameters
+		  [p->last_declaration.nbr_copied_parameters].size =
+		  p->new_type[i].size;
+		p->last_declaration.nbr_copied_parameters += 1;
+	      }
 	  }
 	return (true);
       }

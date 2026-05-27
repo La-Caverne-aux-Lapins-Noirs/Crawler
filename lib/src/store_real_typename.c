@@ -13,73 +13,70 @@
 ** pas faite pour les suffixes.
 */
 
+static void		apply_infix(const char		*infix,
+				    int			position,
+				    const char			*symbol,
+				    int				*spoint,
+				    int				*flen)
+{
+  size_t		infix_len;
+
+  infix_len = strlen(infix);
+  if (position == 0)
+    {
+      if (strncmp(infix, symbol, infix_len) == 0)
+	*spoint = infix_len;
+    }
+  else if ((size_t)*flen >= infix_len)
+    *flen -= infix_len;
+}
+
 int			store_real_typename(t_parsing		*p,
 					    char		*target,
 					    const char		*symbol,
 					    int			len,
 					    int			typ)
 {
-  int			spoint = 0;
-  int			flen = strlen(symbol);
-  
+  int			spoint;
+  int			flen;
+
+  spoint = 0;
+  flen = strlen(symbol);
   if (typ == 0 && p->struct_infix.active)
-    {
-      if (p->struct_infix.position == 0)
-	{
-	  if (strncmp(p->struct_infix.value, symbol, strlen(p->struct_infix.value)) == 0)
-	    spoint = strlen(p->struct_infix.value);
-	}
-      else
-	flen -= strlen(p->struct_infix.value);
-    }
+    apply_infix(p->struct_infix.value, p->struct_infix.position,
+		symbol, &spoint, &flen);
   else if (typ == 1 && p->union_infix.active)
-    {
-      if (p->union_infix.position == 0)
-	{
-	  if (strncmp(p->union_infix.value, symbol, strlen(p->union_infix.value)) == 0)
-	    spoint = strlen(p->union_infix.value);
-	}
-      else
-	flen -= strlen(p->union_infix.value);
-    }
+    apply_infix(p->union_infix.value, p->union_infix.position,
+		symbol, &spoint, &flen);
   else if (typ == 2 && p->typedef_infix.active)
-    {
-      if (p->typedef_infix.position == 0)
-	{
-	  if (strncmp(p->typedef_infix.value, symbol, strlen(p->typedef_infix.value)) == 0)
-	    spoint = strlen(p->typedef_infix.value);
-	}
-      else
-	flen -= strlen(p->typedef_infix.value);
-    }
-  else if (typ == 3 && p->enum_infix.active) // enum
-    {
-      if (p->enum_infix.position == 0)
-	{
-	  if (strncmp(p->enum_infix.value, symbol, strlen(p->enum_infix.value)) == 0)
-	    spoint = strlen(p->enum_infix.value);
-	}
-      else
-	flen -= strlen(p->enum_infix.value);
-    }
-  else if (typ == 4 && p->function_infix.active) // fonction
+    apply_infix(p->typedef_infix.value, p->typedef_infix.position,
+		symbol, &spoint, &flen);
+  else if (typ == 3 && p->enum_infix.active)
+    apply_infix(p->enum_infix.value, p->enum_infix.position,
+		symbol, &spoint, &flen);
+  else if (typ == 4 && p->function_infix.active)
     {
       if (strcmp("main", symbol) == 0 || bunny_strncasecmp("test_", symbol, 5) == 0)
 	{
 	  spoint = 0;
 	  flen = strlen(symbol);
 	}
-      else if (p->function_infix.position == 0)
-	{
-	  if (strncmp(p->function_infix.value, symbol, strlen(p->function_infix.value)) == 0)
-	    spoint = strlen(p->function_infix.value);
-	}
       else
-	flen -= strlen(p->function_infix.value);
+	apply_infix(p->function_infix.value, p->function_infix.position,
+		    symbol, &spoint, &flen);
     }
-  strncpy(&p->last_declaration.last_type[0], symbol, sizeof(p->last_declaration.last_type));
-  len = flen > len - 1 ? len - 1 : flen;
-  strncpy(target, &symbol[spoint], len);
-  target[len] = 0;
+  if (spoint > flen)
+    spoint = flen;
+  flen -= spoint;
+  if (flen < 0)
+    flen = 0;
+  snprintf(&p->last_declaration.last_type[0],
+	   sizeof(p->last_declaration.last_type), "%s", symbol);
+  if (len <= 0)
+    return (1);
+  if (flen > len - 1)
+    flen = len - 1;
+  memcpy(target, &symbol[spoint], flen);
+  target[flen] = 0;
   return (1);
 }

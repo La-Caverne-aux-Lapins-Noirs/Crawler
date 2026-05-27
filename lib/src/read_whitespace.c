@@ -43,6 +43,7 @@ bool			read_whitespace(const char		*code,
 	{
 	  char		buffer[1024];
 	  int		line;
+	  bool		continued;
 
 	  bunny_read_char(code, i, " \t\r\n\035");
 	  if (gl_parsing_save && bunny_read_integer(code, i, &line))
@@ -60,11 +61,12 @@ bool			read_whitespace(const char		*code,
 	    {
 	      while (code[*i] && !bunny_check_text(code, i, "\n"))
 		*i += 1;
+	      continued = *i > 0 && code[*i - 1] == '\\';
 	      if (!code[*i])
 		goto GoodEnd;
 	      bunny_read_text(code, i, "\n");
 	    }
-	  while (code[*i - 1] == '\\');
+	  while (continued);
 	}
     }
   while (ret);

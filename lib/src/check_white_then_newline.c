@@ -26,6 +26,9 @@ bool			check_white_then_newline(t_parsing	*p,
 	      return (check_white_then_newline(p, code, i + 1, statement));
 	  if (code[i] == '}')
 	    return (true);
+	  if (code[i] == '/' &&
+	      (code[i + 1] == '/' || code[i + 1] == '*'))
+	    return (true);
 	  // write_line_and_position(code, pos);
 	  if (!add_warning
 	      (p, IZ(p, &i), code, i, &p->single_instruction_per_line.counter,

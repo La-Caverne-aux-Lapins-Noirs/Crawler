@@ -48,6 +48,7 @@ typedef struct		s_type
 {
   char			name[SYMBOL_SIZE + 1];
   int			size;
+  bool			is_function;
 }			t_type;
 
 typedef struct		s_last_function
@@ -72,6 +73,7 @@ typedef struct		s_last_function
   bool			inside_cast;
   bool			inside_function;
   bool			inside_function_name;
+  bool			inside_function_definition_attempt;
   bool			inside_variable;
   bool			inside_struct;
   bool			inside_union;
@@ -112,7 +114,7 @@ typedef struct		s_criteria
   int			counter;
 }			t_criteria;
 
-typedef struct		s_string_critera
+typedef struct		s_string_criteria
 {
   bool			active;
   int			position;
@@ -258,36 +260,36 @@ typedef struct		s_parsing
   t_criteria		end[0];
 }			t_parsing;
 
-bool			read_whitespace(const char		*code,
-					ssize_t			*i);
+bool			read_whitespace(const char			*code,
+					ssize_t				*i);
 
-int			read_expression(t_parsing		*parsing,
-					const char		*code,
-					ssize_t			*i,
-					bool			start);
+int			read_expression(t_parsing			*parsing,
+					const char			*code,
+					ssize_t				*i,
+					bool				start);
 
-int			read_type_specifier(t_parsing		*parsing,
-					    const char		*code,
-					    ssize_t		*i,
-					    bool		second_check);
+int			read_type_specifier(t_parsing			*parsing,
+					    const char			*code,
+					    ssize_t			*i,
+					    bool			second_check);
 
-int			read_declaration_specifiers(t_parsing	*parsing,
-						    const char	*code,
-						    ssize_t	*i,
-						    bool	in_read_function_definition);
+int			read_declaration_specifiers(t_parsing		*parsing,
+						    const char		*code,
+						    ssize_t		*i,
+						    bool		in_read_function_definition);
 
-int			travel_expression(t_parsing		*parsing,
-					  const char		*code,
-					  ssize_t		*i,
-					  int			target_counter);
+int			travel_expression(t_parsing			*parsing,
+					  const char			*code,
+					  ssize_t			*i,
+					  int				target_counter);
 
-int			check_type_is_function(t_parsing	*parsing,
-					       const char	*code,
-					       ssize_t		*i);
+int			check_type_is_function(t_parsing		*parsing,
+					       const char		*code,
+					       ssize_t			*i);
 
-typedef int		t_read(t_parsing			*parsing,
-			       const char			*code,
-			       ssize_t				*i);
+typedef int		t_read(t_parsing				*parsing,
+			       const char				*code,
+			       ssize_t					*i);
 t_read
   read_function_definition,
   read_primary_expression,
@@ -361,7 +363,7 @@ int			read_translation_unit(t_parsing			*parsing,
 					      ssize_t			*i,
 					      bool			verbose,
 					      bool			was_preprocessed);
-void			reset_last_declaration(t_parsing		*f);
+void			reset_last_declaration(t_parsing		*parsing);
 void			load_norm_configuration(t_parsing		*parsing,
 						t_bunny_configuration	*configuration);
 char			*load_c_file(const char				*file,
@@ -476,7 +478,7 @@ bool			check_on_same_line(t_parsing			*parsing,
 					   const char			*code,
 					   int				i,
 					   const char			*tok,
-					   bool				right);
+					   bool			right);
 
 // A appeler pour verifier le code non préprocéssé
 int			check_header_file(t_parsing			*parsing,

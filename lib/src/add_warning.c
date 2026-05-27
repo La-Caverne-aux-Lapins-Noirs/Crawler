@@ -16,20 +16,23 @@ bool			add_warning(t_parsing			*p,
 				    const char			*fmt,
 				    ...)
 {
+  int			max;
+  int			next;
+
   if (real == false)
     return (true);
   if (p->last_line_marker > pos)
     return (true);
-  if (p->last_error_id + 1 > NBRCELL(p->last_error_msg))
+  max = NBRCELL(p->last_error_msg);
+  next = p->last_error_id + 1;
+  if (next >= max)
     return (true);
-  if (p->last_error_id + 1 >= NBRCELL(p->last_error_msg))
+  if (next == max - 1)
     {
-      if ((p->last_error_msg[++p->last_error_id] =
+      if ((p->last_error_msg[next] =
 	   bunny_strdup("Too many errors encountered. Stop reporting.")) == NULL)
-	{ // LCOV_EXCL_START
-	  p->last_error_id -= 1;
-	  return (false);
-	} // LCOV_EXCL_STOP
+	return (false);
+      p->last_error_id = next;
       return (true);
     }
   char			buf[2048];
@@ -37,17 +40,32 @@ bool			add_warning(t_parsing			*p,
   int			end;
 
   va_start(lst, fmt);
-  end = 0;
-  end += vsnprintf(&buf[0], sizeof(buf) - end, fmt, lst);
-  end += snprintf(&buf[end], sizeof(buf) - end, " (%s, line %d)\n",
-		  p->file, bunny_which_line(code, pos) - p->last_line_marker_line
-		  );
-  write_line_and_position(code, pos, &buf[end], sizeof(buf) - end, true);
-  if ((p->last_error_msg[++p->last_error_id] = bunny_strdup(&buf[0])) == NULL)
-    { // LCOV_EXCL_START
-      p->last_error_id -= 1;
-      return (false);
-    } // LCOV_EXCL_STOP
+  end = vsnprintf(&buf[0], sizeof(buf), fmt, lst);
+  va_end(lst);
+  if (end < 0)
+    return (false);
+  if ((size_t)end >= sizeof(buf))
+    end = sizeof(buf) - 1;
+  if ((size_t)end < sizeof(buf))
+    {
+      int written = snprintf(&buf[end], sizeof(buf) - (size_t)end,
+			     " (%s, line %d)\n",
+			     p->file,
+			     bunny_which_line(code, pos) - p->last_line_marker_line
+			     );
+
+      if (written < 0)
+	return (false);
+      if ((size_t)written >= sizeof(buf) - (size_t)end)
+	end = sizeof(buf) - 1;
+      else
+	end += written;
+    }
+  if ((size_t)end < sizeof(buf))
+    write_line_and_position(code, pos, &buf[end], sizeof(buf) - (size_t)end, true);
+  if ((p->last_error_msg[next] = bunny_strdup(&buf[0])) == NULL)
+    return (false);
+  p->last_error_id = next;
   if (cnt)
     *cnt += 1;
   return (true);
