@@ -13,6 +13,7 @@
 #ifndef			__CRAWLER_H__
 # define		__CRAWLER_H__
 # include		<stdbool.h>
+# include		<stddef.h>
 # include		"lapin.h"
 
 // Renvoi 0, permet de s'arreter quand une erreur est rencontrée
@@ -123,7 +124,10 @@ typedef struct		s_string_criteria
   int			counter;
 }			t_string_criteria;
 
-typedef struct		s_parsing
+
+# include		"funcgraph.h"
+
+struct			s_parsing
 {
   const char		*file;
   t_bunny_configuration	*configuration;
@@ -162,6 +166,9 @@ typedef struct		s_parsing
   int			last_line_marker;
   int			last_line_marker_line;
   bool			ansi_c;
+
+  t_function_map	function_map;
+
   t_criteria		start[0];
 
   // About functions inside files
@@ -258,7 +265,7 @@ typedef struct		s_parsing
   t_criteria		inline_mod_forbidden;
   t_criteria		no_assignment;
   t_criteria		end[0];
-}			t_parsing;
+};
 
 bool			read_whitespace(const char			*code,
 					ssize_t				*i);
@@ -489,5 +496,6 @@ int			check_all_lines_width(t_parsing			*parsing,
 int			crawler_stop(void);
 
 void			reset_norm_status(t_parsing			*parsing);
+
 
 #endif	/*		__CRAWLER_H__					*/

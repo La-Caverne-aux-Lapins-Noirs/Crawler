@@ -17,6 +17,9 @@
 #include		<fcntl.h>
 #include		<ctype.h>
 #include		<math.h>
+#include		<stdio.h>
+#include		<stdlib.h>
+#include		<string.h>
 #include		"crawler.h"
 
 #ifndef			M_PI
@@ -247,6 +250,98 @@ static bool		check_read_text(const char	*code,
     return(false);
   *i = j;
   return(true);
+}
+
+
+
+static void		crawler_map_copy_symbol(char		*target,
+					const char	*source,
+					size_t		 target_size)
+{
+  size_t		len;
+
+  if (target == NULL || target_size == 0)
+    return ;
+  if (source == NULL)
+    source = "";
+  len = strlen(source);
+  if (len >= target_size)
+    len = target_size - 1;
+  memcpy(target, source, len);
+  target[len] = '\0';
+}
+
+static bool		crawler_map_identifier_is_reserved(const char	*symbol)
+{
+  size_t		i;
+
+  for (i = 0; i < NBRCELL(keywords); ++i)
+    if (strcmp(symbol, keywords[i]) == 0)
+      return (true);
+  for (i = 0; i < NBRCELL(standard_types); ++i)
+    if (strcmp(symbol, standard_types[i].name) == 0)
+      return (true);
+  return (false);
+}
+
+static bool		crawler_map_read_identifier_at(const char	*code,
+					       ssize_t		pos,
+					       char		out[SYMBOL_SIZE + 1],
+					       ssize_t		*end)
+{
+  ssize_t		j;
+  ssize_t		start;
+  size_t		len;
+
+  if (out)
+    out[0] = '\0';
+  j = pos;
+  read_whitespace(code, &j);
+  if (strchr(gl_first_char, code[j]) == NULL)
+    return (false);
+  start = j;
+  j += 1;
+  while (strchr(gl_second_char, code[j]) != NULL)
+    j += 1;
+  len = (size_t)(j - start);
+  if (len == 0 || len > SYMBOL_SIZE)
+    return (false);
+  if (out)
+    {
+      memcpy(out, &code[start], len);
+      out[len] = '\0';
+      if (crawler_map_identifier_is_reserved(out))
+	{
+	  out[0] = '\0';
+	  return (false);
+	}
+    }
+  if (end)
+    *end = j;
+  return (true);
+}
+
+static bool		crawler_map_read_pointer_donation(t_parsing	*p,
+						 const char	*code,
+						 ssize_t	pos,
+						 char		out[SYMBOL_SIZE + 1])
+{
+  ssize_t		j;
+  bool			forced;
+
+  if (out)
+    out[0] = '\0';
+  j = pos;
+  read_whitespace(code, &j);
+  forced = bunny_read_text(code, &j, "&");
+  if (!crawler_map_read_identifier_at(code, j, out, &j))
+    return (false);
+  read_whitespace(code, &j);
+  if (bunny_check_text(code, &j, "("))
+    return (false);
+  if (forced)
+    return (true);
+  return (crawler_function_map_has_function(p, out));
 }
 
 static int		handle_typedef(t_parsing	*p,
@@ -1385,8 +1480,21 @@ int			read_function_definition(t_parsing	*p,
     }
  
   // Le corps de fonction
+  char			map_previous_function[SYMBOL_SIZE + 1];
+  bool			map_entered = false;
+
+  read_whitespace(code, i);
+  if (p->function_map.enabled && bunny_check_text(code, i, "{") &&
+      p->last_declaration.function[0] != '\0')
+    {
+      crawler_function_map_enter(p, p->last_declaration.function,
+				 map_previous_function);
+      map_entered = true;
+    }
   if ((ret = read_compound_statement(p, code, i)) != 0)
     {
+      if (map_entered)
+	crawler_function_map_leave(p, map_previous_function);
       if (ret > 0) // Si on a implémenté une fonction pour de vrai
 	{
 
@@ -1469,6 +1577,8 @@ int			read_function_definition(t_parsing	*p,
       delete_function_parse_checkpoint(checkpoint);
       FRETURN (ret);
     }
+  if (map_entered)
+    crawler_function_map_leave(p, map_previous_function);
   reset_last_declaration(p);
   
   // Les contrôles sémantiques liés à l'implémentation
@@ -1600,6 +1710,14 @@ int			read_argument_expression_list(t_parsing	*p,
       if (cnt > 0)
 	if (check_no_space_before_space_after(p, code, *i) == -1)
 	  RETURN("Memory exhausted."); // LCOV_EXCL_LINE
+      if (p->function_map.enabled && p->function_map.current_call_receiver[0] != '\0')
+	{
+	  char		donated[SYMBOL_SIZE + 1];
+
+	  if (crawler_map_read_pointer_donation(p, code, *i, donated))
+	    crawler_function_map_add_pointer_donation
+	      (p, p->function_map.current_call_receiver, donated);
+	}
       if ((ret = read_assignment_expression(p, code, i)) != 1)
 	{
 	  if (cnt == 0 || ret == -1)
@@ -1619,8 +1737,11 @@ int			read_postfix_expression(t_parsing	*p,
 {
   int			ret;
   bool			once;
+  char			call_target[SYMBOL_SIZE + 1];
+  bool			has_call_target;
 
   FTRACE(code, *i);
+  has_call_target = crawler_map_read_identifier_at(code, *i, call_target, NULL);
   if ((ret = read_primary_expression(p, code, i)) != 1)
     FRETURN (ret);
   do
@@ -1631,6 +1752,7 @@ int			read_postfix_expression(t_parsing	*p,
 	  if (!check_parenthesis_space(p, code, *i - 1, '[', &p->no_space_inside_brackets.counter))
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	  once = true;
+	  has_call_target = false;
 	  if (read_expression(p, code, i, false) != 1)
 	    RETURN ("Problem encountered with expression after '['."); // LCOV_EXCL_LINE
 	  if (!bunny_read_text(code, i, "]"))
@@ -1640,12 +1762,37 @@ int			read_postfix_expression(t_parsing	*p,
 	}
       if (bunny_read_text(code, i, "("))
 	{
+	  char		previous_receiver[SYMBOL_SIZE + 1];
+
 	  once = true;
+	  previous_receiver[0] = '\0';
+	  if (p->function_map.enabled)
+	    {
+	      crawler_map_copy_symbol(previous_receiver,
+				      p->function_map.current_call_receiver,
+				      sizeof(previous_receiver));
+	      if (has_call_target && p->last_declaration.inside_function &&
+		  p->function_map.current_function[0] != '\0')
+		{
+		  crawler_function_map_add_call
+		    (p, p->function_map.current_function, call_target);
+		  crawler_map_copy_symbol(p->function_map.current_call_receiver,
+					  call_target,
+					  sizeof(p->function_map.current_call_receiver));
+		}
+	      else
+		p->function_map.current_call_receiver[0] = '\0';
+	    }
 	  if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
 	      (p, code, *i - 1, '(', &p->no_space_inside_parenthesis.counter))
 	    RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
 	  if (read_argument_expression_list(p, code, i) == -1)
 	    RETURN ("Problem encountered with argument list after '('."); // LCOV_EXCL_LINE
+	  if (p->function_map.enabled)
+	    crawler_map_copy_symbol(p->function_map.current_call_receiver,
+				    previous_receiver,
+				    sizeof(p->function_map.current_call_receiver));
+	  has_call_target = false;
 	  if (!bunny_read_text(code, i, ")"))
 	    RETURN ("Missing ')' after '(argument'."); // LCOV_EXCL_LINE
 	  if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
@@ -1655,6 +1802,7 @@ int			read_postfix_expression(t_parsing	*p,
       if (bunny_read_text(code, i, ".") || bunny_read_text(code, i, "->"))
 	{
 	  once = true;
+	  has_call_target = false;
 	  if (read_identifier(p, code, i, false) == false)
 	    RETURN ("Problem encountered with symbol after '.' or '->'."); // LCOV_EXCL_LINE
 	}
@@ -2044,12 +2192,17 @@ int			read_assignment_expression(t_parsing	*p,
 						   const char	*code,
 						   ssize_t	*i)
 {
+  int			ret;
+
   FTRACE(code, *i);
   read_whitespace(code, i);
   ssize_t		j = *i;
   int			sizof = p->sizeof_parenthesis.counter;
 
-  if (read_unary_expression(p, code, &j) == 1)
+  p->function_map.suppressed += 1;
+  ret = read_unary_expression(p, code, &j);
+  p->function_map.suppressed -= 1;
+  if (ret == 1)
     {
       int		k = j;
 

@@ -10,6 +10,9 @@
 */
 
 #include		<stdio.h>
+#include		<stdlib.h>
+#include		<string.h>
+#include		<sys/types.h>
 #include		<sys/ioctl.h>
 #include		"crawler.h"
 
@@ -54,8 +57,8 @@ static int		usage(const char	*prog_name)
 	  "\t%s -c [configuration]* [files]+ [--nocolor]? [-v]? [-I header_path]*\n"
 	  "\t\tTo test conformity. Order of parameter is irrelevant.\n"
 	  "\t\tSupported configuration format are .dab, .json, .ini and .lua.\n\n"
-	  "\t%s -m [files]+\n"
-	  "\t\tTo create a function call map (Not implemented yet)\n\n"
+	  "\t%s -m -o output.dot [files]+ [-I header_path]*\n"
+	  "\t\tTo create a Graphviz/DOT function call map.\n\n"
 	  "\t%s -d [files]+\n"
 	  "\t\tTo create a Dabsic script with prototypes and types (Not implemented yet)\n"
   	  "\t%s -f [files]+\n"
@@ -236,7 +239,105 @@ int			main(int		argc,
     }
   if (strcmp(argv[1], "-m") == 0)
     {
+      const char	*output = NULL;
+      int		hdrfile = 0;
+      int		total_file = 0;
+      int		failed_file = 0;
 
+      if ((cnf = bunny_new_configuration()) == NULL)
+	{
+	  fprintf(stderr, "%s: Not enough memory to initiate configuration.\n", argv[0]);
+	  return (EXIT_FAILURE);
+	}
+      for (i = 2; i < argc; ++i)
+	{
+	  if (strcmp(argv[i], "-o") == 0)
+	    {
+	      if (i + 1 >= argc)
+		{
+		  fprintf(stderr, "%s: Missing path after -o.\n", argv[0]);
+		  return (EXIT_FAILURE);
+		}
+	      output = argv[i + 1];
+	      i += 1;
+	    }
+	  else if (strcmp(argv[i], "-I") == 0)
+	    {
+	      if (i + 1 >= argc)
+		{
+		  fprintf(stderr, "%s: Missing path after -I.\n", argv[0]);
+		  return (EXIT_FAILURE);
+		}
+	      if (!bunny_configuration_setf(cnf, argv[i + 1],
+					    "_AdditionalHeaderPath[%d]", hdrfile))
+		{
+		  fprintf(stderr, "%s: Cannot set additional header in inner configuration.\n", argv[0]);
+		  return (EXIT_FAILURE);
+		}
+	      hdrfile += 1;
+	      i += 1;
+	    }
+	}
+      if (output == NULL)
+	{
+	  fprintf(stderr, "%s: Missing -o output.dot for -m.\n", argv[0]);
+	  return (usage(argv[0]));
+	}
+      memset(&parsing, 0, sizeof(parsing));
+      parsing.configuration = cnf;
+      parsing.last_error_id = -1;
+      crawler_function_map_enable(&parsing, true);
+      for (i = 2; i < argc; ++i)
+	{
+	  const char	*s;
+	  ssize_t	j;
+
+	  if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "-I") == 0)
+	    {
+	      i += 1;
+	      continue ;
+	    }
+	  if (argv[i][0] == '-')
+	    continue ;
+	  if (test_ext(argv[i], ".c") == false && test_ext(argv[i], ".h") == false)
+	    continue ;
+	  total_file += 1;
+	  if ((s = load_c_file(argv[i], cnf, true)) == NULL)
+	    {
+	      fprintf(stderr, "%s: Cannot open and precompile %s.\n", argv[0], argv[i]);
+	      failed_file += 1;
+	      continue ;
+	    }
+	  j = 0;
+	  if (read_translation_unit(&parsing, argv[i], s, &j, false, true) == -1)
+	    {
+	      int	k;
+
+	      fprintf(stderr, "%s: Cannot parse %s reliably.\n", argv[0], argv[i]);
+	      for (k = 0; k <= parsing.last_error_id; ++k)
+		fprintf(stderr, "%s", parsing.last_error_msg[k]);
+	      failed_file += 1;
+	    }
+	}
+      if (total_file == 0)
+	{
+	  fprintf(stderr, "%s: No C source or header file was provided.\n", argv[0]);
+	  crawler_function_map_clear(&parsing);
+	  return (EXIT_FAILURE);
+	}
+      if (failed_file != 0)
+	{
+	  crawler_function_map_clear(&parsing);
+	  return (EXIT_FAILURE);
+	}
+      if (!crawler_function_map_write_dot(&parsing, output))
+	{
+	  fprintf(stderr, "%s: Cannot write %s.\n", argv[0], output);
+	  crawler_function_map_clear(&parsing);
+	  return (EXIT_FAILURE);
+	}
+      crawler_function_map_clear(&parsing);
+      return (EXIT_SUCCESS);
     }
   if (strcmp(argv[1], "-d") == 0)
     {
