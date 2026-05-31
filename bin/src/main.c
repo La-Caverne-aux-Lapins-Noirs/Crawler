@@ -64,14 +64,12 @@ static int		usage(const char	*prog_name)
 	  "\t\tSupported configuration format are .dab, .json, .ini and .lua.\n\n"
 	  "\t%s -m -o output.dot [files]+ [-I header_path]*\n"
 	  "\t\tTo create a Graphviz/DOT function call map.\n\n"
-	  "\t%s -r [-o output.tsv] [files]+ [-I header_path]*\n"
-	  "\t\tTo create a source metrics report. Output is TSV on stdout by default.\n\n"
+	  "\t%s -r [-o output.dab] [files]+ [-I header_path]*\n"
+	  "\t\tTo create a Dabsic source metrics report. Output is /dev/stdout by default.\n\n"
 	  "\t%s -d [files]+\n"
 	  "\t\tTo create a Dabsic script with prototypes and types (Not implemented yet)\n"
-  	  "\t%s -f [files]+\n"
-	  "\t\tTo extract function calls (Not implemented yet)\n"
 	  "\n"
-	  , prog_name, prog_name, prog_name, prog_name, prog_name, prog_name);
+	  , prog_name, prog_name, prog_name, prog_name, prog_name);
   return (EXIT_FAILURE);
 }
 
