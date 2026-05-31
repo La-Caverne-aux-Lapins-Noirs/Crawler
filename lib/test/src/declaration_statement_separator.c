@@ -87,11 +87,10 @@ int			main(int		argc,
   load_norm_configuration(&p, cnf);
   p.no_trailing_whitespace.counter = 0;
   p.declaration_statement_separator.counter = 0;
-  fprintf(stderr, "%s\n", s);
   if (read_translation_unit(&p, "file", s, &i, true, true) != 1)
     GOTOERROR(); // LCOV_EXCL_LINE
   assert(p.declaration_statement_separator.counter == 1);
   assert(p.no_trailing_whitespace.counter == 2);
-  
+
   TEST_OUTRO(); // LCOV_EXCL_LINE
 }

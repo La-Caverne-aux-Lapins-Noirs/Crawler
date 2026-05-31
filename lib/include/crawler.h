@@ -126,6 +126,7 @@ typedef struct		s_string_criteria
 
 
 # include		"funcgraph.h"
+# include		"source_report.h"
 
 struct			s_parsing
 {
@@ -168,6 +169,7 @@ struct			s_parsing
   bool			ansi_c;
 
   t_function_map	function_map;
+  t_source_report	source_report;
 
   t_criteria		start[0];
 

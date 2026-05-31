@@ -28,6 +28,22 @@
 
 extern t_parsing	*gl_parsing_save;
 
+static int		function_body_end_line(const char	*code,
+				       ssize_t		i)
+{
+  if (i <= 0)
+    return (0);
+  if (code[i] == '\0')
+    i -= 1;
+  while (i > 0 && isspace((unsigned char)code[i]))
+    i -= 1;
+  while (i > 0 && code[i] != '}')
+    i -= 1;
+  if (code[i] == '}')
+    return (bunny_which_line(code, i) - 1);
+  return (bunny_which_line(code, i));
+}
+
 // Liste des types standards
 static struct
 {
@@ -845,6 +861,7 @@ int			read_selection_statement(t_parsing	*p,
 	  if (read_statement(p, code, i) != 1)
 	    RETURN ("Missing statement after 'else'."); // LCOV_EXCL_LINE
 	}
+      source_report_add_instruction(p, SOURCE_REPORT_BRANCH);
       FRETURN (1);
     }
   if (bunny_read_text(code, i, "switch"))
@@ -875,6 +892,7 @@ int			read_selection_statement(t_parsing	*p,
       p->last_declaration.after_statement = true;
       if (read_statement(p, code, i) != 1)
 	RETURN ("Missing statement after 'switch (expression)'."); // LCOV_EXCL_LINE
+      source_report_add_instruction(p, SOURCE_REPORT_BRANCH);
       FRETURN (1);
     }
   FRETURN (0);
@@ -921,6 +939,7 @@ int			read_iteration_statement(t_parsing	*p,
 	  if (read_statement(p, code, i) != 1)
 	    RETURN ("Missing statement after 'while (condition)'."); // LCOV_EXCL_LINE
 	}
+      source_report_add_instruction(p, SOURCE_REPORT_LOOP);
       FRETURN (1);
     }
   if (check_read_text(code, i, "do"))
@@ -959,6 +978,7 @@ int			read_iteration_statement(t_parsing	*p,
 	RETURN ("Missing ';' after 'do statement while (condition)'."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, true) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      source_report_add_instruction(p, SOURCE_REPORT_LOOP);
       FRETURN (1);
     }
   if (check_read_text(code, i, "for"))
@@ -1003,6 +1023,7 @@ int			read_iteration_statement(t_parsing	*p,
 	  if (read_statement(p, code, i) != 1)
 	    RETURN ("Missing statement after 'for (initialization; condition; increment)'."); // LCOV_EXCL_LINE
 	}
+      source_report_add_instruction(p, SOURCE_REPORT_LOOP);
       FRETURN (1);
     }
   FRETURN (0);
@@ -1030,6 +1051,7 @@ int			read_jump_statement(t_parsing		*p,
 	RETURN ("Missing ';' after 'goto symbol'."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, false) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      source_report_add_instruction(p, SOURCE_REPORT_JUMP);
       FRETURN (1);
     }
   if (check_read_text(code, i, "continue"))
@@ -1047,6 +1069,7 @@ int			read_jump_statement(t_parsing		*p,
 	RETURN ("Missing ';' after 'continue'."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, false) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      source_report_add_instruction(p, SOURCE_REPORT_JUMP);
       FRETURN (1);
     }
   if (check_read_text(code, i, "break"))
@@ -1064,6 +1087,7 @@ int			read_jump_statement(t_parsing		*p,
 	RETURN ("Missing ';' after 'break'."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, false) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      source_report_add_instruction(p, SOURCE_REPORT_JUMP);
       FRETURN (1);
     }
   if (check_read_text(code, i, "return"))
@@ -1081,7 +1105,10 @@ int			read_jump_statement(t_parsing		*p,
 	RETURN("Memory exhausted."); // LCOV_EXCL_LINE
       // Pas d'expression
       if (bunny_read_text(code, i, ";"))
-	FRETURN (1);
+	{
+	  source_report_add_instruction(p, SOURCE_REPORT_RETURN);
+	  FRETURN (1);
+	}
       // Une expression
       if (p->return_parenthesis.active && bunny_check_text(code, i, "(") == false)
 	{
@@ -1108,6 +1135,7 @@ int			read_jump_statement(t_parsing		*p,
 	RETURN ("Missing ';' after 'FRETURN expression'."); // LCOV_EXCL_LINE
       if (check_white_then_newline(p, code, *i, false) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      source_report_add_instruction(p, SOURCE_REPORT_RETURN);
       FRETURN (1);
     }
   FRETURN (0);
@@ -1127,6 +1155,8 @@ int			read_expression_statement(t_parsing	*p,
     RETURN ("Missing ';' after expression."); // LCOV_EXCL_LINE
   if (ret == 1)
     {
+      if (p->last_declaration.inside_for_statement == false)
+	source_report_add_instruction(p, SOURCE_REPORT_EXPRESSION);
       p->last_declaration.scope_length += 1;
       if (p->last_declaration.inside_for_statement == false &&
 	  check_white_then_newline(p, code, *i, false) == false)
@@ -1482,8 +1512,22 @@ int			read_function_definition(t_parsing	*p,
   // Le corps de fonction
   char			map_previous_function[SYMBOL_SIZE + 1];
   bool			map_entered = false;
+  int			report_previous_function = p->source_report.current_function;
+  size_t		report_previous_count = p->source_report.function_count;
+  bool			report_started = false;
 
   read_whitespace(code, i);
+  if (p->source_report.enabled && bunny_check_text(code, i, "{") &&
+      p->last_declaration.function[0] != '\0')
+    {
+      if (!source_report_begin_function
+	  (p, p->last_declaration.function, p->file, bunny_which_line(code, *i) + 1))
+	{
+	  delete_function_parse_checkpoint(checkpoint);
+	  RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+	}
+      report_started = true;
+    }
   if (p->function_map.enabled && bunny_check_text(code, i, "{") &&
       p->last_declaration.function[0] != '\0')
     {
@@ -1497,6 +1541,9 @@ int			read_function_definition(t_parsing	*p,
 	crawler_function_map_leave(p, map_previous_function);
       if (ret > 0) // Si on a implémenté une fonction pour de vrai
 	{
+	  if (report_started)
+	    source_report_end_function(p, report_previous_function,
+				     function_body_end_line(code, *i));
 
 	  // On a limité le nombre de fonction par fichier - donc on compte les fonctions
 	  if (p->function_per_file.active)
@@ -1574,11 +1621,16 @@ int			read_function_definition(t_parsing	*p,
 	  p->last_declaration.nbr_copied_parameters = 0;
 	}
       p->last_declaration.inside_function = false;
+      if (report_started && ret <= 0)
+	source_report_cancel_function(p, report_previous_function,
+				      report_previous_count);
       delete_function_parse_checkpoint(checkpoint);
       FRETURN (ret);
     }
   if (map_entered)
     crawler_function_map_leave(p, map_previous_function);
+  if (report_started)
+    source_report_cancel_function(p, report_previous_function, report_previous_count);
   reset_last_declaration(p);
   
   // Les contrôles sémantiques liés à l'implémentation
@@ -3667,6 +3719,8 @@ int			read_declaration(t_parsing		*p,
     RETURN ("Missing ';' after declaration."); // LCOV_EXCL_LINE
   if (check_white_then_newline(p, code, *i, false) == false)
     RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+  if (p->last_declaration.inside_function)
+    source_report_add_instruction(p, SOURCE_REPORT_DECLARATION);
   FRETURN (1);
 }
 

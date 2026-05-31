@@ -12,12 +12,17 @@
 #include		<stdio.h>
 #include		<stdlib.h>
 #include		<string.h>
+#include		<fcntl.h>
+#include		<unistd.h>
 #include		<sys/types.h>
 #include		<sys/ioctl.h>
 #include		"crawler.h"
 
 #ifndef			CRAWLER_DEFAULT_CONFIGURATION
 # define		CRAWLER_DEFAULT_CONFIGURATION	"/usr/share/crawler/default.dab"
+#endif
+#ifndef			O_BINARY
+# define		O_BINARY			0
 #endif
 
 static bool		test_ext(const char	*filepath,
@@ -59,12 +64,14 @@ static int		usage(const char	*prog_name)
 	  "\t\tSupported configuration format are .dab, .json, .ini and .lua.\n\n"
 	  "\t%s -m -o output.dot [files]+ [-I header_path]*\n"
 	  "\t\tTo create a Graphviz/DOT function call map.\n\n"
+	  "\t%s -r [-o output.tsv] [files]+ [-I header_path]*\n"
+	  "\t\tTo create a source metrics report. Output is TSV on stdout by default.\n\n"
 	  "\t%s -d [files]+\n"
 	  "\t\tTo create a Dabsic script with prototypes and types (Not implemented yet)\n"
   	  "\t%s -f [files]+\n"
 	  "\t\tTo extract function calls (Not implemented yet)\n"
 	  "\n"
-	  , prog_name, prog_name, prog_name, prog_name, prog_name);
+	  , prog_name, prog_name, prog_name, prog_name, prog_name, prog_name);
   return (EXIT_FAILURE);
 }
 
@@ -236,6 +243,105 @@ int			main(int		argc,
       if (parsing.maximum_error_points >= 0 && total_error <= parsing.maximum_error_points)
 	return (processing_error == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
       return (EXIT_FAILURE);
+    }
+  if (strcmp(argv[1], "-r") == 0 || strcmp(argv[1], "--report") == 0)
+    {
+      const char	*output = NULL;
+      int		hdrfile = 0;
+      int		total_file = 0;
+      int		failed_file = 0;
+
+      if ((cnf = bunny_new_configuration()) == NULL)
+	{
+	  fprintf(stderr, "%s: Not enough memory to initiate configuration.\n", argv[0]);
+	  return (EXIT_FAILURE);
+	}
+      for (i = 2; i < argc; ++i)
+	{
+	  if (strcmp(argv[i], "-o") == 0)
+	    {
+	      if (i + 1 >= argc)
+		{
+		  fprintf(stderr, "%s: Missing path after -o.\n", argv[0]);
+		  return (EXIT_FAILURE);
+		}
+	      output = argv[i + 1];
+	      i += 1;
+	    }
+	  else if (strcmp(argv[i], "-I") == 0)
+	    {
+	      if (i + 1 >= argc)
+		{
+		  fprintf(stderr, "%s: Missing path after -I.\n", argv[0]);
+		  return (EXIT_FAILURE);
+		}
+	      if (!bunny_configuration_setf(cnf, argv[i + 1],
+					    "_AdditionalHeaderPath[%d]", hdrfile))
+		{
+		  fprintf(stderr, "%s: Cannot set additional header in inner configuration.\n", argv[0]);
+		  return (EXIT_FAILURE);
+		}
+	      hdrfile += 1;
+	      i += 1;
+	    }
+	}
+      memset(&parsing, 0, sizeof(parsing));
+      parsing.configuration = cnf;
+      parsing.last_error_id = -1;
+      source_report_enable(&parsing.source_report);
+      for (i = 2; i < argc; ++i)
+	{
+	  const char	*s;
+	  ssize_t	j;
+
+	  if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "-I") == 0)
+	    {
+	      i += 1;
+	      continue ;
+	    }
+	  if (argv[i][0] == '-')
+	    continue ;
+	  if (test_ext(argv[i], ".c") == false && test_ext(argv[i], ".h") == false)
+	    continue ;
+	  total_file += 1;
+	  parsing.file = argv[i];
+	  if ((s = load_c_file(argv[i], cnf, true)) == NULL)
+	    {
+	      fprintf(stderr, "%s: Cannot open and precompile %s.\n", argv[0], argv[i]);
+	      failed_file += 1;
+	      continue ;
+	    }
+	  j = 0;
+	  if (read_translation_unit(&parsing, argv[i], s, &j, false, true) == -1)
+	    {
+	      int	k;
+
+	      fprintf(stderr, "%s: Cannot parse %s reliably.\n", argv[0], argv[i]);
+	      for (k = 0; k <= parsing.last_error_id; ++k)
+		fprintf(stderr, "%s", parsing.last_error_msg[k]);
+	      failed_file += 1;
+	    }
+	}
+      if (total_file == 0)
+	{
+	  fprintf(stderr, "%s: No C source or header file was provided.\n", argv[0]);
+	  source_report_clear(&parsing.source_report);
+	  return (EXIT_FAILURE);
+	}
+      if (failed_file != 0)
+	{
+	  source_report_clear(&parsing.source_report);
+	  return (EXIT_FAILURE);
+	}
+      if (!source_report_write(output != NULL ? output : "/dev/stdout",
+			       &parsing.source_report))
+	{
+	  fprintf(stderr, "%s: Cannot write source report.\n", argv[0]);
+	  source_report_clear(&parsing.source_report);
+	  return (EXIT_FAILURE);
+	}
+      source_report_clear(&parsing.source_report);
+      return (EXIT_SUCCESS);
     }
   if (strcmp(argv[1], "-m") == 0)
     {

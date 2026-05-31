@@ -8,6 +8,7 @@
 */
 
 #include		<stdio.h>
+#include		<unistd.h>
 #include		"test.h"
 
 int			main(int		argc,
@@ -44,7 +45,9 @@ int			main(int		argc,
   assert(p.last_error_id == -1);
 
   ////////////////////////////
-  // D'autres tests plus faible
+  // D'autres tests plus faible, également utilisés pour vérifier le TSV.
+
+  source_report_enable(&p.source_report);
   
   i = 0;
   p.last_error_id = -1;
@@ -93,6 +96,11 @@ int			main(int		argc,
   assert(cfile = load_c_file(file, cnf, true));
   if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
     GOTOERROR(); // LCOV_EXCL_LINE
-  
+  assert(source_report_write("./final.dab", &p.source_report));
+  assert(p.source_report.function_count != 0);
+  assert(p.source_report.total_instructions != 0);
+  // unlink("./final.dab");
+  source_report_clear(&p.source_report);
+
   TEST_OUTRO(); // LCOV_EXCL_LINE
 }
