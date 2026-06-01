@@ -76,3 +76,22 @@ crawler -d [files]+
 ```
 
 Cette sortie est réservée à la génération future d'un script Dabsic contenant prototypes et types.
+
+### Source report complexity
+
+With `-r`, Crawler now emits local and call-expanded complexity metrics in the Dabsic report.
+
+Local metrics are computed while parsing each function: instructions, branches, loops, calls, cyclomatic approximation and maximum control nesting. Call-expanded metrics use the function graph collected during the same parse:
+
+```dabsic
+Report.Functions[0].Complexity.LocalScore = 12
+Report.Functions[0].Complexity.CallExpandedScore = 31
+Report.Functions[0].Complexity.PotentialExpandedScore = 44
+Report.Functions[0].Complexity.CallDepth = 3
+Report.Functions[0].Complexity.Recursive = false
+Report.Functions[0].Complexity.CallsExternal = true
+Report.Functions[0].Complexity.Partial = true
+Report.Functions[0].Complexity.FunctionPointerEscape = false
+```
+
+`CallExpandedScore` follows direct calls to functions parsed in the same run. `PotentialExpandedScore` also accounts for function-pointer donation edges when the receiver is known. Scores are marked `Partial` when external calls, unresolved calls or recursive cycles prevent a complete closed-world estimate.

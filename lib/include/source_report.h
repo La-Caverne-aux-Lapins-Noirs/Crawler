@@ -12,6 +12,7 @@
 # define		__SOURCE_REPORT_H__
 # include		<stdbool.h>
 # include		<stddef.h>
+# include		"funcgraph.h"
 
 struct				s_parsing;
 
@@ -39,6 +40,10 @@ typedef struct		s_source_function_report
   int			loops;
   int			jumps;
   int			returns;
+  int			calls;
+  int			cyclomatic;
+  int			max_control_depth;
+  int			current_control_depth;
 }				t_source_function_report;
 
 typedef struct		s_source_report
@@ -55,6 +60,10 @@ typedef struct		s_source_report
   int			total_loops;
   int			total_jumps;
   int			total_returns;
+  int			total_calls;
+  int			total_cyclomatic;
+  int			total_complexity_score;
+  int			max_control_depth;
   int			total_lines;
 }				t_source_report;
 
@@ -72,7 +81,13 @@ void				source_report_end_function(struct s_parsing	*parsing,
 					   int			end_line);
 void				source_report_add_instruction(struct s_parsing	*parsing,
 					      t_source_report_instruction kind);
+void				source_report_add_call(struct s_parsing		*parsing);
+void				source_report_enter_control(struct s_parsing	*parsing);
+void				source_report_leave_control(struct s_parsing	*parsing);
 bool				source_report_write(const char			*file,
 					    const t_source_report	*report);
+bool				source_report_write_with_map(const char		*file,
+					     const t_source_report	*report,
+					     const t_function_map	*map);
 
 # endif	/*		__SOURCE_REPORT_H__	*/

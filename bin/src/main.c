@@ -287,6 +287,7 @@ int			main(int		argc,
       parsing.configuration = cnf;
       parsing.last_error_id = -1;
       source_report_enable(&parsing.source_report);
+      crawler_function_map_enable(&parsing, true);
       for (i = 2; i < argc; ++i)
 	{
 	  const char	*s;
@@ -323,21 +324,25 @@ int			main(int		argc,
       if (total_file == 0)
 	{
 	  fprintf(stderr, "%s: No C source or header file was provided.\n", argv[0]);
+	  crawler_function_map_clear(&parsing);
 	  source_report_clear(&parsing.source_report);
 	  return (EXIT_FAILURE);
 	}
       if (failed_file != 0)
 	{
+	  crawler_function_map_clear(&parsing);
 	  source_report_clear(&parsing.source_report);
 	  return (EXIT_FAILURE);
 	}
-      if (!source_report_write(output != NULL ? output : "/dev/stdout",
-			       &parsing.source_report))
+      if (!source_report_write_with_map(output != NULL ? output : "/dev/stdout",
+			       &parsing.source_report, &parsing.function_map))
 	{
 	  fprintf(stderr, "%s: Cannot write source report.\n", argv[0]);
+	  crawler_function_map_clear(&parsing);
 	  source_report_clear(&parsing.source_report);
 	  return (EXIT_FAILURE);
 	}
+      crawler_function_map_clear(&parsing);
       source_report_clear(&parsing.source_report);
       return (EXIT_SUCCESS);
     }

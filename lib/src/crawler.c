@@ -809,8 +809,13 @@ int			read_selection_statement(t_parsing	*p,
 	     "The maximum amount of if authorized was %d.",
 	     p->maximum_if_in_function.value))
 	  RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      source_report_enter_control(p);
       if (read_statement(p, code, i) != 1)
-	RETURN ("Missing statement after 'if (condition)'."); // LCOV_EXCL_LINE
+	{
+	  source_report_leave_control(p);
+	  RETURN ("Missing statement after 'if (condition)'."); // LCOV_EXCL_LINE
+	}
+      source_report_leave_control(p);
       if (bunny_read_text(code, i, "else"))
 	{
 	  int		elsefix = 0;
@@ -858,8 +863,13 @@ int			read_selection_statement(t_parsing	*p,
 	  if (elsefix == 1)
 	    p->last_declaration.depth_bonus -= 1;
 	  p->last_declaration.after_statement = false;
+	  source_report_enter_control(p);
 	  if (read_statement(p, code, i) != 1)
-	    RETURN ("Missing statement after 'else'."); // LCOV_EXCL_LINE
+	    {
+	      source_report_leave_control(p);
+	      RETURN ("Missing statement after 'else'."); // LCOV_EXCL_LINE
+	    }
+	  source_report_leave_control(p);
 	}
       source_report_add_instruction(p, SOURCE_REPORT_BRANCH);
       FRETURN (1);
@@ -890,8 +900,13 @@ int			read_selection_statement(t_parsing	*p,
       if (check_white_then_newline(p, code, *i, true) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       p->last_declaration.after_statement = true;
+      source_report_enter_control(p);
       if (read_statement(p, code, i) != 1)
-	RETURN ("Missing statement after 'switch (expression)'."); // LCOV_EXCL_LINE
+	{
+	  source_report_leave_control(p);
+	  RETURN ("Missing statement after 'switch (expression)'."); // LCOV_EXCL_LINE
+	}
+      source_report_leave_control(p);
       source_report_add_instruction(p, SOURCE_REPORT_BRANCH);
       FRETURN (1);
     }
@@ -936,8 +951,13 @@ int			read_iteration_statement(t_parsing	*p,
       if (!single_line_while)
 	{
 	  p->last_declaration.after_statement = true;
+	  source_report_enter_control(p);
 	  if (read_statement(p, code, i) != 1)
-	    RETURN ("Missing statement after 'while (condition)'."); // LCOV_EXCL_LINE
+	    {
+	      source_report_leave_control(p);
+	      RETURN ("Missing statement after 'while (condition)'."); // LCOV_EXCL_LINE
+	    }
+	  source_report_leave_control(p);
 	}
       source_report_add_instruction(p, SOURCE_REPORT_LOOP);
       FRETURN (1);
@@ -956,8 +976,13 @@ int			read_iteration_statement(t_parsing	*p,
       if (check_white_then_newline(p, code, *i, true) == false)
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       p->last_declaration.after_statement = true;
+      source_report_enter_control(p);
       if (read_statement(p, code, i) != 1)
-	RETURN ("Missing statement after 'do'."); // LCOV_EXCL_LINE
+	{
+	  source_report_leave_control(p);
+	  RETURN ("Missing statement after 'do'."); // LCOV_EXCL_LINE
+	}
+      source_report_leave_control(p);
       if (!bunny_read_text(code, i, "while"))
 	RETURN ("Missing 'while' after 'do statement'."); // LCOV_EXCL_LINE
       if (check_single_space(p, code, *i) == -1)
@@ -1020,8 +1045,13 @@ int			read_iteration_statement(t_parsing	*p,
       if (!single_line_for)
 	{
 	  p->last_declaration.after_statement = true;
+	  source_report_enter_control(p);
 	  if (read_statement(p, code, i) != 1)
-	    RETURN ("Missing statement after 'for (initialization; condition; increment)'."); // LCOV_EXCL_LINE
+	    {
+	      source_report_leave_control(p);
+	      RETURN ("Missing statement after 'for (initialization; condition; increment)'."); // LCOV_EXCL_LINE
+	    }
+	  source_report_leave_control(p);
 	}
       source_report_add_instruction(p, SOURCE_REPORT_LOOP);
       FRETURN (1);
@@ -1818,6 +1848,8 @@ int			read_postfix_expression(t_parsing	*p,
 
 	  once = true;
 	  previous_receiver[0] = '\0';
+	  if (has_call_target && p->last_declaration.inside_function)
+	    source_report_add_call(p);
 	  if (p->function_map.enabled)
 	    {
 	      crawler_map_copy_symbol(previous_receiver,
