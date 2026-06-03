@@ -128,6 +128,25 @@ typedef struct		s_string_criteria
 # include		"funcgraph.h"
 # include		"source_report.h"
 
+# define		CRAWLER_CHECKED_RETURN_MAX_PENDING	128
+
+typedef struct		s_chk_return_pending
+{
+  char			variable[SYMBOL_SIZE + 1];
+  char			function[SYMBOL_SIZE + 1];
+  int			position;
+  bool			checked;
+  bool			warned;
+  bool			full_transfer;
+  bool			full_checked;
+} 			t_chk_return_pending;
+
+typedef struct		s_chk_return_state
+{
+  t_chk_return_pending	pending[CRAWLER_CHECKED_RETURN_MAX_PENDING];
+  int			nbr_pending;
+} 			t_chk_return_state;
+
 struct			s_parsing
 {
   const char		*file;
@@ -170,6 +189,7 @@ struct			s_parsing
 
   t_function_map	function_map;
   t_source_report	source_report;
+  t_chk_return_state	checked_return_state;
 
   t_criteria		start[0];
 
@@ -265,6 +285,7 @@ struct			s_parsing
   t_criteria		switch_forbidden;
   t_criteria		ternary_forbidden;
   t_criteria		inline_mod_forbidden;
+  t_criteria		checked_return;
   t_criteria		no_assignment;
   t_criteria		end[0];
 };

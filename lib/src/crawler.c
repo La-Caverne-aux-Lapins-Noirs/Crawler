@@ -74,6 +74,593 @@ static const char	*keywords[] =
     "inline", "__inline", "__inline__", "_Noreturn"
   };
 
+
+typedef struct		s_checked_return_function
+{
+  const char		*name;
+  bool			realloc_like;
+  bool			full_transfer;
+} 			t_checked_return_function;
+
+static const t_checked_return_function gl_checked_return_functions[] =
+  {
+    {"malloc", false, false}, {"calloc", false, false}, {"realloc", true, false},
+    {"open", false, false}, {"creat", false, false}, {"close", false, false},
+    {"read", false, false}, {"write", false, true},
+    {"readv", false, false}, {"writev", false, true},
+    {"pread", false, false}, {"pwrite", false, true},
+    {"lseek", false, false}, {"access", false, false}, {"stat", false, false}, {"lstat", false, false}, {"fstat", false, false},
+    {"mkdir", false, false}, {"rmdir", false, false}, {"unlink", false, false}, {"rename", false, false},
+    {"dup", false, false}, {"dup2", false, false}, {"pipe", false, false},
+    {"fork", false, false}, {"wait", false, false}, {"waitpid", false, false},
+    {"socket", false, false}, {"bind", false, false}, {"listen", false, false}, {"accept", false, false},
+    {"connect", false, false}, {"send", false, true}, {"recv", false, false},
+    {"sendto", false, true}, {"recvfrom", false, false},
+    {"sendmsg", false, true}, {"recvmsg", false, false},
+    {"select", false, false}, {"poll", false, false},
+    {"mmap", false, false}, {"munmap", false, false},
+    {NULL, false, false}
+  };
+
+static bool		crawler_checked_return_enabled(t_parsing	*p)
+{
+  return (p != NULL && p->checked_return.active && p->checked_return.value != 0);
+}
+
+static bool		crawler_identifier_start(int			c)
+{
+  return (isalpha((unsigned char)c) || c == '_');
+}
+
+static bool		crawler_identifier_part(int			c)
+{
+  return (isalnum((unsigned char)c) || c == '_');
+}
+
+static ssize_t		crawler_checked_return_skip_literal(const char	*code,
+						       ssize_t		 i,
+						       ssize_t		 end)
+{
+  char			quote;
+
+  if (i >= end)
+    return (i);
+  if (code[i] == '/' && i + 1 < end && code[i + 1] == '/')
+    {
+      i += 2;
+      while (i < end && code[i] != '\n')
+	i += 1;
+      return (i);
+    }
+  if (code[i] == '/' && i + 1 < end && code[i + 1] == '*')
+    {
+      i += 2;
+      while (i + 1 < end && !(code[i] == '*' && code[i + 1] == '/'))
+	i += 1;
+      if (i + 1 < end)
+	i += 2;
+      return (i);
+    }
+  if (code[i] != '\'' && code[i] != '"')
+    return (i);
+  quote = code[i++];
+  while (i < end && code[i] != quote)
+    {
+      if (code[i] == '\\' && i + 1 < end)
+	i += 2;
+      else
+	i += 1;
+    }
+  if (i < end)
+    i += 1;
+  return (i);
+}
+
+static void		crawler_checked_return_copy_identifier(char		*target,
+							 size_t		 size,
+							 const char	*code,
+							 ssize_t	 begin,
+							 ssize_t	 end)
+{
+  size_t		len;
+
+  if (size == 0)
+    return ;
+  if (begin < 0 || end < begin)
+    {
+      target[0] = '\0';
+      return ;
+    }
+  len = (size_t)(end - begin);
+  if (len >= size)
+    len = size - 1;
+  memcpy(target, &code[begin], len);
+  target[len] = '\0';
+}
+
+static bool		crawler_checked_return_is_critical(const char	*name,
+							 bool		*realloc_like,
+							 bool		*full_transfer)
+{
+  for (int i = 0; gl_checked_return_functions[i].name != NULL; ++i)
+    if (strcmp(name, gl_checked_return_functions[i].name) == 0)
+      {
+	if (realloc_like != NULL)
+	  *realloc_like = gl_checked_return_functions[i].realloc_like;
+	if (full_transfer != NULL)
+	  *full_transfer = gl_checked_return_functions[i].full_transfer;
+	return (true);
+      }
+  if (realloc_like != NULL)
+    *realloc_like = false;
+  if (full_transfer != NULL)
+    *full_transfer = false;
+  return (false);
+}
+
+static bool		crawler_checked_return_read_identifier_at(const char	*code,
+								 ssize_t	 pos,
+								 ssize_t	 end,
+								 char		*out,
+								 size_t		 out_size,
+								 ssize_t	*identifier_end)
+{
+  ssize_t		j;
+
+  if (!crawler_identifier_start(code[pos]))
+    return (false);
+  j = pos + 1;
+  while (j < end && crawler_identifier_part(code[j]))
+    j += 1;
+  crawler_checked_return_copy_identifier(out, out_size, code, pos, j);
+  if (identifier_end != NULL)
+    *identifier_end = j;
+  return (true);
+}
+
+static bool		crawler_checked_return_find_call(const char	*code,
+							 ssize_t	 begin,
+							 ssize_t	 end,
+							 char		*function,
+							 size_t		 function_size,
+							 ssize_t	*position,
+							 bool		*realloc_like,
+							 bool		*full_transfer)
+{
+  ssize_t		i;
+
+  for (i = begin; i < end; ++i)
+    {
+      ssize_t		j;
+      char		name[SYMBOL_SIZE + 1];
+
+      j = crawler_checked_return_skip_literal(code, i, end);
+      if (j != i)
+	{
+	  i = j - 1;
+	  continue ;
+	}
+      if (!crawler_checked_return_read_identifier_at
+	  (code, i, end, name, sizeof(name), &j))
+	continue ;
+      i = j;
+      while (i < end && isspace((unsigned char)code[i]))
+	i += 1;
+      if (i < end && code[i] == '(' && crawler_checked_return_is_critical(name, realloc_like, full_transfer))
+	{
+	  if (function != NULL)
+	    crawler_checked_return_copy_identifier(function, function_size, name, 0, strlen(name));
+	  if (position != NULL)
+	    *position = j - (ssize_t)strlen(name);
+	  return (true);
+	}
+      i = j - 1;
+    }
+  return (false);
+}
+
+static bool		crawler_checked_return_has_identifier(const char	*code,
+							   ssize_t	 begin,
+							   ssize_t	 end,
+							   const char	*name)
+{
+  ssize_t		i;
+  size_t		len;
+
+  if (name == NULL || name[0] == '\0')
+    return (false);
+  len = strlen(name);
+  for (i = begin; i < end; ++i)
+    {
+      ssize_t		j;
+
+      j = crawler_checked_return_skip_literal(code, i, end);
+      if (j != i)
+	{
+	  i = j - 1;
+	  continue ;
+	}
+      if ((i == begin || !crawler_identifier_part(code[i - 1])) &&
+	  (size_t)(end - i) >= len && strncmp(&code[i], name, len) == 0 &&
+	  (i + (ssize_t)len >= end || !crawler_identifier_part(code[i + len])))
+	return (true);
+    }
+  return (false);
+}
+
+static bool		crawler_checked_return_has_comparison(const char	*code,
+							      ssize_t	 begin,
+							      ssize_t	 end)
+{
+  for (ssize_t i = begin; i < end; ++i)
+    {
+      ssize_t		j;
+
+      j = crawler_checked_return_skip_literal(code, i, end);
+      if (j != i)
+	{
+	  i = j - 1;
+	  continue ;
+	}
+      if (code[i] == '!' || code[i] == '<' || code[i] == '>')
+	return (true);
+      if (code[i] == '=' && i + 1 < end && code[i + 1] == '=')
+	return (true);
+    }
+  return (false);
+}
+
+
+static bool		crawler_checked_return_has_token(const char	*code,
+							 ssize_t	 begin,
+							 ssize_t	 end,
+							 const char	*token)
+{
+  size_t		len;
+
+  len = strlen(token);
+  for (ssize_t i = begin; i < end; ++i)
+    {
+      ssize_t		j;
+
+      j = crawler_checked_return_skip_literal(code, i, end);
+      if (j != i)
+	{
+	  i = j - 1;
+	  continue ;
+	}
+      if ((size_t)(end - i) >= len && strncmp(&code[i], token, len) == 0)
+	return (true);
+    }
+  return (false);
+}
+
+static bool		crawler_checked_return_has_full_transfer_check(const char	*code,
+									 ssize_t	 begin,
+									 ssize_t	 end,
+									 const char	*name)
+{
+  if (name != NULL && name[0] != '\0' &&
+      !crawler_checked_return_has_identifier(code, begin, end, name))
+    return (false);
+  if (!crawler_checked_return_has_token(code, begin, end, "!="))
+    return (false);
+  if (crawler_checked_return_has_token(code, begin, end, "-1"))
+    return (false);
+  return (true);
+}
+
+static ssize_t		crawler_checked_return_find_assignment(const char	*code,
+							   ssize_t	 begin,
+							   ssize_t	 end)
+{
+  int			depth;
+
+  depth = 0;
+  for (ssize_t i = begin; i < end; ++i)
+    {
+      ssize_t		j;
+
+      j = crawler_checked_return_skip_literal(code, i, end);
+      if (j != i)
+	{
+	  i = j - 1;
+	  continue ;
+	}
+      if (code[i] == '(' || code[i] == '[')
+	depth += 1;
+      else if ((code[i] == ')' || code[i] == ']') && depth > 0)
+	depth -= 1;
+      else if (depth == 0 && code[i] == '=')
+	{
+	  char		prev = i > begin ? code[i - 1] : '\0';
+	  char		next = i + 1 < end ? code[i + 1] : '\0';
+
+	  if (prev != '=' && prev != '!' && prev != '<' && prev != '>' && next != '=')
+	    return (i);
+	}
+    }
+  return (-1);
+}
+
+static bool		crawler_checked_return_lhs_variable(const char	*code,
+							      ssize_t	 begin,
+							      ssize_t	 assign,
+							      char	*variable,
+							      size_t	 size)
+{
+  ssize_t		end;
+  ssize_t		start;
+
+  end = assign;
+  while (end > begin && isspace((unsigned char)code[end - 1]))
+    end -= 1;
+  start = end;
+  while (start > begin && crawler_identifier_part(code[start - 1]))
+    start -= 1;
+  if (start == end || !crawler_identifier_start(code[start]))
+    return (false);
+  if (start > begin)
+    {
+      ssize_t		j = start;
+
+      while (j > begin && isspace((unsigned char)code[j - 1]))
+	j -= 1;
+      if (j > begin && code[j - 1] == '.')
+	return (false);
+      if (j > begin + 1 && code[j - 1] == '>' && code[j - 2] == '-')
+	return (false);
+    }
+  crawler_checked_return_copy_identifier(variable, size, code, start, end);
+  return (true);
+}
+
+static bool		crawler_checked_return_realloc_original(const char	*code,
+								 ssize_t	 call_pos,
+								 ssize_t	 end,
+								 char		*target,
+								 size_t		 size)
+{
+  ssize_t		i;
+  ssize_t		identifier_end;
+
+  i = call_pos + 7;
+  while (i < end && isspace((unsigned char)code[i]))
+    i += 1;
+  if (i >= end || code[i] != '(')
+    return (false);
+  i += 1;
+  while (i < end && isspace((unsigned char)code[i]))
+    i += 1;
+  return (crawler_checked_return_read_identifier_at
+	  (code, i, end, target, size, &identifier_end));
+}
+
+static void		crawler_checked_return_begin_function(t_parsing	*p)
+{
+  if (p != NULL)
+    p->checked_return_state.nbr_pending = 0;
+}
+
+static bool		crawler_checked_return_add_pending(t_parsing	*p,
+							   const char	*variable,
+							   const char	*function,
+							   int		 position,
+							   bool		 checked,
+							   bool		 full_transfer,
+							   bool		 full_checked)
+{
+  t_chk_return_state *state;
+  int			index;
+
+  if (!crawler_checked_return_enabled(p) || variable == NULL || variable[0] == '\0')
+    return (true);
+  state = &p->checked_return_state;
+  for (index = 0; index < state->nbr_pending; ++index)
+    if (strcmp(state->pending[index].variable, variable) == 0)
+      break ;
+  if (index >= CRAWLER_CHECKED_RETURN_MAX_PENDING)
+    return (false);
+  if (index == state->nbr_pending)
+    state->nbr_pending += 1;
+  crawler_checked_return_copy_identifier
+    (state->pending[index].variable, sizeof(state->pending[index].variable),
+     variable, 0, strlen(variable));
+  crawler_checked_return_copy_identifier
+    (state->pending[index].function, sizeof(state->pending[index].function),
+     function, 0, strlen(function));
+  state->pending[index].position = position;
+  state->pending[index].checked = checked;
+  state->pending[index].warned = false;
+  state->pending[index].full_transfer = full_transfer;
+  state->pending[index].full_checked = full_checked;
+  return (true);
+}
+
+static bool		crawler_checked_return_warn_usage(t_parsing	*p,
+							   const char	*code,
+							   ssize_t	 begin,
+							   ssize_t	 end,
+							   const char	*ignore_lhs)
+{
+  if (!crawler_checked_return_enabled(p))
+    return (true);
+  for (int i = 0; i < p->checked_return_state.nbr_pending; ++i)
+    {
+      t_chk_return_pending *pending = &p->checked_return_state.pending[i];
+
+      if (pending->checked || pending->warned)
+	continue ;
+      if (ignore_lhs != NULL && strcmp(ignore_lhs, pending->variable) == 0)
+	continue ;
+      if (crawler_checked_return_has_identifier(code, begin, end, pending->variable))
+	{
+	  pending->warned = true;
+	  if (!add_warning
+	      (p, IZ(p, &begin), code, (int)begin, &p->checked_return.counter,
+	       "Variable '%s' stores return value of %s and is used before being checked.",
+	       pending->variable, pending->function))
+	    return (false);
+	}
+    }
+  return (true);
+}
+
+static bool		crawler_checked_return_expression_statement(t_parsing	*p,
+								 const char	*code,
+								 ssize_t	 begin,
+								 ssize_t	 end)
+{
+  ssize_t		assign;
+  char			lhs[SYMBOL_SIZE + 1];
+  char			function[SYMBOL_SIZE + 1];
+  ssize_t		call_pos;
+  bool			realloc_like;
+  bool			full_transfer;
+
+  if (!crawler_checked_return_enabled(p) || !p->last_declaration.inside_function)
+    return (true);
+  assign = crawler_checked_return_find_assignment(code, begin, end);
+  lhs[0] = '\0';
+  if (assign >= 0 && crawler_checked_return_lhs_variable
+      (code, begin, assign, lhs, sizeof(lhs)))
+    {
+      if (!crawler_checked_return_warn_usage(p, code, begin, end, lhs))
+	return (false);
+      if (crawler_checked_return_find_call
+	  (code, assign + 1, end, function, sizeof(function), &call_pos, &realloc_like, &full_transfer))
+	{
+	  if (realloc_like)
+	    {
+	      char		original[SYMBOL_SIZE + 1];
+
+	      if (crawler_checked_return_realloc_original
+		  (code, call_pos, end, original, sizeof(original)) &&
+		  strcmp(original, lhs) == 0)
+		if (!add_warning
+		    (p, IZ(p, &call_pos), code, (int)call_pos,
+		     &p->checked_return.counter,
+		     "realloc result assigned directly to '%s'; use a temporary pointer before replacing the original allocation.",
+		     lhs))
+		  return (false);
+	    }
+	  return (crawler_checked_return_add_pending
+		  (p, lhs, function, (int)call_pos, false, full_transfer, false));
+	}
+      return (true);
+    }
+  if (!crawler_checked_return_warn_usage(p, code, begin, end, NULL))
+    return (false);
+  if (crawler_checked_return_find_call
+      (code, begin, end, function, sizeof(function), &call_pos, &realloc_like, &full_transfer))
+    {
+      ssize_t		j = begin;
+
+      while (j < end && isspace((unsigned char)code[j]))
+	j += 1;
+      if (j < end && code[j] == '(')
+	{
+	  ssize_t	k = j + 1;
+
+	  while (k < end && isspace((unsigned char)code[k]))
+	    k += 1;
+	  if (k + 4 <= end && strncmp(&code[k], "void", 4) == 0 &&
+	      (k + 4 >= end || !crawler_identifier_part(code[k + 4])))
+	    return (true);
+	}
+      return (add_warning
+	      (p, IZ(p, &call_pos), code, (int)call_pos,
+	       &p->checked_return.counter,
+	       "Return value of %s must be checked.", function));
+    }
+  return (true);
+}
+
+static bool		crawler_checked_return_condition(t_parsing	*p,
+							 const char	*code,
+							 ssize_t	 begin,
+							 ssize_t	 end)
+{
+  ssize_t		assign;
+  char			lhs[SYMBOL_SIZE + 1];
+  char			function[SYMBOL_SIZE + 1];
+  ssize_t		call_pos;
+  bool			realloc_like;
+  bool			full_transfer;
+  bool			has_comparison;
+
+  if (!crawler_checked_return_enabled(p) || !p->last_declaration.inside_function)
+    return (true);
+  has_comparison = crawler_checked_return_has_comparison(code, begin, end);
+  for (int i = 0; i < p->checked_return_state.nbr_pending; ++i)
+    if (has_comparison && crawler_checked_return_has_identifier
+	(code, begin, end, p->checked_return_state.pending[i].variable))
+      {
+	p->checked_return_state.pending[i].checked = true;
+	if (p->checked_return_state.pending[i].full_transfer &&
+	    crawler_checked_return_has_full_transfer_check
+	    (code, begin, end, p->checked_return_state.pending[i].variable))
+	  p->checked_return_state.pending[i].full_checked = true;
+      }
+  if (crawler_checked_return_find_call
+      (code, begin, end, function, sizeof(function), &call_pos,
+       &realloc_like, &full_transfer))
+    {
+      if (full_transfer && has_comparison &&
+	  !crawler_checked_return_has_full_transfer_check(code, begin, end, NULL))
+	return (add_warning
+		(p, IZ(p, &call_pos), code, (int)call_pos,
+		 &p->checked_return.counter,
+		 "Return value of %s is checked only as failure; partial transfer may be ignored.",
+		 function));
+    }
+  assign = crawler_checked_return_find_assignment(code, begin, end);
+  if (assign >= 0 && crawler_checked_return_lhs_variable
+      (code, begin, assign, lhs, sizeof(lhs)) &&
+      crawler_checked_return_find_call
+      (code, assign + 1, end, function, sizeof(function), &call_pos, &realloc_like, &full_transfer))
+    return (crawler_checked_return_add_pending
+	    (p, lhs, function, (int)call_pos, has_comparison, full_transfer,
+	     full_transfer && crawler_checked_return_has_full_transfer_check
+	     (code, begin, end, lhs)));
+  return (true);
+}
+
+static bool		crawler_checked_return_end_function(t_parsing	*p,
+							 const char	*code,
+							 ssize_t	 pos)
+{
+  if (!crawler_checked_return_enabled(p))
+    return (true);
+  for (int i = 0; i < p->checked_return_state.nbr_pending; ++i)
+    {
+      t_chk_return_pending *pending = &p->checked_return_state.pending[i];
+
+      if (!pending->checked && !pending->warned)
+	{
+	  pending->warned = true;
+	  if (!add_warning
+	      (p, IZ(p, &pos), code, pending->position,
+	       &p->checked_return.counter,
+	       "Variable '%s' stores return value of %s but is never checked.",
+	       pending->variable, pending->function))
+	    return (false);
+	}
+      else if (pending->full_transfer && !pending->full_checked && !pending->warned)
+	{
+	  pending->warned = true;
+	  if (!add_warning
+	      (p, IZ(p, &pos), code, pending->position,
+	       &p->checked_return.counter,
+	       "Variable '%s' stores return value of %s but partial transfer is not checked.",
+	       pending->variable, pending->function))
+	    return (false);
+	}
+    }
+  p->checked_return_state.nbr_pending = 0;
+  return (true);
+}
+
 char			*strcasestr(const char			*haystack,
 				    const char			*needle);
 
@@ -792,8 +1379,12 @@ int			read_selection_statement(t_parsing	*p,
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (check_base_indentation(p, code, *i) == -1)
 	RETURN("Memory exhausted."); // LCOV_EXCL_LINE
+      ssize_t checked_return_condition_start = *i;
       if (read_expression(p, code, i, false) != 1)
 	RETURN ("Missing condition after 'if ('."); // LCOV_EXCL_LINE
+      if (!crawler_checked_return_condition
+	  (p, code, checked_return_condition_start, *i))
+	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ")"))
 	RETURN ("Missing ')' after 'if (condition'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value == 0 && !check_parenthesis_space
@@ -890,8 +1481,12 @@ int			read_selection_statement(t_parsing	*p,
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
 	  (p, code, *i - 1, '(', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      ssize_t checked_return_condition_start = *i;
       if (read_expression(p, code, i, false) != 1)
 	RETURN ("Missing expression after 'switch ('."); // LCOV_EXCL_LINE
+      if (!crawler_checked_return_condition
+	  (p, code, checked_return_condition_start, *i))
+	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ")"))
 	RETURN ("Missing ')' after 'switch (expression'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
@@ -934,8 +1529,12 @@ int			read_iteration_statement(t_parsing	*p,
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
 	  (p, code, *i - 1, '(', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      ssize_t checked_return_condition_start = *i;
       if (read_expression(p, code, i, false) != 1)
 	RETURN ("Missing condition after 'while ('."); // LCOV_EXCL_LINE
+      if (!crawler_checked_return_condition
+	  (p, code, checked_return_condition_start, *i))
+	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ")"))
 	RETURN ("Missing ')' after 'while(condition'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
@@ -992,8 +1591,12 @@ int			read_iteration_statement(t_parsing	*p,
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
 	  (p, code, *i - 1, '(', &p->no_space_inside_parenthesis.counter))
 	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+      ssize_t checked_return_condition_start = *i;
       if (read_expression(p, code, i, false) != 1)
 	RETURN ("Missing condition after 'do statement while ('."); // LCOV_EXCL_LINE
+      if (!crawler_checked_return_condition
+	  (p, code, checked_return_condition_start, *i))
+	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (!bunny_read_text(code, i, ")"))
 	RETURN ("Missing ')' after 'do statement while (condition'."); // LCOV_EXCL_LINE
       if (p->no_space_inside_parenthesis.value != 0 && !check_parenthesis_space
@@ -1177,14 +1780,22 @@ int			read_expression_statement(t_parsing	*p,
 {
   int			ret;
   int			sc;
+  ssize_t		expression_start;
+  ssize_t		expression_end;
 
   FTRACE(code, *i);
+  expression_start = *i;
   if ((ret = read_expression(p, code, i, true)) == -1)
     FRETURN (-1);
+  expression_end = *i;
   if (!(sc = bunny_read_text(code, i, ";")) && ret == 1)
     RETURN ("Missing ';' after expression."); // LCOV_EXCL_LINE
   if (ret == 1)
     {
+      if (p->last_declaration.inside_for_statement == false &&
+	  !crawler_checked_return_expression_statement
+	  (p, code, expression_start, expression_end))
+	RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
       if (p->last_declaration.inside_for_statement == false)
 	source_report_add_instruction(p, SOURCE_REPORT_EXPRESSION);
       p->last_declaration.scope_length += 1;
@@ -1565,12 +2176,20 @@ int			read_function_definition(t_parsing	*p,
 				 map_previous_function);
       map_entered = true;
     }
+  if (crawler_checked_return_enabled(p) && bunny_check_text(code, i, "{") &&
+      p->last_declaration.function[0] != '\0')
+    crawler_checked_return_begin_function(p);
   if ((ret = read_compound_statement(p, code, i)) != 0)
     {
       if (map_entered)
 	crawler_function_map_leave(p, map_previous_function);
       if (ret > 0) // Si on a implémenté une fonction pour de vrai
 	{
+	  if (!crawler_checked_return_end_function(p, code, *i))
+	    {
+	      delete_function_parse_checkpoint(checkpoint);
+	      RETURN ("Memory exhausted."); // LCOV_EXCL_LINE
+	    }
 	  if (report_started)
 	    source_report_end_function(p, report_previous_function,
 				     function_body_end_line(code, *i));
@@ -1661,6 +2280,7 @@ int			read_function_definition(t_parsing	*p,
     crawler_function_map_leave(p, map_previous_function);
   if (report_started)
     source_report_cancel_function(p, report_previous_function, report_previous_count);
+  p->checked_return_state.nbr_pending = 0;
   reset_last_declaration(p);
   
   // Les contrôles sémantiques liés à l'implémentation
@@ -4318,6 +4938,8 @@ void			load_norm_configuration(t_parsing	*p,
   fetch_criteria(e, &p->switch_forbidden, "SwitchForbidden");
   fetch_criteria(e, &p->inline_mod_forbidden, "InlineModificationForbidden");
   fetch_criteria(e, &p->inline_mod_forbidden, "InlineModForbidden");
+  fetch_criteria(e, &p->checked_return, "CheckedReturn");
+  fetch_criteria(e, &p->checked_return, "CheckedReturnValue");
   fetch_criteria(e, &p->ternary_forbidden, "TernaryForbidden");
   fetch_criteria(e, &p->no_assignment, "NoAssignment");
 

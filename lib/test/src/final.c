@@ -25,7 +25,7 @@ int			main(int		argc,
   assert(cfile = load_c_file(file, cnf, true));
   if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
     GOTOERROR(); // LCOV_EXCL_LINE
-  
+
   assert(cnf = bunny_open_configuration("../../bin/cln.dab", NULL));
   load_norm_configuration(&p, cnf);
 
@@ -48,7 +48,7 @@ int			main(int		argc,
   // D'autres tests plus faible, également utilisés pour vérifier le TSV.
 
   source_report_enable(&p.source_report);
-  
+
   i = 0;
   p.last_error_id = -1;
   p.last_new_type = 0;
@@ -56,7 +56,7 @@ int			main(int		argc,
   assert(cfile = load_c_file(file, cnf, true));
   if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
     GOTOERROR(); // LCOV_EXCL_LINE
-  
+
   i = 0;
   p.last_error_id = -1;
   p.last_new_type = 0;
@@ -64,7 +64,7 @@ int			main(int		argc,
   assert(cfile = load_c_file(file, cnf, true));
   if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
     GOTOERROR(); // LCOV_EXCL_LINE
-    
+
   i = 0;
   p.last_error_id = -1;
   p.last_new_type = 0;
@@ -72,7 +72,7 @@ int			main(int		argc,
   assert(cfile = load_c_file(file, cnf, true));
   if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
     GOTOERROR(); // LCOV_EXCL_LINE
-  
+
   i = 0;
   p.last_error_id = -1;
   p.last_new_type = 0;
@@ -80,7 +80,7 @@ int			main(int		argc,
   assert(cfile = load_c_file(file, cnf, true));
   if (read_translation_unit(&p, file, cfile, &i, true, true) == -1)
     GOTOERROR(); // LCOV_EXCL_LINE
-  
+
   i = 0;
   p.last_error_id = -1;
   p.last_new_type = 0;
