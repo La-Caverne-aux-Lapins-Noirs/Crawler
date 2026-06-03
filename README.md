@@ -95,3 +95,35 @@ Report.Functions[0].Complexity.FunctionPointerEscape = false
 ```
 
 `CallExpandedScore` follows direct calls to functions parsed in the same run. `PotentialExpandedScore` also accounts for function-pointer donation edges when the receiver is known. Scores are marked `Partial` when external calls, unresolved calls or recursive cycles prevent a complete closed-world estimate.
+
+
+### CheckedReturn configuration
+
+`CheckedReturn` verifies that critical return values are not silently ignored.
+The default list covers allocation helpers and common POSIX/syscall-like functions
+such as `malloc`, `realloc`, `open`, `read`, `write` and `close`.
+
+The list can be extended or overridden from Dabsic:
+
+```dabsic
+CheckedReturn = true
+
+# Keep the built-in list. Set to false to use only the configured list.
+CheckedReturn.UseDefaultList = true
+
+CheckedReturn.Functions[0].Name = "my_malloc"
+CheckedReturn.Functions[0].Kind = "pointer"
+
+CheckedReturn.Functions[1].Name = "my_realloc"
+CheckedReturn.Functions[1].ReallocLike = true
+
+CheckedReturn.Functions[2].Name = "my_write"
+CheckedReturn.Functions[2].FullTransfer = true
+
+# Disable one built-in function without removing the default list.
+CheckedReturn.Functions[3].Name = "close"
+CheckedReturn.Functions[3].Disabled = true
+```
+
+`FullTransfer` is intended for `write`-like calls whose return value must be
+checked against the requested transfer size, not only against `-1`.

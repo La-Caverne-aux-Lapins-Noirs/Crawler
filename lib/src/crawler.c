@@ -107,6 +107,86 @@ static bool		crawler_checked_return_enabled(t_parsing	*p)
   return (p != NULL && p->checked_return.active && p->checked_return.value != 0);
 }
 
+
+static void		crawler_checked_return_apply_kind(const char	*kind,
+							   bool		*realloc_like,
+							   bool		*full_transfer)
+{
+  if (kind == NULL)
+    return ;
+  if (strcmp(kind, "realloc") == 0 || strcmp(kind, "allocation-resize") == 0)
+    {
+      if (realloc_like != NULL)
+	*realloc_like = true;
+    }
+  if (strcmp(kind, "full_transfer") == 0 || strcmp(kind, "full-transfer") == 0 ||
+      strcmp(kind, "write") == 0 || strcmp(kind, "send") == 0)
+    {
+      if (full_transfer != NULL)
+	*full_transfer = true;
+    }
+}
+
+static int		crawler_checked_return_config_match(t_parsing	*p,
+							 const char	*name,
+							 bool		*realloc_like,
+							 bool		*full_transfer)
+{
+  int			count;
+  int			limit;
+
+  if (p == NULL || p->configuration == NULL || name == NULL)
+    return (-1);
+  count = -1;
+  bunny_configuration_getf(p->configuration, &count, "CheckedReturn.FunctionCount");
+  limit = (count >= 0 ? count : 512);
+  for (int i = 0; i < limit; ++i)
+    {
+      const char	*entry;
+      const char	*kind;
+      int		disabled;
+      int		value;
+
+      entry = NULL;
+      if (!bunny_configuration_getf
+	  (p->configuration, &entry, "CheckedReturn.Functions[%d].Name", i) &&
+	  !bunny_configuration_getf
+	  (p->configuration, &entry, "CheckedReturn.Functions[%d]", i))
+	{
+	  if (count < 0)
+	    break ;
+	  continue ;
+	}
+      if (entry == NULL || strcmp(entry, name) != 0)
+	continue ;
+      disabled = 0;
+      bunny_configuration_getf
+	(p->configuration, &disabled, "CheckedReturn.Functions[%d].Disabled", i);
+      if (disabled)
+	return (0);
+      if (realloc_like != NULL)
+	*realloc_like = false;
+      if (full_transfer != NULL)
+	*full_transfer = false;
+      value = 0;
+      if (bunny_configuration_getf
+	  (p->configuration, &value, "CheckedReturn.Functions[%d].ReallocLike", i) &&
+	  realloc_like != NULL)
+	*realloc_like = value != 0;
+      value = 0;
+      if (bunny_configuration_getf
+	  (p->configuration, &value, "CheckedReturn.Functions[%d].FullTransfer", i) &&
+	  full_transfer != NULL)
+	*full_transfer = value != 0;
+      kind = NULL;
+      if (bunny_configuration_getf
+	  (p->configuration, &kind, "CheckedReturn.Functions[%d].Kind", i))
+	crawler_checked_return_apply_kind(kind, realloc_like, full_transfer);
+      return (1);
+    }
+  return (-1);
+}
+
 static bool		crawler_identifier_start(int			c)
 {
   return (isalpha((unsigned char)c) || c == '_');
@@ -178,10 +258,30 @@ static void		crawler_checked_return_copy_identifier(char		*target,
   target[len] = '\0';
 }
 
-static bool		crawler_checked_return_is_critical(const char	*name,
+static bool		crawler_checked_return_is_critical(t_parsing	*p,
+							 const char	*name,
 							 bool		*realloc_like,
 							 bool		*full_transfer)
 {
+  int			match;
+  int			use_default;
+
+  match = crawler_checked_return_config_match(p, name, realloc_like, full_transfer);
+  if (match == 1)
+    return (true);
+  if (match == 0)
+    return (false);
+  use_default = 1;
+  if (p != NULL && p->configuration != NULL)
+    bunny_configuration_getf(p->configuration, &use_default, "CheckedReturn.UseDefaultList");
+  if (!use_default)
+    {
+      if (realloc_like != NULL)
+	*realloc_like = false;
+      if (full_transfer != NULL)
+	*full_transfer = false;
+      return (false);
+    }
   for (int i = 0; gl_checked_return_functions[i].name != NULL; ++i)
     if (strcmp(name, gl_checked_return_functions[i].name) == 0)
       {
@@ -218,7 +318,8 @@ static bool		crawler_checked_return_read_identifier_at(const char	*code,
   return (true);
 }
 
-static bool		crawler_checked_return_find_call(const char	*code,
+static bool		crawler_checked_return_find_call(t_parsing	*p,
+							 const char	*code,
 							 ssize_t	 begin,
 							 ssize_t	 end,
 							 char		*function,
@@ -246,7 +347,7 @@ static bool		crawler_checked_return_find_call(const char	*code,
       i = j;
       while (i < end && isspace((unsigned char)code[i]))
 	i += 1;
-      if (i < end && code[i] == '(' && crawler_checked_return_is_critical(name, realloc_like, full_transfer))
+      if (i < end && code[i] == '(' && crawler_checked_return_is_critical(p, name, realloc_like, full_transfer))
 	{
 	  if (function != NULL)
 	    crawler_checked_return_copy_identifier(function, function_size, name, 0, strlen(name));
@@ -474,6 +575,8 @@ static bool		crawler_checked_return_add_pending(t_parsing	*p,
   state->pending[index].warned = false;
   state->pending[index].full_transfer = full_transfer;
   state->pending[index].full_checked = full_checked;
+  state->pending[index].full_transfer = full_transfer;
+  state->pending[index].full_checked = full_checked;
   return (true);
 }
 
@@ -528,7 +631,7 @@ static bool		crawler_checked_return_expression_statement(t_parsing	*p,
       if (!crawler_checked_return_warn_usage(p, code, begin, end, lhs))
 	return (false);
       if (crawler_checked_return_find_call
-	  (code, assign + 1, end, function, sizeof(function), &call_pos, &realloc_like, &full_transfer))
+	  (p, code, assign + 1, end, function, sizeof(function), &call_pos, &realloc_like, &full_transfer))
 	{
 	  if (realloc_like)
 	    {
@@ -552,7 +655,7 @@ static bool		crawler_checked_return_expression_statement(t_parsing	*p,
   if (!crawler_checked_return_warn_usage(p, code, begin, end, NULL))
     return (false);
   if (crawler_checked_return_find_call
-      (code, begin, end, function, sizeof(function), &call_pos, &realloc_like, &full_transfer))
+      (p, code, begin, end, function, sizeof(function), &call_pos, &realloc_like, &full_transfer))
     {
       ssize_t		j = begin;
 
@@ -603,7 +706,7 @@ static bool		crawler_checked_return_condition(t_parsing	*p,
 	  p->checked_return_state.pending[i].full_checked = true;
       }
   if (crawler_checked_return_find_call
-      (code, begin, end, function, sizeof(function), &call_pos,
+      (p, code, begin, end, function, sizeof(function), &call_pos,
        &realloc_like, &full_transfer))
     {
       if (full_transfer && has_comparison &&
@@ -618,7 +721,7 @@ static bool		crawler_checked_return_condition(t_parsing	*p,
   if (assign >= 0 && crawler_checked_return_lhs_variable
       (code, begin, assign, lhs, sizeof(lhs)) &&
       crawler_checked_return_find_call
-      (code, assign + 1, end, function, sizeof(function), &call_pos, &realloc_like, &full_transfer))
+      (p, code, assign + 1, end, function, sizeof(function), &call_pos, &realloc_like, &full_transfer))
     return (crawler_checked_return_add_pending
 	    (p, lhs, function, (int)call_pos, has_comparison, full_transfer,
 	     full_transfer && crawler_checked_return_has_full_transfer_check
@@ -643,6 +746,16 @@ static bool		crawler_checked_return_end_function(t_parsing	*p,
 	      (p, IZ(p, &pos), code, pending->position,
 	       &p->checked_return.counter,
 	       "Variable '%s' stores return value of %s but is never checked.",
+	       pending->variable, pending->function))
+	    return (false);
+	}
+      else if (pending->full_transfer && !pending->full_checked && !pending->warned)
+	{
+	  pending->warned = true;
+	  if (!add_warning
+	      (p, IZ(p, &pos), code, pending->position,
+	       &p->checked_return.counter,
+	       "Variable '%s' stores return value of %s but partial transfer is not checked.",
 	       pending->variable, pending->function))
 	    return (false);
 	}
